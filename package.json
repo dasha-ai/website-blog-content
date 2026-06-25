@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node scripts/validate-blog-content.mjs",
-    "validate": "node scripts/validate-blog-content.mjs"
+    "test": "npm run validate && npm run test:sync",
+    "validate": "node scripts/validate-blog-content.mjs",
+    "test:sync": "node --test scripts/create-gitlab-submodule-mr.test.mjs"
   }
 }
