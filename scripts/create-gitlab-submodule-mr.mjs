@@ -135,16 +135,17 @@ async function writeAskPassScript(tempDir) {
   return askPassPath;
 }
 
+export function parseSubmodulePointer(output) {
+  const match = output.match(/^160000 commit ([0-9a-f]{40})\t/);
+  return match?.[1] ?? null;
+}
+
 function readSubmodulePointer(repoDir, submodulePath, secrets) {
   const output = run('git', ['ls-tree', 'HEAD', submodulePath], {
     cwd: repoDir,
     secrets,
   });
-  const match = output.match(/^160000 commit ([0-9a-f]{40})\t/);
-  if (!match) {
-    throw new Error(`Could not read submodule pointer for ${submodulePath}: ${output}`);
-  }
-  return match[1];
+  return parseSubmodulePointer(output);
 }
 
 async function ensureMergeRequest(context) {
@@ -238,6 +239,13 @@ export async function main(env = process.env) {
     );
 
     const currentPointer = readSubmodulePointer(repoDir, submodulePath, secrets);
+    if (!currentPointer) {
+      console.log(
+        `${submodulePath} is not a submodule on ${targetBranch}; publication will start after the website submodule migration is merged.`,
+      );
+      return null;
+    }
+
     if (currentPointer === sha) {
       console.log(`${submodulePath} already points at ${sha}; no GitLab MR needed.`);
       return null;

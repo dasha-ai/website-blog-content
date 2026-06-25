@@ -5,6 +5,11 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      gitlab_target_branch:
+        description: GitLab target branch for a manual smoke run.
+        required: false
+        default: master
 
 permissions:
   contents: read
@@ -36,4 +41,4 @@ jobs:
           GITLAB_API_URL: https://gitlab.dasha.ai/api/v4
           GITLAB_PROJECT_ID: '75'
           GITLAB_REPOSITORY_URL: https://gitlab.dasha.ai/dasha.ai/frontend-team/english-teaser-website.git
-          GITLAB_TARGET_BRANCH: master
+          GITLAB_TARGET_BRANCH: ${{ github.event.inputs.gitlab_target_branch || 'master' }}
