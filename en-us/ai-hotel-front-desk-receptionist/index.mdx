@@ -1,0 +1,701 @@
+---
+slug: "ai-hotel-front-desk-receptionist"
+title: How to build a conversational AI front desk hotel receptionist in 2 hours
+author: "Anzhelika Minina, Citizen Developer"
+authorPhoto: https://cdn.dasha.ai/blog/ai-hotel-front-desk-receptionist/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-08-05T12:02:42.759Z"
+updatedAt: "2021-09-13T09:43:53.965Z"
+readLength: "12 minute read"
+heroImage: https://cdn.dasha.ai/blog/ai-hotel-front-desk-receptionist/hero.webp
+introduction: "Today we’ll build an automated AI receptionist. Know a small business hotel owner? Build this human-like conversational AI app, test it with them and deploy. Hook your friends up, they will probably be so thankful as to give you some free hotel stays. \n\nThe best part is that you’ll build this app in less than 2 hours. The app creation process with Dasha AI is super intuitive, even a non-developer (or a citizen developer like me) can do it."
+seoTitle: How to build a conversational AI front desk receptionist app for a hotel in just 2 hours
+seoDescription: "Automating front desk receptionist tasks will only take you a couple of hours. Try it today!"
+seoKeywords: "hotel front desk, automated receptionist, front desk receptionist hotel, front desk receptionist, conversational AI app, dasha AI, Dasha conversational AI, conversational AI"
+---
+
+## Hotel front desk AI: why are we building this thing?
+
+There is one great reason to automate repetitive customer interactions with conversational AI. It frees up the humans who used to do these tasks to do more meaningful work, increasing the customer experience all around. That being said, I thought it would be fun (and relevant) to build a robust application that can take a hotel guest’s food order, schedule dry cleaning, bring up some necessities, or tell them a bit about the local area. Also, this is a great learning opportunity if you are just starting to write DashaScript and to use the Dasha platform. 
+
+Without further ado, let’s start building the conversational AI app.
+
+## Creating a conversational AI hotel front desk receptionist
+
+Once you’ve built the AI receptionist, this is how the completed app will perform: 
+
+<a href="https://youtu.be/2Glp_HC-VHc" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://youtu.be/2Glp_HC-VHc</a>
+
+### Step 1: Prep work for creating an AI front desk receptionist app
+
+Dasha conversational AI platform is used by developers to create human-like conversational workflows. These can be used for voice interfaces for apps, as well as for customer communication, such as in the example today. Conversational AI uses STT (speech to text) to “read” human speech, NLP, and NLU (natural language processing and understanding) to recognize the user’s intent and NLG (natural language generation) and TTS (text to speech) to respond to the user. As a developer, you don’t need to be a data science expert, you get to use all of these technologies as a service of the Dasha Platform. For a deeper dive, take a look at this [post](https://dasha.ai/en-us/blog/dasha-conversational-ai-as-a-service). 
+
+In the case of the hotel receptionist app, these AI as a Service technologies make the user/customer/hotel guest feel like they are talking to a considerate human receptionist.
+
+To get started you need to define the conversation flow. There are three parts to it: 
+Define the perfect world flow(s) - how will the conversation go if the user/customer engages with the receptionist as you want them to;
+Define additional/logical extension workflows. In which direction will the conversation need to go, based on some of the interactions; 
+Define [digressions](https://dasha.ai/en-us/blog/using-digressions) - ways in which the user may send the AI on a tangent. Digressions are an essential component of a human-like conversation. Digressions can also be used as an integral part of a perfect world conversational flow. For example, if the user can give a dozen different intents that they seek to achieve in the course of the conversation. More on this in the tutorial.
+
+You can refer to [this article](https://dasha.ai/en-us/blog/build-conversational-AI-app-1) which takes you through creating a conversational map step-by-step.
+
+### Step 2: Your conversational AI workplace setup
+
+You will need VSCode (Visual Studio Code), NPM, and Node.js, latest versions. Next, join [Dasha developer community](https://community.dasha.ai/) so that you can get your API key and be able to get assistance from our developers at any moment you need. 
+
+To ease your coding process, you’ll need to get the [Dasha Studio extension](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio-beta) in VSCode and install Dasha CLI ([command line interface](https://dasha.ai/en-us/blog/dasha-cli) by typing `npm i -g "@dasha.ai/cli"` in the VSCode terminal. For more on Dasha CLI usage, refer to this [post](https://dasha.ai/en-us/blog/dasha-cli). 
+
+In case you need assistance, ask in our [developer community](https://community.dasha.ai/), and here is a [step-by-step tutorial](https://dasha.ai/en-us/blog/conversational-ai-app-creation-guide) on getting started.
+
+Now, clone and open a project with this Dasha  **app source code** [here](https://github.com/dasha-samples/automated-hotel-receptionist).
+
+Once done with setting everything up you can move on to the coding part itself.
+
+### Step 3: Get to know what you’ll use to create an AI front desk receptionist
+
+There are 3 files you’ll need to use to create your conversational AI hotel front desk receptionist: **main.dsl**, **data.json**, and **index.js**. Let’s take a quick look at the functions of these three.
+
+**Main.dsl** - this is where you’ll write your DashaScript Language code to create the workflow of your conversational AI app. With Dasha Studio extension on and with the directions in this post, it’ll be an easy job for you.
+**Data.json** - this is where you set the [intents](https://dasha.ai/en-us/blog/intent-classification) and [entities](https://dasha.ai/en-us/blog/named-entity-recognition)(AKA NER, AKA Named Entity Recognition). The neural network will use intents and entities you’ll create to learn.
+
+**Index.js** - it’s the NodeJS file that launches the Dasha SDK. Here you’ll be adding any external functions you deem necessary once adapting the code to your hotel’s needs. 
+
+Now that that’s off the table, let’s get to the fun part - the coding!
+
+### Step 4: Build your conversational AI app
+
+The first thing to do is to download [Dasha First App](https://github.com/dasha-samples/dasha-first-app), which will serve as a base for your code. Once uploaded to VSCode, go to **main.dsl** and **data.json**(it could also be called intents.json) and delete everything you see there.
+
+Now, start off by importing the common libraries:
+
+```dsl
+// Import the commonReactions library so that you don't have to worry about coding the pre-programmed replies
+import "commonReactions/all.dsl";
+```
+
+Next, establish the context your AI hotel front desk receptionist app will use:
+
+```dsl
+context
+{
+// Declare the input variable - phone. It's your hotel room phone number and it will be used at the start of the conversation.  
+    input phone: string;
+    output new_time: string="";
+    output new_day: string="";
+// Storage variables. You'll be referring to them across the code.
+    food: {[x:string]:string;}[] = [];
+    pizza: {[x:string]:string;}[]?=null;
+    appetizers: {[x:string]:string;}[]?=null;
+    main_dishes: {[x:string]:string;}[]?=null;
+    drinks: {[x:string]:string;}[] = [];
+    forgotten_thing: {[x:string]:string;}[]=[];
+}
+```
+
+The `start node root` serves as a welcome message and a starting point for the phone conversation:
+
+```dsl
+// A start node that always has to be written out. Here we provide instructions to the AI app on how to behave once the connection is established. 
+start node root
+{
+    do
+    {
+        #connectSafe($phone); // Establishing a safe connection to the hotel room's phone.
+        #waitForSpeech(1000); // Waiting for 1 second to say the welcome message or to let the hotel guest say something
+        #sayText("Hi, this is Butterfly Resort Hotel reception. How may I help you?"); // Welcome message
+        wait *; // Waiting for the user to reply
+    }
+    transitions // Here you give directions to which nodes the conversation will go
+    {
+        // Transitions could be written out here, in which case you'd need to write out corresponding nodes. Otherwise, the conversation will go to a digression triggered by specific intent. In this case, we are routing the conversation with digressions. 
+    }
+}
+```
+
+As you can see, there’s noting under `transitions`. That doesn’t mean you don’t need or have to write anything under it. The reason why I left this part blank is that the code is almost entirely based on digressions.
+
+Digressions in the code exist since it’s human and natural to go off on a tangent and we, as developers of a conversational AI app, have to account for that. Digressions can be triggered at any moment of the conversation and either lead to another digression or a transition to the corresponding node established under `transitions`. Let’s take a look at one of the digressions:
+
+```dsl
+digression cleaning // Digressions can be triggered at any moment of the conversation. 
+{
+    conditions {on #messageHasIntent("cleaning");} // This digression is triggered when a person says something that is related to the room cleaning service. The intents are written out in the data.json file.
+    do // Once this digression is triggered, here's what Dasha AI will do
+    {
+        #sayText("Absolutely, someone will come up to your room in approximately 10 minutes. Is there anything else I can help you with?");
+        wait *; // Waiting for the person to either end the call, proceed to ask more questions, etc. The AI doesn't say anything before hears a human speak.
+    }
+}
+```
+
+Notice that there are no transitions here. The conversation can go to any digression specified in the code at this moment. Now, let’s take a look at a digression that has transitions specified:
+
+```dsl
+digression order 
+{
+    conditions {on #messageHasIntent("order");}
+    do
+    {
+     #sayText("Sure thing. What would you like to order?");
+     wait *;
+    }
+    transitions
+    {
+        menu: goto menu on #messageHasIntent("menu") or #messageHasIntent("unsure"); // In this case we expect the hotel guest not knowing what's on the hotel restaurant's menu, therefore we will make a transition to the menu node
+    }
+}
+```
+
+There can be as many transitions as you deem necessary. For the purposes of this demo, I’ve only written one - `menu`.
+
+```dsl
+node menu
+{
+    // Note that you don't write conditions for nodes (compared to digressions), because a node always has another node (or digression) directly leading into it.
+    do    {
+        #sayText("We have various appetizers, pizza, main dishes and drinks. What would you like to get?");
+        wait *;
+    }
+    transitions // 4 options of different types of food/drinks. 
+    {
+        appetizers: goto appetizers on #messageHasIntent("appetizers");
+        pizza: goto pizza on #messageHasIntent("pizza");
+        main_dishes: goto main_dishes on #messageHasIntent("main_dishes");
+        drinks: goto drinks on #messageHasIntent("drinks");
+    }
+}
+```
+
+Four transitions here. Each of the transitions leads to one of the menu options, depending on what exactly the hotel guest is feeling like eating. 
+
+Now is the perfect time to note that we have `#messageHasIntent("drinks")`. The conversation will transfer to the corresponding node in case the guest have said something that triggers the **intent** `“drinks”`. However, very soon we’ll see that we have an **entity** with the same exact name, but `”drinks”` at that time will serve us an entirely different purpose.
+
+Back to the code. Let’s imagine the guest isn’t too hungry and wants appetizers. That’s what we’re going to write:
+
+```dsl
+node appetizers
+{
+    do 
+    {
+        #sayText("We've got fried calamari, french fries, spring salad, and a soup of the day. What of these would you like to order?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_food_order: goto confirm_food_order on #messageHasData("food"); // We have an entity here - food. It's written out in the data.json file under entities.
+    }
+     onexit // Specifies an action that Dasha AI should take, as it exits the node. The action must be mapped to a transition
+    {
+        confirm_food_order: do {
+               set $appetizers =  #messageGetData("food", { value: true }); // Dasha AI will remember what has been ordered and will update the "food" variable. "value: true" will return all results that have a value field
+       }
+    }
+}
+
+digression appetizers
+{
+    conditions {on #messageHasIntent("pizza_kind");}
+    do 
+    {
+        #sayText("We've got fried calamari, french fries, spring salad, and a soup of the day. What of these would you like to order?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_food_order: goto confirm_food_order on #messageHasData("food"); 
+    }
+     onexit
+    {
+        confirm_food_order: do {
+               set $appetizers =  #messageGetData("food", { value: true });
+       }
+    }
+}
+```
+
+Note that there is both a node and a digression here. It’s not impossible that the guest already knows what’s on the menu (maybe he ordered food earlier in the day), and we should account for that.
+
+After your AI hotel receptionist got the information, it’ll transfer to the `confirm_food_order` node:
+
+```dsl
+node confirm_food_order
+{
+    do
+    {
+        var sentence = "Perfect. Let me just make sure I got that right. You want ";
+        set $food = #messageGetData("food");
+        for (var item in $food) {
+            set sentence = sentence + (item.value ?? " and ");  // In case the guest decides to order multiple items of food
+        }
+        set sentence = sentence + ". Is that right?";
+        #sayText(sentence); 
+        wait *;
+    }
+     transitions 
+    {
+        order_confirmed: goto order_confirmed on #messageHasIntent("yes");
+        repeat_order: goto repeat_order on #messageHasIntent("no");
+    }
+}
+```
+
+At this point, we’ve given feedback to the guest explaining that we’ve understood and noted what they want and now should either confirm the order or repeat it:
+
+```dsl
+node order_confirmed
+{
+    do
+    {
+        #sayText("Your order will be ready in 15 minutes. We'll bring it straight to your room! Anything else I can help you with? ");
+        wait *;
+    }
+     transitions 
+    {
+        can_help: goto can_help on #messageHasIntent("yes");
+        bye: goto bye on #messageHasIntent("no");
+    }
+}
+
+node repeat_order
+{
+    do 
+    {
+        #sayText("Let's try this again. What can I get for you today?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_food_order: goto confirm_food_order on #messageHasData("food");
+       confirm_drinks: goto confirm_drinks on #messageHasData("drinks");
+    }
+}
+```	
+
+In case the conversational AI app got the order correctly, we’ll proceed to ask what else we could help the guest with, or end the conversation shall the guest says “bye” or a derivative (again, all written down in the intents part in the data.json file).
+
+In the `node repeat_order` it’s best we write out 2 transitions: one going back to confirming food order, another one going back to confirm the drinks order, since `drinks` and `food` are two separate entities.
+
+```dsl
+node drinks
+{
+    do 
+    {
+        #sayText("We have orange juice, Sprite, and vanilla milkshakes. What would you like to get?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_drinks: goto confirm_drinks on #messageHasData("drinks");
+    }
+    onexit
+    {
+        confirm_drinks: do {
+        set $drinks = #messageGetData("drinks");
+       }
+    }
+}
+
+digression drinks
+{   
+    conditions {on #messageHasIntent("drinks");}
+    do 
+    {
+        #sayText("We have orange juice, Sprite, and vanilla milkshakes. What would you like to get?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_drinks: goto confirm_drinks on #messageHasData("drinks");
+    }
+    onexit
+    {
+        confirm_drinks: do {
+        set $drinks = #messageGetData("drinks");
+       }
+    }
+}
+```
+
+Once again, same as with the food, we want both a node and a digression. 
+
+And finally we see the `messageGetData("drinks")`. As mentioned before, this `“drinks”` part comes from entities. Let’s take a quick look:
+
+```json
+    "drinks": {
+      "open_set": false,
+      "values": [
+        { "value": "orange juice", "synonyms": ["OJ", "juice", "orange drink"] },
+        { "value": "vanilla milkshake", "synonyms": ["milkshake", "vanilla drink", "vanilla one"] },
+        { "value": "Sprite", "synonyms": ["soda"] }
+      ]
+```
+
+Take a look at the way entities for “food” are written in order to see the difference.
+
+```json
+  "entities": 
+  {
+    "food": {
+      "open_set": true,
+      "values": [
+        { "value": "Pepperoni", "synonyms": ["pepperoni", "pepperoni pizza", "a pepperoni", "the pepperoni pizza"] },
+        { "value": "Margherita", "synonyms": ["Margherita pizza", "a margherita pizza", "a margherita", "margherita"] },
+        { "value": "Veggie", "synonyms": ["vegan pizza", "vegan", "vegans", "vegeterian", "with vegetables", "without meat"] },
+        { "value": "fried calamari", "synonyms": ["calamari", "the fried calamari", "the calamari"] },
+        { "value": "french fries", "synonyms": ["fries", "the french fries", "the fries"] },  
+        { "value": "spring salad", "synonyms": ["the salad", "a salad", "spring one"] },
+        { "value": "soup of the day", "synonyms": ["the soup", "soup", "whatever soup", "a soup"] },
+        { "value": "mushroom tortellini", "synonyms": ["tortellini", "the tortellini", "the mushroom thingy"] },
+        { "value": "baked honey mustard chicken", "synonyms": ["the honey mastard one", "honey mustard", "honey one", "chicken", "baked chicken", "baked honey chicken", "baked mustard chicken", "mustard one"] },
+        { "value": "pasta carbonara", "synonyms": ["pasta", "carbonara"] },
+        { "value": "vietnamise porkchops", "synonyms": ["vietnamese dish", "pork", "porkchops"] }
+      ],
+      "includes": [
+        "I'd like a (pepperoni)[food] please",
+        "I'll take a (veggie pizza)[food] now",
+        "I'll like to get a (margherita)[food]",
+        "I'll like a (margherita)[food]",
+        "I'll have a (Pepperoni)[food] please",
+        "I'll order the (soup of the day)[food]",
+        "I'll have some (french fries)[food]",
+        "I'll order a (spring salad)[food]",
+        "I'll take (french fries)[food]",
+        "I'll take the (mushroom tortellini)[food]",
+        "I'll get the (muchroom thingy)[food]",
+        "I'll take the (soup)[food]",
+        "I'll take the (honey one)[food]",
+        "I'll take the (huney mastard)[food]",
+        "order the (pasta)[food]",
+        "get a (pasta carbonara)[food]",
+        "take that (vietnamese dish)[food]"
+      ]
+    },
+```
+
+Here, we don’t want to write a new entity for each food item like pizza, appetizers, etc. We’d rather have it all in one place. It’s also important to note that for the app to learn properly, it’s best to write out an `”includes”` section, specifying a couple of ways the hotel guest can say his order. 
+
+Now, let’s take a look at another example similar to the `“food”` and `“drinks”` one. Humans can be forgetful and it’s not uncommon for them to not bring something they need to the hotel. Let’s create a case for this. Here and below please refer to the comments within code body for details:
+
+```dsl
+digression forgot_sth
+{
+    conditions {on #messageHasIntent("forgot_sth");}
+    do
+    {
+        #sayText("That happens, don't worry. I'm sure we have whatever you need. What did you forget to bring?");
+        wait *;
+    }
+    transitions
+    {
+        forgotten_thing: goto forgotten_thing on #messageHasData("forgotten_thing");
+    }
+}
+
+node forgotten_thing
+{
+    do
+    {
+        var sentence = "Okay, we're about to bring  ";
+        set $forgotten_thing = #messageGetData("forgotten_thing");
+        for (var item in $forgotten_thing) {
+            set sentence = sentence + (item.value ?? "and");
+            }
+        set sentence = sentence + " to you. Did I get that right?";
+        #sayText(sentence); 
+        wait *;
+    }
+     transitions 
+    {
+        confirm_forgotten: goto confirm_forgotten on #messageHasIntent("yes");
+        repeat_forgotten: goto repeat_forgotten on #messageHasIntent("no");
+    }
+}
+
+node confirm_forgotten
+{ 
+    do 
+    { 
+        #sayText("We're gonna bring it to to your room in 5 to 10 minutes. May I help with any other questions?");
+        wait *;
+    }
+     transitions
+    {
+        can_help: goto can_help on #messageHasIntent("yes");
+        repeat_forgotten: goto repeat_forgotten on #messageHasIntent("no");
+    }
+}
+
+node repeat_forgotten
+{
+    do 
+    {
+        #sayText("Let's try this again. What was it that we can bring you?");
+        wait *;
+    }
+    transitions 
+    {
+       forgotten_thing: goto forgotten_thing on #messageHasData("forgotten_thing");
+    }
+    onexit
+    {
+        forgotten_thing: do {
+        set $forgotten_thing = #messageGetData("forgotten_thing");
+       }
+    }
+}
+```
+
+As you can see, this follows the same logic as the `“food”` and `“drinks”` sections. Now it’ll be easy for you to create similar cases that fit your hotel’s and guest’s needs.
+
+That being said, here are some other cases your conversational AI hotel receptionist is able of solving:
+
+#### Taking a request to take clothes to the dry cleaner shop
+
+```dsl
+digression dry_cleaning
+{
+    conditions {on #messageHasIntent("dry_cleaning");}
+    do
+    {
+     #sayText("Absolutely, we'll pick your clothes up soon and send it to the dry cleaning service. We'll bring your clothes back to you in 1 day. Is there anything else I can help you with?");
+     wait *;
+    }
+}
+```
+
+#### Navigating the hotel guests on what to do and what to see
+
+```dsl
+digression vicinity
+{
+    conditions {on #messageHasIntent("vicinity");}
+    do
+    {
+     #sayText("There are parks, cinemas, restauntants and an amusement park in the area. What interests you the most at this moment?");
+     wait *;
+    }
+}
+
+digression park
+{
+    conditions {on #messageHasIntent("park");}
+    do
+    {
+        #sayText("We have two parks nearby: sunrise valley park and oak tree park, both are super beautiful and open twenty four seven. Both are located right outside the hotel within a two minute walking distance. Is there anything else I can tell you about?");
+        wait *;
+    }
+}
+
+digression cinemas
+{
+    conditions {on #messageHasIntent("cinemas");}
+    do
+    {
+        #sayText("There’s ABA cinema that's located just 5 minutes away to the south of the hotel. It's open from 9 AM to 1 AM. Is there anything else I can tell you about?");
+        wait *;
+    }
+}
+
+digression restaurants
+{
+    conditions {on #messageHasIntent("restaurants");}
+    do
+    {
+        #sayText("The 2 amazing restaurants around are Kimchi One restaurant, which is open from 9 AM to 9 PM and Bonjorno restaurant, open from 8 AM to 11 PM. Is there anything else I can help with?");
+        wait *;
+    }
+}
+
+digression amusement_park
+{
+    conditions {on #messageHasIntent("amusement_park");}
+    do
+    {
+        #sayText("There's an amusement park which is within a 15 minute drive. You can take the free shuttle that's located right outside the hotel entrance to get there. But make sure to go there within its working hours, it closes at 4pm these days. Is there anything else I can help with?");
+        wait *;
+    }
+}
+```
+
+#### Changing the checkout day
+
+You can make this a date instead of a day. Should that be the case, you’ll need to write down an external function that would be connected to your hotel guest/room scheduling system.
+
+```dsl
+node check_out_diff_day
+{
+    do
+    {
+        #sayText("What day would you like to check out?");
+        wait *;
+    }
+    transitions 
+    {
+       new_checkout_day: goto new_checkout_day on #messageHasData("day_of_week");
+    }
+    onexit
+    {
+        new_checkout_day: do 
+        {
+        set $new_day = #messageGetData("day_of_week")[0]?.value??"";
+        }
+    }
+}
+
+digression check_out_diff_day
+{
+    conditions {on #messageHasIntent("check_out_diff_day");}
+    do
+    {
+        #sayText("What day would you like to check out?");
+        wait *;
+    }
+    transitions 
+    {
+       new_checkout_day: goto new_checkout_day on #messageHasData("day_of_week");
+    }
+    onexit
+    {
+        new_checkout_day: do 
+        {
+        set $new_day = #messageGetData("day_of_week")[0]?.value??"";
+        }
+    }
+}
+
+node new_checkout_day
+{ 
+    do 
+    { 
+        #sayText("Just changed your checkout day to " + $new_day + ". Is that right?");
+        wait *;
+    }
+        transitions
+    {
+        can_help: goto can_help on #messageHasIntent("yes");
+        repeat_new_checkout_day: goto repeat_new_checkout_day on #messageHasIntent("no");
+    }
+}
+
+node repeat_new_checkout_day
+{
+    do 
+    {
+        #sayText("Let's do it one more time. What day would you like to check out?");
+        wait *;
+    }
+    transitions 
+    {
+       new_checkout_day: goto check_out_diff_day on #messageHasData("day_of_week");
+    }
+    onexit
+    {
+        new_checkout_day: do {
+        set $new_day = #messageGetData("day_of_week")[0]?.value??"";
+       }
+    }
+}
+```
+
+#### Changing the checkout hour
+
+```dsl
+node check_out_diff_hour
+{
+    do
+    {
+        #sayText("What time would you like to check out?");
+        wait *;
+    }
+    transitions 
+    {
+       new_checkout_hour: goto new_checkout_hour on #messageHasData("time");
+    }
+    onexit
+    {
+        new_checkout_hour: do 
+        {
+        set $new_time = #messageGetData("time")[0]?.value??"";
+        }
+    }
+}
+
+digression check_out_diff_hour
+{
+    conditions {on #messageHasIntent("check_out_diff_hour");}
+    do
+    {
+     #sayText("What time would you like to check out?");
+     wait *;
+    }
+    transitions 
+    {
+       new_checkout_hour: goto new_checkout_hour on #messageHasData("time");
+    }
+    onexit
+    {
+        new_checkout_hour: do 
+        {
+        set $new_time = #messageGetData("time")[0]?.value??"";
+        }
+    }
+}
+
+node new_checkout_hour
+{ 
+    do 
+    { 
+        #sayText("You got it. I just changed your checkout time to " + $new_time + ". Did I get that correctly?");
+        wait *;
+    }
+    transitions
+    {
+        can_help: goto can_help on #messageHasIntent("yes");
+        repeat_new_checkout_hour: goto repeat_new_checkout_hour on #messageHasIntent("no");
+    }
+}
+
+node repeat_new_checkout_hour
+{
+    do 
+    {
+        #sayText("Let's do it one more time. What hour would you like to check out?");
+        wait *;
+    }
+    transitions 
+    {
+       check_out_diff_hour: goto check_out_diff_hour on #messageHasData("time");
+    }
+    onexit
+    {
+        check_out_diff_hour: do {
+        set $new_time = #messageGetData("time")[0]?.value??"";
+       }
+    }
+}
+```
+
+#### Answering questions about the things to do inside of the hotel
+
+Perhaps your hotel has a SPA or/and a swimming pool inside the hotel or somewhere in its vicinity. Nothing is stopping you from writing those nodes and digressions out, make your guests aware of everything you have to offer and make their stay as pleasant as possible :)
+
+```dsl
+digression hotel_restautant
+{
+    conditions {on #messageHasIntent("hotel_restautant");}
+    do
+    {
+     #sayText("We do have a restaurant on the first floor. It's open from 7am to 11pm and we're looking forward to seeing you there. May I help with anything else?");
+     wait *;
+    }
+}
+```
+
+## That’s only the beginning of a wonderful, profitable journey with conversational AI
+
+This app is just a demo. Improve on it, edit it, make it answer the needs of your guests. Create an unforgettable hotel experience for the user so that they want to **only** choose your hotel as a future place to stay.
+
+Join [Dasha Developer Community](https://community.dasha.ai/) for guidance throughout this exciting journey. It’s a great community to meet like-minded developers. 
+
+Thank you and the best of luck! Let me know what you think of this post and this code in the community :) 

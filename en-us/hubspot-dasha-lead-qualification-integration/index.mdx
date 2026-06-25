@@ -1,0 +1,213 @@
+---
+slug: "hubspot-dasha-lead-qualification-integration"
+title: "How to integrate Hubspot with Dasha AI using Zapier to automatically qualify leads over the phone "
+author: Arthur Grishkevich
+authorPhoto: https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-10-08T09:01:37.305Z"
+updatedAt: "2021-10-12T06:05:22.786Z"
+readLength: "8 minutes"
+heroImage: https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/hero.webp
+heroImageTitle: "Hubspot and Dasha integration using Zapier "
+introduction: "Every two minutes that an inbound lead waits to receive a call from your SDR lowers the likelihood of a closed deal by 5%. Instead of waiting for an SDR to call the lead or sending an automated email like everyone else, have a conversational AI app automatically call to the user as soon as they submit the form on your website."
+seoTitle: "How to automatically qualify leads over the phone using Dasha, Hubspot and Zapier"
+seoDescription: "Qualify inbound leads quickly with a Dasha conversational AI app. Launch the app automatically through a Hubspot integration and store all data to the lead's Hubspot contact card using Zapier."
+seoKeywords: "Dasha, Hubspot AI call, Zapier AI, conversational AI app, conversational AI api, inbound lead qualification, how to automatically qualify leads, qualify leads fast"
+---
+
+I previously wrote a [tutorial](https://dasha.ai/en-us/blog/how-to-qualify-inbound-leads) on how such an app can be built using Dasha. Today we will integrate this app into a workflow, in less than an hour. Here is a demo of what we will end up with: 
+
+<a href="https://www.youtube.com/watch?v=MjKQ2Zibqgk" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://www.youtube.com/watch?v=MjKQ2Zibqgk</a>
+
+We will use the recently deployed official Dasha Zapier integration to do this. For this tutorial we will use the following tools: 
+
+1. [Dasha](https://daha.ai)
+2. [Zapier](https://zapier.com)
+3. [Hubspot](https://hubspot.com) 
+
+Here is the process at a glance: 
+1. We create a stand-alone form on Hubspot with the fields "First Name", "Email" and "Phone". 
+2. We point to this form submission as the action that initiates the Zap in Zapier. 
+3. We launch a call with the Dasha Zapier integration and pass Name and Phone as input variables. 
+4. Once the call is complete, we write all the collected information to specially created fields in the Hubspot lead card using another Zapier step. 
+
+Now, let's get started. 
+
+## Setting up your Dasha app
+For this tutorial we will reuse code that I wrote previously. It is a conversational AI app that qualifies inbound leads for a company (ACME Software) that sells a software for invoicing automation. At its core, the app checks if now is a good time to talk, asks a few questions and asks when a good time for the user to take a call from an account executive is. Let's get this application opened in your development environment. 
+
+If you have never used Dasha before, you need to activate your API key. The API key lets you load your conversational application to the Dasha Cloud Platform, where it is executed. If you have your Dasha API key, ignore this part.  
+
+Make sure you have the latest Microsoft Visual Studio Code, Node.js and NPM installed. Dasha Studio is implemented as an extension to VSCode for your convenience. Open Visual Studio Code and install the [Dasha Studio extension](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio) and Dasha Command Line Interface . 
+
+```bash
+code --install-extension dasha-ai.dashastudio && 
+npm i -g "@dasha.ai/cli@latest"
+```
+
+Now, run a command to register your Dasha API key. A browser window will pop up and you will need to sign up for an account. 
+
+```bash 
+dasha account login
+```
+
+Afterwards, run to check your API key. 
+```bash 
+dasha account info
+``` 
+
+Now, you need to clone the inbound leads Dasha app and open the folder in which it is located. We will be cloning [this app](https://github.com/dasha-samples/inbound-lead-qualification). 
+
+```bash
+git clone https://github.com/dasha-samples/inbound-lead-qualification
+cd blank-slate-app
+```
+
+In building Dasha apps in VSCode, you will mainly work with three files: 
+1. __main.dsl__ is the Dasha Scripting Language file. DSL is a domain specific language, derived from TypeScript and used for the exclusive purpose of describing a conversation. You can read more about it in our [documentation](http://docs.dasha.AI). 
+2. __data.json__ is the data set you provide to train the Dasha Cloud neural networks to recognize user [intents](https://dasha.ai/en-us/blog/intent-classification) and identify [named entities](https://dasha.ai/en-us/blog/named-entity-recognition). 
+3. __index.js__ is the server-side JavaScript file to which the Dasha SDK is imported and which launches the contents of the __/app__ folder to the Dasha Cloud to be executed. 
+
+Note that last bit. "launches the contents of the __/app__ folder to the Dasha Cloud to be executed". This means that when your Dasha application is launched from Zapier, it only functions as the contents of the __/app__ folder. 
+
+Take a look at the __main.dsl__ file, namely the context variables, beginning at line 7. 
+
+```dsl
+context 
+{
+    input phone: string;
+    input name: string = "";
+
+    output software: string = "";
+    output invoices: string = "";
+    output lead_source: string = "";
+    output calltimeday: string ="";
+
+    calltime: string = "";
+    callday: string = "";
+    callback: string = "";
+    visitedNodeTime: boolean = false;
+    visitedNodeQuestion1: boolean = false;
+}
+```
+
+Note that you are taking Input variables `name` and `phone` and outputting variables `software`, `invoices`, `lead_source` and `calltimeday`. This is a key ingredient to the Zapier integration. We will input the `name` and `phone` from the collected form data and output all of our output variables to be saved to the lead card in Hubspot. 
+
+Now, you need to run a sample. It will serve two purposes. You will test the app and secondly, you will register the app in the Dasha Cloud to your account, so that you can refer to it from Zapier in building your integration. 
+
+```bash 
+npm i 
+npm start 12223334455 
+``` 
+Where 12223334455 is your phone number in the international format. 
+
+## Setting up Hubspot 
+
+Log into your Hubspot account. Everything we will do here today can be done with the free Hubspot package. We will do two things:
+
+1. Create a stand-alone form 
+2. Add a few custom Contact properties 
+
+### Creating a form 
+
+On the top menu, hit Marketing > Lead capture > Forms. 
+
+![Screenshot at Oct 08 10-09-00](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_10-09-00.webp)
+
+Now, click Create Form in the upper right corner, select Standalone Page from the Form menu and click Next. Pick Blank Template and click Next again. Name your form (I named mine "Zapier test form") and add the following fields: First Name, Last Name, email, Phone number. 
+
+![Fields in your Hubspot form ](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_10-13-20.webp)
+
+Click Update > Publish. You will get a pop up with the link to access the form. Copy this link and set it aside, we will need it to test the integration. 
+
+### Create custom fields (properties) in Hubspot 
+Refer back to the output variables in __main.dsl__. We need to map fields in Hubspot to four output variables. Here is how I named mine in Hubspot: 
+
+1. calltimeday > call_time_day_test 
+2. invoices > invoices_test
+3. lead_source > lead_source_test
+4. software > software_test 
+
+Click on Settings, then Properties and finally Create Property. 
+
+![Settings > Properties > Create Property in Hubspot](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_10-17-38.webp)
+
+Select 
+Object Type > Contact 
+Group: Contact information 
+Label: `your name for the property`
+
+![Creating a new Property in Hubspot ](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_10-36-28.webp)
+
+Hit Next, and select field type: single line text. 
+
+![Screenshot at Oct 08 10-37-06](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_10-37-06.webp)
+
+Do the same for the other 3 properties. 
+
+Now, let's make these properties clearly visible on the lead card, so that you can easily look at the results of the test. Open any contact by going to Contacts > Contacts and clicking on any one of them. Now, scroll a bit down and click "View all properties". 
+
+![View all properties in Hubspot ](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_10-39-43.webp)
+
+Now, search for each of your newly added properties by their name and click "Add to your view" 
+
+![Add custom property to your Hubspot contact card view ](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_10-41-44.webp)
+
+Great, our Hubspot is ready to go. Before moving to the next step, use that link to the form that you copied earlier to open up the form in a browser window, fill it out and submit. Use your real phone number in the international format (12223334455). This will give us some data for Zapier to use in the next step. 
+
+## Create a custom Zapier Zap integration 
+
+Log into your [`Zapier](https://zapier.com) account. The Zap we are building is a complex multi step integration. Zapier free users only get to build two step integrations, so you will need to get the 7 day free trial of premium Zapier personal account to build this integration. 
+
+Once sorted, click "Create Zap" in the upper left corner. Name the Zap and search for Hubspot as the first kick off event. 
+
+![Add Hubspot as starter event to your Zapier Zap](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_10-47-51.webp)
+
+Choose "new form submission" for the trigger event and hit "Continue". In the next step you will need to add a hubspot account. If you've never used one, click "+ Connect a new account". Once connected, click "Continue". Now you will be asked to set up the Trigger. Choose your Hubspot form name from the drop-down, click refresh fields and click "Continue". If you have previously filled out the Hubspot form, you should see something like this: 
+
+![Step 1 of the Zap complete ](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_10-56-30.webp)
+
+Click "Continue" and search for "Dasha" for Step 2. We will now connect Zapier to Dasha Conversational AI API. 
+
+![Search for Dasha for Step 2 of the Zap ](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_10-57-43.webp)
+
+In the Action Event Drop-down, select "Make a Call" and "Continue".  In the next "Choose account" drop-down, select your account and click "continue". 
+
+On the next screen, choose "Provided by Dasha" for the dropdown "SIP Trunk to use", choose "inbound-leads" for the "Application to use" dropdown and select the upper-most value for "Application to use" dropdown. Once you select the application, two new fields should appear: "Phone" and "Name". These are the input variables required by the Dasha app. Select from the drop down appropriate fields, as collected by the Hubspot form. (Note if the fields "Name" and "Phone" do not appear, hit the "refresh fields" button). 
+
+![Almost done with Step 2 of our Zap](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_11-02-20.webp)
+
+Click "Test & Continue". You should get a call from your Dasha app. You will likely not see proper data appear in Zapier, do not fret, this seems to be the way it works. Once your Zap is complete, it will work as you want it to. 
+
+Click the little plus sign below to go to the next step. 
+
+In order to write data to Hubspot, we need to have the Contact ID number. Since we do not have it, we have to first make a request to Hubspot API to find the contact's ID using the contact's email (which we do have). Choose Hubspot under "action". For dropdown "Action event" look for "Find Contact". Next, select your Hubspot account. In the Set Up Action menu, select "Contact Information: Email" under "FIrst search property name" and for "First search property value" choose the email field from the first action (Hubspot form submission). 
+
+![Set up the action for retrieving contact's Object ID from Hubspot ](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_13-23-09.webp)
+
+Click "Continue" and then "Test & Continue." Now, click the + sign to create a new action. This final action will let us write the data collected by Dasha to the contact card in Hubspot. 
+
+Select Hubspot and "Action event": Update contact. Hit "Continue". Choose your Hubspot account and hit "Continue" again. Under Object ID select the ID value we hav received in the previous step. 
+
+![Setting up writing data to Hubspot ](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_13-37-58.webp)
+
+Now, scroll down to find all the property field names we have previously added to Hubspot: 
+`call_time_day_test`
+`invoices_test`
+`lead_source_test`
+`software_test` 
+
+For each, select the appropriate output data type from "Step 2 - Make a Call with Dasha", as such: 
+
+![Select proper Dasha output data to be written to Hubspot ](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_13-39-55.webp)
+
+Hit "Continue" when you are done and "Turn on Zap".  
+
+## Testing the Hubspot-Dasha-Hubspot Zapier integration 
+
+Now to the fun part. Fill out your form again. Within 30 seconds you should get a call from Dasha. Give it all the information it asks for. Now, go to your lead card in Hubspot, you should see something like this: 
+
+![Your collected data in Hubspot ](https://cdn.dasha.ai/blog/hubspot-dasha-lead-qualification-integration/Screenshot_at_Oct_08_15-44-43.webp)
+
+In conclusion - you should make changes to the Dasha app, adapt it to the realities of your use case and tell us how it went in the [Dasha community](https://community.dasha.ai). 

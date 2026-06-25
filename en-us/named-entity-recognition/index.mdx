@@ -1,0 +1,170 @@
+---
+slug: "named-entity-recognition"
+title: Named entity recognition with Dasha AI Platform in practice
+author: "Ilya Ovchinnikov, ML Research Team Lead"
+authorPhoto: https://cdn.dasha.ai/blog/named-entity-recognition/author.webp
+category: turingTest
+categoryName: "Turing test and R&D"
+createdAt: "2021-07-29"
+updatedAt: "2022-03-15T13:50:50.701Z"
+readLength: "6 minute read"
+heroImage: https://cdn.dasha.ai/blog/named-entity-recognition/hero.webp
+introduction: "[<u>Named entity recognition</u>](https://docs.dasha.ai/en-us/default/natural-language-understanding/custom-entities) (NER) is an essential component of [<u>NLU</u>](https://docs.dasha.ai/en-us/default/natural-language-understanding/) (natural language understanding). It allows us to extract important data information from utterances. The goal is to locate words and classify them as entities to use this information in a conversation. Extracted entities could be used for working with databases, for decision making, and phrase map generations."
+seoTitle: "Named Entity Recognition: NER Explained by Experts"
+seoDescription: "What is NER? Named entity recognition is an essential component of NLU (natural language understanding). It allows us to extract important data information from speech. Dive in for more info here."
+seoKeywords: "ner nlp, named entity recognitio, api, how to do named entity recognition"
+---
+
+What is named entity recognition? It is a process in information extraction that involves detecting words or word strings that represent entities such as organizations, people, time, monetary values, brands, etc. And what is NER? Well, the term just stands for “Named Entity Recognition.” 
+NER models are developed through named entity recognition tagging that entails creating entity categories and feeding them with training data.     
+What is NER in NLP? NLP focuses on helping computers understand spoken speech like humans. One ability humans have is that they can recognize names of persons, organizations, time, currency, places, etc., from written or spoken sentences. NER is, therefore, a subfield in Natural Language Processing concerned with helping computers locate and classify entities from unstructured blocks of text.  
+
+Named Entity Recognition for NLP is a core component in Dasha AI Platform. In this blog post, we’ll consider how to create and use entities, take a glance at common problems with data, and how to solve them. Check out our post about [Intent classification](https://dasha.ai/en-us/blog/intent-classification) to get the full picture of the NLU.
+
+If your Dasha application is aimed to work with entity values, you need to use Named Entity Recognition. Create single or multiple entities to make the [dialog system](https://en.wikipedia.org/wiki/Dialogue_system) extract entities. You can use the newly created entities in the  [DashaScript](https://docs.dasha.ai/en-us/default/dasha-script-language/) conversation script to instruct the system how to respond to user messages. To train the classification model, you don't need to write any code. The model is trained in the background in Dasha Platform background. Once done, you can use created entities in the conversation script to handle user messages using DashaScript.
+
+Intents and entities are reusable within the application and you can use it in different steps of the conversational script. You don't need to define individual ones for different [transitions](https://docs.dasha.ai/en-us/default/dasha-script-language/program-structure/#transitions), except for those cases when it's necessary for your script.
+
+## What is an entity?
+
+The most common entity types are names, addresses, dates, numbers, organizations, etc. You also may need to create your own entities, such as pizza names, banks, or others. Named Entity Recognition checks if each word in a phrase is an entity or not and categorizes it, if it is an entity. 
+
+![entity](https://cdn.dasha.ai/blog/named-entity-recognition/entity.webp)
+
+To create an entity model you need to define possible values and training examples with annotations in the json file in the entities section. You also need to annotate intent examples that contain entities. You might want to take a look at the [documentation](https://docs.dasha.ai/en-us/default/natural-language-understanding/custom-intents) to get deeper knowledge on the subject. Don't forget to [connect the dataset](https://docs.dasha.ai/en-us/default/natural-language-understanding/connecting-to-the-application) file to the application.
+
+## Use entities in DashaScript
+
+There are two NLU control functions in DashaScript that are used to work with entities. Let’s look at the  named entity recognition example:
+
+- [messageHasData](https://docs.dasha.ai/en-us/default/dasha-script-language/built-in-functions/#messagehasdata): Checks if the phrase contains specified entity
+
+```dsl
+#messageHasData("account", { value: true })
+```
+
+- [messageGetData](https://docs.dasha.ai/en-us/default/dasha-script-language/built-in-functions/#messagegetdata): Extracts a list of entities from the message.
+
+```dsl
+#messageGetData("account", { value: true })
+```
+
+You can use these functions in different parts of the script. 
+Use #messageHasData for transitions and extract entites via  #messageGetData in `do` or `onexit` sections. (Note that you don’t need to learn named entity recognition in Python to use the Dasha script)
+
+```dsl
+node transfer_money
+{
+    do {
+       #sayText("From which accounts you would like to transfer from?")
+       wait *;
+     }
+    transitions {
+       provide_data: goto validate_account on #messageHasData("account");
+    }
+    onexit
+    {
+        provide_data: do {
+               set $account =  #messageGetData("account", { value: true })[0]?.value??"";
+       }
+    }
+}
+```
+
+You can use these functions in different parts of the script. 
+Use #messageHasData for transitions and extract entites via  #messageGetData in `do` or `onexit` sections. 
+
+```dsl
+node transfer_money
+{
+    do {
+       #sayText("From which accounts you would like to transfer from?")
+       wait *;
+     }
+    transitions {
+       provide_data: goto validate_account on #messageHasData("account");
+    }
+    onexit
+    {
+        provide_data: do {
+               set $account =  #messageGetData("account", { value: true })[0]?.value??"";
+       }
+    }
+}
+```
+
+You may need to post-process extracted entities to validate, transform, search or write to a database. Define an [external function](https://docs.dasha.ai/en-us/default/dasha-script-language/external-functions) for this purpose with the needed logic. 
+
+```dsl
+external function resolve_account(info: string): string;
+node myNode
+{
+    do {
+        set $account = #messageGetData("account", { value: true })[0]?.value??"";
+        set $account = external foo($account);
+     }
+    transitions {}
+}
+```
+
+## Problems you don't need to worry about
+
+### Architecture selection and hyperparameters tuning
+
+Dasha provides a platform for developers. We believe that platform user should not worry about machine learning stuff and dive deep into what model architecture to select, how to tune hyperparameters and train models properly. We do it all in the background. The only thing you should do is create a good dataset.   
+
+### Out-of-vocabulary words
+
+Another common problem with text classification in named entity recognition is out-of-vocabulary (OOV) words. The model works with a numerical representation of the words of the text (also known as embeddings). It is very important to make the model know all words to be sure it understands the message with previously unseen words in training data. We use such embeddings to solve this issue. Embeddings are trained on plenty of conversational texts encoded using byte-pair encoding. It uses subword information if the whole word is unknown. As we do all machine learning stuff in the background, don't worry about OOV words. Just create your dataset.
+
+### Phrases for all entity values
+
+You don’t need to duplicate the same phrases with different entity values. We use value augmentations for phrases implicitly for users to make sure that all possible values for the entity will be presented in the training dataset. You can rest assured that all values will be extracted from the message. 
+
+## Problems to pay attention to
+
+### Lack of training data
+
+It commonly occurs that your dialog system does not extract entities from some messages that users say, especially when it's the first iterations of your system. In this case, start with [intents examples](https://dasha.ai/en-us/blog/intent-classification). After that, define needed entities and annotate them in intent examples. It's recommended to specify 5 - 10 - 20 phrases (depending on complexity) for each intent in the first iteration. Don’t forget to annotate all entities in phrases since it’s very important. To improve entity recognition quality, it is needed to extend training examples. While you extend intent examples, you extend entities too. If the phrase doesn’t relate to any intent, you should add it to examples of this entity. We strongly recommend analyzing your system periodically with the [Profiler tool](https://docs.dasha.ai/en-us/default/debugging-and-maintenance?searchResult=p5-highlight-0#profiler). You can read about [how to improve your NLU model](https://docs.dasha.ai/en-us/default/natural-language-understanding/improving-models) overtime to fix classification errors. Know that the more training data you have, the better the NLU model gets. To achieve the best user experience, maintain and extend your dataset continuously. 
+
+### Same entities, different meanings
+
+It is possible that in one message two entities’ values are extracted, but they have different meanings. You need to distinguish them. In this example, there are two city entities, but one corresponds to the departure city, and the other corresponds to arrival.
+
+![entity example #2](https://cdn.dasha.ai/blog/named-entity-recognition/entity_example_-2.webp)
+
+To distinguish between such entities you can use `tags`. You need to define them in a dataset. Read [documentation on how](https://docs.dasha.ai/en-us/default/natural-language-understanding/custom-entities) to do it. 
+
+```dsl
+var city = #messageGetData("city", { value: true, tag: true });
+if (city.tag == "departure") {
+        set $departure_city = city?.value??"";
+}
+```
+
+### Synonyms
+
+Some entity values can be represented with multiple variations. And all of these variations should be mapped in the target value. Use synonyms in the training dataset to define such cases. People may not only say `New York`, but a synonym like `big apple` or `NYC`. All of these values would finally map into the target value `New York`. 
+
+```json
+       {
+          "value": "New York",
+          "synonyms": ["NY", "NYC", "N.Y.", "big apple"]
+        }
+```
+
+### Unknown entity values from context
+
+Imagine your service may find tickets only from New York, San Francisco, and Saint Petersburg. What if the user says "Find tickets from Los Angeles"? The system will not find this city in the message, because it’s unknown. But you want to extract this entity value anyway. We have a solution to that.
+
+What you should do is set `open_set` option `true`. Then, the model will recognize Los Angeles as a city from the context of the phrase. Now you can use an extracted entity in your script and answer that Los Angeles is not supported.
+
+If you don’t need to extract unknown values, set `open_set` option `false`. Then, the model would recognize only values listed in the training dataset. 
+
+### Summary
+
+In this blog post, we sorted out what is entities and why we need them. To understand what entities you need, firstly you should develop the conversation script and figure out what intents you have. Then, define what data you want to extract from a user. Entities may be used to fulfill slots in conversation and manipulate databases. You can extract them in any place of the script. You don’t need to think about how it works. Simply create the dataset and use entities in DashaScript. Don’t forget to extend the dataset with examples all the time to fix errors and make your model more knowledgeable. 
+
+Now you know how to deal with intents in the Dasha applications. Learn about Intent classification to create more complex dialog systems. 
+
+See [Dasha application code samples](https://github.com/dasha-samples) to understand how it works in practice more deeply. 

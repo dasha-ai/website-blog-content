@@ -1,0 +1,199 @@
+---
+slug: "javascript-if-else-or-switch-case"
+title: "Switch-Case or If-Else: Which One to Pick? "
+author: "Sumudu Siriwardana, Developer Advocate"
+authorPhoto: https://cdn.dasha.ai/blog/javascript-if-else-or-switch-case/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-11-09"
+updatedAt: "2022-03-15T13:48:34.991Z"
+readLength: "8 min"
+heroImage: https://cdn.dasha.ai/blog/javascript-if-else-or-switch-case/hero.webp
+introduction: "If you are a newbie to programming and JavaScript, you might be confused about which conditional statements to use, especially between if-else and switch-case statements."
+seoTitle: "Switch-Case or If-Else: Which One to Pick?"
+seoDescription: "If-else and switch-case: a comparison between these two JavaScript statements. Explained in this article by a Dasha.AI JS expert"
+seoKeywords: "if else statement, if else if, js switch statement, js switch, switch case javascript, switch case js, example of switch statement in javascript"
+---
+
+When I first learned about conditional statements, I thought it was simple enough, and I could use either if-else or switch in any case. But then, when I learned more about this topic and tried to apply it to some problems, I got confused about which one I should use, what's the exact difference, and how I should choose the correct one. 
+
+![FDCKZ2RWYAIMx 2](https://cdn.dasha.ai/blog/javascript-if-else-or-switch-case/FDCKZ2RWYAIMx_2.jpeg)
+
+I struggled over understanding the difference and application of these two conditional statements and dug deeper into the topic. 
+
+In this article, I will explain these two concepts and provide a comparison chart, so you will understand how you can use if-else and switch-case in different scenarios according to the complexity. 
+
+Before jumping into details, let's refresh our memory on why we use conditional statements in our programs. 
+
+As human beings, we make various decisions all the time that affect our lives. For example, if we have some free time, we have to decide what to do, whether to rest, watch something, call someone or maybe do something productive. 
+
+Conditional statements allow us to make such decisions based on a condition in JavaScript. If the condition is true, we can perform one action, otherwise, we can perform a different action. 
+
+So if-else and switch-case both allow us to make these decisions based on a condition. If you want to refresh your memory on how the conditional works, check out this [MDN article](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/conditionals). 
+
+## The if-else and else-if statements 
+
+As newbies, we all love if-else statements! 😂
+
+![if-else-matrix](https://cdn.dasha.ai/blog/javascript-if-else-or-switch-case/if-else-matrix.gif)
+
+If-else statement takes a specific condition and checks whether the condition is truthy or falsy. If the condition is true, then the `if` statement executes a specific code block. If the condition is false, then the `else` statement executes a different code block. 
+
+Let's take a simple example to understand how this works. 
+
+**Scenario One**
+
+Imagine that you are the class teacher for grade 5, class C. You have to check students' grades based on their marks, and you only have to check whether the student has passed or failed. Let's check one of the student's grades based on their marks using an if-else statement.
+
+```js
+function studentGrade(marks) {
+  if (marks >= 50) {
+    return "You have passed the exam! 🥳";
+  } else {
+    return "You have failed the exam!";
+  }
+}
+
+console.log(studentGrade(75)); // "You have passed the exam! 🥳"
+``` 
+
+According to the above example, we have written a simple function that takes student marks and checks whether it's above 50 or below  50. If the marks entered are 50 or above, then the `if` block executes. If it's below 50, then the `else` block executes. 
+
+**Scenario Two**
+
+Now, imagine taking a step further and giving the result based on the students' specific grades. For example, if the student gets an "A+", the student receives "Nailed It! 🥳". If the student gets a "D", the result would be "Failed 😢".   
+
+To have multiple choices like this, we can use the else-if statements to chain the extra choices. 
+
+See below code written according to the second scenario with else-if statements. 
+
+```js
+function studentFinalResultIf(grade) {
+  if (grade === "A+") {
+    return "Nailed It! 🥳";
+  } else if (grade === "A") {
+    return "Passed 💃";
+  } else if (grade === "B+") {
+    return "Passed 💃";
+  } else if (grade === "B") {
+    return "Passed 💃";
+  } else if (grade === "C") {
+    return "Barely Survived 😌";
+  } else if (grade === "D") {
+    return "Failed 😢";
+  } else {
+    return "Failed 😢";
+  }
+}
+
+cconsole.log(studentFinalResultIf("A+"));   // "Nailed It! 🥳"
+``` 
+
+According to the above function, we use different conditional statements to provide students' results depending on the grade. Except for the first code block, which is the `if` block, all the other conditions are tested in `else if` blocks. And if none of the conditions are true, the last `else` executes its code block. 
+
+## Switch statements 
+
+The switch statement is a multiple-choice selection statement. Once you have given the choices and relevant expressions for each choice, It looks through the choices until it finds the choice that matches the expression and executes it. If there are several matching cases to a case value in Javascript switch multiple cases, the first one is selected. 
+
+Let's rewrite the second scenario using the switch statement.
+
+```js
+function studentFinalResultSwitch(grade) {
+  switch (grade) {
+    case "A+":
+      return "Nailed It! 🥳";
+    case "A":
+    case "B+":
+    case "B":
+      return "Passed 💃";
+    case "C":
+      return "Barely Survived 😌";
+    case "D":
+      return "Failed 😢";
+    default:
+      return "Failed 😢";
+  }
+}
+
+console.log(studentFinalResultSwitch("A+"));   // "Nailed It! 🥳"
+``` 
+
+In the above example, we have the main condition that has many choices. When we check the specific grade, it checks which expression the grade belongs to and then runs that case block. In this case, when the grade is an "A+", it runs `case "A+":` and returns the result "Nailed It! 🥳". 
+
+Now you might be thinking both if-else and switch statements are pretty much alike, and maybe if-else seem more straightforward to use. And you might have your reasons for choosing one over the other. So before jumping to any conclusions, let's check the differences between if-else and switch statements. 
+
+## Comparison Chart
+
+|Basic Terms|If-else|Switch-case|
+|------------|-------|-------------|
+|**Check the testing expression**|An if-else statement can test expression based on a range of values or conditions. |A switch statement tests expressions based only on a single integer, enumerated value, or string object. |
+|**Ideal for**|if-else conditional branches are great for variable conditions that result into Boolean. |Switch statements are ideal for fixed data values. |
+|**Creation of jump table**|In the if-else case, we do not create a jump table, and all cases are executed at runtime. |In switch case, we create jump table on compiled time only selected case is executed on runtime. |
+|**Type of search**|If else implements linear search. |Switch implements binary switch. |
+|**Condition & expression**|Having different conditions is possible. |We can only have one expression. |
+|**Evaluation** |If-else statement evaluates integer, character, pointer or floating-point type or Boolean type. |Switch statement evaluates only character or integer value. |
+|**Sequence of execution** |It is either if-statement will be executed, or else-statement is executed. |Switch case statement executes one case after another till a break statement appears or until the end of the switch statement is reached.|
+|**Default execution**|If the condition inside if statements are false, then by default, the else statement is executed if created. |If the condition inside switch statements does not match with any of the cases, for that instance, the default statement is executed if created. |
+|**Values** |Values are based on the constraint. |Values are based on user choice. |
+|**Use**|It is used to evaluate a condition to be true or false. |It is used to test multiple values of the same variable or expression like 1, 2, 3, etc. |
+|**Editing**|It is difficult to edit the if-else statement if the nested if-else statement is used |It is easy to edit switch cases as they are recognized easily. |
+
+<br />
+
+According to the above comparison, you can see the decision of which conditional statement to choose is depending on the scenario and its complexity. For example, we can select both if-else and switch case Javascript statements for the second scenario since we are just checking one report, which might not make any difference in performance except readability.
+
+It’s not advisable to have a Javascript switch case range, rather you should use switch statements for making decisions based on single integers enumerated value, or a string object.
+
+Let's take a step further and make our scenario a little bit complicated.
+
+**Scenario Three**
+
+What if we want to print grades for all the students in all classes? Imagine that we have ten classes for grade 5. And each class includes 50 students. So altogether, we have to check and print the results for around 500 students. 
+
+If we use the if-else statement for this, we might run into a slight performance delay. It's because, during the execution, the if-else statement always executes the expression to check whether the condition is satisfied or not. Things would get slower when there are more conditions to check and when the choices get complex. 
+
+On the other hand, a Javascript switch statement works comparatively faster because the compiler generates a jump table for switch-cases during compile time. So when the code runs, instead of checking which cases are satisfied, it only decides which cases should be executed. In our third scenario, to generate reports for many students, the switch-case might be the better approach.
+
+I hope now you can understand that based on the above comparison and our examples, both statements have their place in the code and it's up to you to choose which one suits which scenario. There is no right or wrong way of doing it. 
+
+**So how can we choose which statement to use?**
+
+![if-switch](https://cdn.dasha.ai/blog/javascript-if-else-or-switch-case/if-switch.webp)
+
+Choosing one over the other is not that straightforward. Here are some tips when choosing one over the other;
+
+You can use if-else when:  
+- The condition result is a `boolean`.
+- The conditions are complex. For example,  you have conditions with multiple [logical operators.](https://dasha.ai/en-us/blog/beginners-guide-js-operators-part-2) 
+
+You can use a switch-case when: 
+- There are multiple choices for an expression.
+- The condition is based on a predefined set of values such as enums, constants, known types. For example, error codes, statuses, states, object types, etc. 
+
+So based on performance, readability, understandability, changeability, you would have to decide whether to use if-else statements or switch statements. When you read more code and write more code, eventually, you will start figuring out which one is suitable for which scenario; it comes with practice. 
+
+Also, there are more approaches if you want to avoid the conditionals as much as you can, especially in JavaScript; array lookup or object lookup are a couple of common approaches. 
+
+And is it possible to have a Javascript switch string? Yes, and preferably, the values being evaluated should be in Strings. 
+
+### Closing thoughts
+
+You might find it confusing to decide when to use which statement as a newbie, but it gets better with more practice. Remember that every case requires a specific solution but there's no right or wrong answer. And it's up to you to choose a suitable solution based on your experience. So I hope that the comparison provided here makes it easier for you to identify the difference between if-else and switch statements and not pick one side. 
+
+> If the only tool you have is a hammer, you tend to see every problem as a nail - Abraham Maslow
+
+Happy coding! 
+
+![giphy](https://cdn.dasha.ai/blog/javascript-if-else-or-switch-case/giphy.gif)
+
+**References:**
+
+- [Algorithms and Flow Control](https://www.oreilly.com/library/view/high-performance-javascript/9781449382308/ch04.html) 
+
+-  [Switch Statement](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Statements/switch) 
+
+-  [If-else Statement](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/if...else) 
+
+-  [Making decisions in your code — conditionals](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/conditionals) 
+
+-  [Difference Between If-else and Switch Case](https://vivadifferences.com/if-else-vs-switch-case/) 

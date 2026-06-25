@@ -1,0 +1,724 @@
+---
+slug: "voice-ai-site-reliability-engineering"
+title: "AI devops squad to the rescue: How to use voice AI to make your site reliability engineering more efficient "
+author: "Arthur Grishkevich, Citizen Developer Advocate"
+authorPhoto: https://cdn.dasha.ai/blog/voice-ai-site-reliability-engineering/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-10-04T08:26:23.141Z"
+updatedAt: "2021-10-04T15:55:16.528Z"
+readLength: ""
+heroImage: https://cdn.dasha.ai/blog/voice-ai-site-reliability-engineering/hero.webp
+heroImageTitle: " Voice AI and site reliability engineering"
+introduction: "Voice AI and site reliability engineering? What a ridiculous match up. The two live in completely different worlds. The former in the world of pesky call centers, the latter in the world of ponytailed sys admins."
+seoTitle: "How to use voice AI to make your site reliability engineering more efficient "
+seoDescription: "Conversational voice AI can help a site reliability engineer handle an incident quicker or on the go. In this tutorial we build a simple app to do just that. "
+seoKeywords: "Voice AI and site reliability engineering,  Site reliability engineering,  Conversational voice AI,  Dasha AI,  Incident management, Dasha API"
+---
+
+
+I could end my post here if not for one thing. I signed up to give a lecture on using voice AI for site reliability engineering at conf42. Why would I do a stupid thing like that? Because I had a vision of how the two can work together.
+
+## Intro and definitions
+
+In this tutorial we will use the following technologies and tools: 
+* Webhooks  
+* HTTPS requests 
+* Site reliability monitoring (we will use Better Uptime)
+* Conversational voice AI (we will use Dasha) 
+
+First, let's do definitions: 
+* Site reliability engineering - principles of software engineering applied to infrastucture and operations problems.
+* Incident - something bad that happens to your site. In other words, your site was up, an incident happens, now it's down. Incidents are reported by site reliability monitors. 
+* Incident acknowledgement - once an incident is reported, it has to be confirmed by a responsible individual (you).
+* Incident resolution - after incident is acknowledged, it has to be resolved (that is, if you want your website to be up and running again).
+* Conversational AI app - an automated conversation built for a specific need, integrated with tools you already use, powered by AI.
+
+## What's wrong with the current incident reporting workflow?  
+Nothing really wrong with it but it can be made more efficient. 
+
+As an example, let's look at [Better Uptime](https://betteruptime.com), since this is what we will be integrating with. You add a domain for Better Uptime to monitor. Every 30 seconds it sends an HTTP and ping request to the website. If the website is down, an incident is created. At this point, you are notified either via email, SMS, phone call or by sending out a webhook wherever you specify. 
+
+Once the incident is created, it needs to go through two more lifecycle stages. Stage one is - acknowledgement, the responsible user need to acknowledge the incident happened. The next stage is resolution - the same user or a different user with access to this monitor needs to set the incident as resolved. After its resolution, Better Uptime checks again to see if the website is indeed up.
+
+How do I think this can be made more efficient? By adding a devops conversational AI app that will call the user when an incident happens, provide updates to the user from additional services (Kubernetes cluster, TLS certificates, etc.), be able to notify co-workers and finally, set the acknowledge and resolve statuses in Better Uptime.  There are two main use cases/benefits I see here: 
+
+1. The responsible user may be away from their machine, as the incident happens. They can check some of the systems from their phone and maybe even resolve the issue but why force them to waste time logging into Better Uptime if they can just put the phone on speaker and resolve everything with the AI app? 
+2. The user might indeed be at their computer but to resolve the incident would have to log onto a half dozen websites and click tons of things. With the AI app they will be able to get all info/data they need through a simple voice question, as well as set appropriate incident statuses in Better Uptime.
+3. And I'm sure you will find a dozen more ways in which this tech would be useful in your devops workflow. 
+
+"But Arthur," I hear you shout "you said that Better Uptime can notify the responsible user through a phonecall when the incident happens. All on its own!" 
+
+I certainly did say that. But it is not a conversational phone call. It's a very simple "Hi there, you had an incident. Bye." call. Which is still great. But can be made much better. 
+
+Here is what I built: 
+
+<a href="https://www.youtube.com/watch?v=TeJAFI993_0" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://www.youtube.com/watch?v=TeJAFI993_0</a>
+
+And here is how you can build it in ten easy steps to build our SRE conversational AI for devops: 
+1. Create a Better Uptime account. 
+2. Activate Dasha API key.
+3. Create a server for Better Uptime to monitor.
+4. Create a server to listen to webhooks from Better Uptime and launch the Dasha app.
+5. Build a Dasha conversational app that will call to you when an incident is created; set up external functions and HTTPS requests to Better Uptime.
+6. Set up nodemailer to email yourself a transcript of the conversation. 
+7. Set up .env.
+8. Set up a tunnelling service to your localhosts. 
+9. Set up the monitors and webhooks on Better Uptime. 
+10. Test. 
+
+I urge you to follow the tutorial and build this thing on your own. Yet if you want it, here is the [source code](https://github.com/dasha-samples/site-reliability-monitor-handler).
+
+## 1. Create a Better Uptime Account 
+
+First off, you'll need a Better Uptime account. Unfortunately, to send webhooks out you will need a paid account. And we will need to send webhooks. There are at least a dozen Better Uptime alternatives that I was able to find, some of which might offer free webhooks. I'm using Better Uptime because we already use it for our SRE workflows at Dasha. 
+
+So, step 1, go to [Better Uptime](https://betteruptime.com) and register an account. 
+
+## 2. Activate Dasha API key 
+
+Now, you need to activate your Dasha API key. If you have your Dasha API key, ignore this part. Open Visual Studio Code and install the Dasha Studio extension and Dasha Command Line Interface . 
+
+```bash
+code --install-extension dasha-ai.dashastudio && 
+npm i -g "@dasha.ai/cli@latest"
+```
+
+Now, run a command to register your Dasha API key. A browser window will pop up and you will need to sign up for an account. 
+
+```bash 
+dasha account login
+```
+
+Afterwards, run to check your API key. 
+```bash 
+dasha account info
+``` 
+
+Now, you need to clone a blank Dasha app and open the folder in which it is located. We will be cloning [this app](https://github.com/dasha-samples/blank-slate-app). 
+
+```bash
+git clone https://github.com/dasha-samples/blank-slate-app
+cd blank-slate-app
+npm i
+```
+
+## 3. Create a server for Better Uptime to monitor 
+
+In the root of the folder you've got open in VSCode, create a new Node.js  file. You can name it anything, I named it __helloworld.js__. 
+
+Use this code for the super simple server: 
+
+```javascript
+const http = require('http');
+
+const hostname = '127.0.0.1';
+const port = 3000;
+
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('Hello World. Server is up.');
+});
+
+server.listen(port, hostname, () => {
+  console.log("Server running at http://${hostname}:${port}/");
+});
+```
+
+Now, launch it.
+
+```bash 
+node helloworld.js
+```
+
+## 4. Create a server to listen to webhooks from Better Uptime and launch the Dasha app
+
+Open **index.js** and delete all code. We will start from scratch here. We will do much more than just create the webhook listener server. We will build a Node.js application that will launch your Dasha AI conversational app, collect data from the app, send HTTPS requests to Better Uptime when your Dasha app requires it and email a formatted transcript of the conversation to your specified email address.  
+
+We will use Express.js to run the server. We will also use fs, Dasha SDK, body-parser, json2html, axios and dotenv.  Let's start off with the declarations and go ahead and create the server. : 
+
+```javascript
+const dasha = require("@dasha.ai/sdk");
+const fs = require("fs");
+const express = require( "express" );
+const bodyParser = require("body-parser");
+const hook = express();
+const PORT = 1919;
+const json2html = require("node-json2html");
+const axios = require("axios").default;
+
+require("dotenv").config();
+
+hook.get('/', (req, res) => {
+  res.setHeader("Content-Type", "text/plain");
+  res.end("Hello World. Server running on port " + PORT + ". Listening for incidents on http://1543a913a2c7.ngrok.io As soon as incident is identified, I will initiate a call from Dasha AI to ackgnowledge or address the incident. ");
+})
+
+hook.use(bodyParser.json());
+hook.listen(PORT, () => console.log("🚀 Server running on port ${PORT}"));
+```
+
+Now, let's create the webhook listener. Note that Better Uptime sends a webhook out whever an incident is created, acknowledged or resolved. We only need to launch the AI call when the incident is created. I got the JSON structure above from the Better uptime [Incidents API documentation](https://docs.betteruptime.com/api/incidents-api). Please refer to the comments: 
+
+```javascript 
+hook.post("/hook", async(req, res) => 
+{
+  console.log(req.body); // Call your action on the request here
+  res.status(200).end(); // Responding is important
+  // save incidentID from JSON as const incidentId 
+  // we will need it to send acknowledged and resolved requests to Better Uptime 
+  incidentId = req.body.data.id; 
+  // we also save acknowledged and resolved statuses.
+  // we will need these to keep Dasha from calling you when your incident is acknowledged or resolved
+  acknowledged = req.body.data.attributes.acknowledged_at;
+  resolved = req.body.data.attributes.resolved_at;
+  // log the statuses 
+  console.log("incidentID: " + incidentId);
+  console.log("acknowledged: " + acknowledged);
+  console.log("resolved: " + resolved);
+
+  // Better Uptime sends out webhooks on created, acknowledged, resolved statuses for each incident 
+  // we only need to run the Dasha app when the incident is created, thus we do the following: 
+  if (acknowledged != null && resolved == null) 
+  {
+    console.log("Incident " + incidentId + " acknowledged.");
+  }
+  else if (acknowledged != null && resolved != null)
+  {
+    console.log("Incident " + incidentId + " resolved.");
+  }
+  else 
+  { 
+    console.log("Incident " + incidentId + " created. Expect a call from Dasha.");
+    // Launch the function running the Dasha app  
+    await calldasha(incidentId);
+  }
+});
+```
+
+Now, let's define the Dasha App function. Note the `// external functions begin` and `// external functions end`. We will add code for external functions here as we get to this point in creating our Dasha conversation. 
+
+Please refer to the comments: 
+
+```javascript 
+async function calldasha(incidentId) 
+{
+  const app = await dasha.deploy("./app");
+
+  // external functions begin 
+
+  // external functions are called from your Dasha conversation in the body of main.dsl file 
+  // external functions can be used for calculations, data storage, in this case, to 
+  // call external services with HTTPS requests. You can call an external function from DSL
+  // in your node.js file and have it do literally anything you can do with Node.js.
+
+  // external functions end
+
+  await app.start();
+
+  const conv = app.createConversation({ 
+    phone: process.env.phone, 
+    name: process.env.name 
+  });
+
+  conv.audio.tts = "dasha";
+
+  if (conv.input.phone === "chat") {
+    await dasha.chat.createConsoleChat(conv);
+  } else {
+    conv.on("transcription", console.log);
+  }
+
+  if (conv.input.phone !== "chat") conv.on("transcription", console.log);
+
+  const result = await conv.execute();
+
+  console.log(result.output);
+
+  //create directory to save transcriptions
+  fs.mkdirSync("transcriptions", { recursive: true } );  
+  var transcription = JSON.stringify(result.transcription);
+
+  //save the transcript of the conversation in a file  
+  // or you can upload incident transcriptions to your incident management system here
+  fs.writeFileSync("transcriptions/" + (incidentId??"test") + ".log", transcription ); 
+
+  // and  email it to yourself
+  var transcript = json2html.render(transcription, {"<>": "li", "html":[
+    {"<>": "span", "text": "${speaker} at ${startTime}: ${text} "}
+    ]});
+  sendemail(transcript);
+
+  await app.stop();
+  app.dispose();
+}
+```
+
+```bash 
+node index.js
+```
+
+To test. Your server should run. When you set the webhook address up on Better Uptime and have this server running, a Dasha conversation will be initiated every time a new incident is created. Let's build the Dasha app. 
+
+## 5. Build a Dasha conversational app that will call to you when an incident is created 
+
+Open __main.dsl__. This is a Dasha Scripting Language file. DSL is a domain specific language, derived from TypeScript and used for the exclusive purpose of describing a conversation. You can read more about it in our [documentation](https://docs.dasha.ai/en-us/default/dasha-script-language/).
+
+As always, we start off with declarations. Let's declare input variables and external functions.
+
+```dsl 
+context 
+{
+    input phone: string;
+    input name: string;
+}
+
+// declare external functions here 
+external function acknowledge(): string;
+external function resolve(): string;
+external function getstatusof( what:string? ): string;
+```
+
+Next, we have the AI app wait for speech (the user should say "hello" or something of the sort), then greet the user, inform of the incident and wait for instructions. 
+
+```dsl 
+start node root {
+    do {
+        #connectSafe($phone);
+        wait *;
+    }
+    transitions {
+        hello: goto hello on true;        
+    }
+}
+
+node hello {
+    do { 
+        #sayText("Hello " + $name + "! This is Dasha calling you regarding your website. There has been an incident. "); 
+        #sayText("You can acknowledge or resolve the incident right on the call with me. "); 
+        #sayText(" Please note, I will listen and take notes until you mention that you are ready to resolve or acknowledge. ", interruptible:true);
+        wait *;
+    }
+    transitions {
+    }
+}
+```
+
+Note that I said "wait for instructions." In this case, the instructions will come in the form of a digression. A digression is a node in Dasha Scripting Language which does not necessarily flow from a previous node but can be called up at absolutely any point in the conversation. The digression becomes active when a specific intent is identified in the user's reply. Intents are defined as a data set in __data.json__ used to train the [Dasha Cloud](https://dasha.ai/en-us/blog/dasha-conversational-ai-as-a-service) neural network. Digressions are also useful in giving your app a human-like feel. You can read more about digressions in [this post](https://dasha.ai/en-us/blog/using-digressions).
+
+In this application we will have three key digressions for three key actions that the user can perform. 
+1. Acknowledge the incident. 
+2. Resolve the incident. 
+3. Ignore the incident.
+
+We will also add four additional digressions to make the conversation more efficient: 
+1. Ask Dasha to wait while the user thinks something over or looks something up. 
+2. Ask Dasha to repeat what she last said.
+3. Easter egg digression "oops".
+4. Journal node - lets Dasha know to not react unless an intent is identified. This lets us passively record any notes that the user makes to self, as he is resolving the incident. 
+5. Get status of vital services. * 
+
+There are two steps to implementing digressions - define intents (create data set) in __data.json__ and write out the code for the digressions in __main.dsl__.  We will also need to write external functions in our __index.js__.
+
+### Creating the data set to train the Dasha neural network 
+
+Since digressions are activated by intents, we need to define our intents training data set in __data.json__. Once you run your conversational AI app, your __data.json__ file is loaded in the Dasha Cloud, where it is used to train the neural network. The `"includes"` section for each intent is where you provide a set of phrases on which the neural net is trained to then recognize the user intent. You can (and should) read up on intents in the [blog post](https://dasha.ai/en-us/blog/intent-classification) by Ilya Ovchinnikov, the ML team lead who built out this engine for Dasha. Open up the file and delete everyting in it. Paste the code below in.
+
+```json
+{
+  "version": "v2",
+  "intents": 
+  {
+    "yes": {
+      "includes": [
+        "yes", "sure", "yep", "I confirm", "confirmed", "I do", "yeah", "that's right"
+      ],
+      "excludes": []
+    },
+    "no": {
+      "includes": [
+      ]
+    },
+    "repeat": {
+      "includes": [
+      ]
+    },
+    "acknowledge": {
+      "includes": [
+        "I acknowledge the incident", "I can acknowledge the incident", "I do acknowledge the incident",
+        "acknowledge", "acknowledge please", "incident acknowledged"
+      ]
+    },
+    "resolve": {
+      "includes": [
+      ]
+    },
+    "ignore": {
+      "includes": [
+      ]
+    },
+    "oops": {
+      "includes": [
+      ]
+    },
+    "wait": {
+      "includes": [
+      ]
+    },
+
+    "status": {
+      "includes": [
+        "What is the status of (kubernetes)[statusentity]",
+        "Dasha, what's the status of (kubernetes)[statusentity] and (TLS)[statusentity]",
+        "What's the status of (kubernetes)[statusentity]",
+        "Tell me about the status (healthcheck)[statusentity]",
+        "Give me an update on the status of (healthcheck)[statusentity]",
+        "Status (healthcheck)[statusentity] and (TLS)[statusentity]",
+        "Dasha, let's look at the status of (TLS)[statusentity]"
+      ]
+    }
+
+  },
+
+  "entities": {
+    "statusentity": {
+      "open_set": false,
+      "values": [
+        {
+          "value": "kubernetes",
+          "synonyms": [
+            "Kubernetes cluster", "cooper netease", "kubernetes", "Kubernetes instances", "for burnett", "Kubernetes deploy"
+          ]
+        },
+        {
+          "value": "TLS",
+          "synonyms": [ "SSL", "TLS/SSL", "TLS certificate", "certificate", "SSL certificate"
+          ]
+        },
+        {
+          "value": "healthcheck",
+          "synonyms": [ "site healthchecks", "health check ", "site health checks", "health checks"
+          ]
+        }
+      ],
+      "includes": []
+    }
+  }
+}
+```
+
+You will see here a few complete intents (`"acknowledge", "yes"`) that you will need to activate your digressions. The format is simple to follow - intent name is followed by a list of phrases (`"includes"`) the user might use to signify their intent. You can follow this same format to specify phrases to define intents for the other digressions listed above. 
+
+Note the `"status"` digression. It is a compound intent and relies on [named entities](https://dasha.ai/en-us/blog/named-entity-recognition) to function. 
+
+In this case, we are looking to identify two things within the user's phrase. One is the intent to "check the status of something" and the other is what the "something" is. The "something" is defined by named entities. Using named entity recognition, the neural network powering your app in the Dasha Cloud extracts important data from the user's speech. 
+
+You can always refer to the [app source code](. ) to get a copy of my __data.json__ file. 
+
+### Writing the digressions in main.dsl 
+
+```dsl 
+// acknowledge flow begins 
+digression acknowledge {
+    conditions { on #messageHasIntent("acknowledge"); }
+    do {
+        #sayText("Can you please confirm that you want me to acknowledge the incident?");
+        wait *;
+    } 
+    transitions {
+        acknowledge: goto acknowledge_2 on #messageHasIntent("yes");
+        donotacknowledge: goto waiting on #messageHasIntent("no");
+    }
+}
+
+node acknowledge_2 {
+    do {
+        external acknowledge();
+        #sayText("Got it. I have set the status in Better Uptime as acknowledged. The next step is to resolve the incident.");
+        wait *;
+    } 
+    transitions
+    {
+    }
+}
+
+node waiting {
+    do{
+        #sayText("Okay. I will wait for your instructions then. ");
+        wait *;
+    } 
+}
+
+```
+
+The code above is for `__digression acknowledge__` use it as an example to write code for the digressions __resolve__ and __ignore__.  Note that you do not need to recreated the `node waiting` - you only need to define it once and can call this node from other nodes or digressions, as needed. 
+
+### Getting your node.js external functions to call external APIs
+
+Note the `external acknowledge();`.  Here we are calling out to the external function `acknowledge` which we have defined in the beginning of main.dsl. 
+
+As you recall, external functions call out to a specific function in __index.js__. We even left some space in our __index.js__ file specifically for our external functions. 
+
+You can go ahead and paste the following code into your __index.js__ between `// external functions begin ` and `external functions end`: 
+
+```dsl 
+  // external functions are called from your Dasha conversation in the body of main.dsl file 
+  // external functions can be used for calculations, data storage, in this case, to 
+  // call external services with HTTPS requests. You can call an external function from DSL
+  // in your node.js file and have it do literally anything you can do with Node.js.
+
+  // External function. Acknowledge an incident in Betteruptime through posting HTTPS  
+  app.setExternal("acknowledge", (args, conv) => 
+  {
+    // this keeps the code from throwing an error if we are testing with blank data
+    if (incidentId === null)
+    return;
+
+    const config = {
+      // remember to set your betteruptimetoken in .env
+      headers: { Authorization: "Bearer " + process.env.betteruptimetoken }
+    };
+
+    const bodyParameters = { key: "value" };
+
+    axios.post( "https://betteruptime.com/api/v2/incidents/" + incidentId + "/acknowledge", bodyParameters, config)
+    .then(console.log)
+    .catch(console.log);
+
+  });
+
+  // External function. Resolve an incident in Betteruptime through posting HTTPS  
+  app.setExternal("resolve", (args, conv) => 
+  {  
+    if (incidentId === null)
+    return;
+
+    const config = {
+      headers: { Authorization: "Bearer "+ process.env.betteruptimetoken }
+    };
+
+    const bodyParameters = { key: "value" };
+
+    axios.post( "https://betteruptime.com/api/v2/incidents/" + incidentId + "/resolve", bodyParameters, config)
+    .then(console.log)
+    .catch(console.log);
+  });
+
+  // external function getting status of additional services 
+  app.setExternal("getstatusof", (args, conv) => 
+  {
+    switch (args.what)
+    {
+      case "kubernetes":
+        return "Kubernetes is up and running";
+      case "healthcheck":
+        return "Site health checks are not responding";
+      case "TLS":
+        return "TLS Certificate is active";
+    }
+  }); 
+```
+
+Take a look at `app.setExternal("acknowledge")`. As you can see we are making an HTTPS post request to the Better Uptime API and are using the `incidentId` variable we collected when we first got the inbound webhook notifying us of incident creation. I referred to the Better Uptime [API documentation](https://docs.betteruptime.com/api/incidents-api) for this. 
+
+### Additional digressions in your Dasha app 
+
+Go back to your __main.dsl__. We need to add a few more digressions to make our app complete. Append these to your __main.dsl__ file 
+
+```dsl 
+// get status of vital services 
+digression status  {
+    conditions { on #messageHasIntent("status") && #messageHasData( "statusentity" ); }
+    do {
+        for (var e in #messageGetData("statusentity") ){ 
+            var result = external getstatusof(e.value );
+            #sayText( result );
+        }
+        return;
+    }
+}
+```
+
+Digression __status__ becomes activated on that complex intent/named entity hybrid we built. If Intent `"status"` is identified AND the message carries data `"statusentity"`, we collect the data (note: `#messageGetData` collects data as an array) and send each data point to external function `getstatusof` which, in turn, returns a string which Dasha pronounces out to the user. Please look at the `app.setExternal("getstatusof")` in the JavaScript code above. This function returns dummy data for the demo. Obviously in production, you would want to call out to specific end points to get realistic data here. 
+
+Now, add this code: 
+
+```dsl 
+// additional digressions 
+digression @wait {
+    conditions { on #messageHasAnyIntent(digression.@wait.triggers)  priority 900; }
+    var triggers = ["wait", "wait_for_another_person"];
+    var responses: Phrases[] = ["i_will_wait"];
+    do {
+        for (var item in digression.@wait.responses) {
+            #say(item, repeatMode: "ignore");
+        }
+        #waitingMode(duration: 70000);
+        return;
+    }
+    transitions {
+    }
+}
+
+// this digression tells Dasha to only respond to user replies that trigger an intent
+// this is a very helpful little piece of code for our particular use case because 
+// the user might talk to themselves as they are resolving the incident
+// everyting the user says to themselves is logged (thus: journal) in the transcript 
+// which can then be appended to the incident report 
+digression journal {
+    conditions { on true priority -1; }
+    do {
+        return;
+    }
+}
+
+digression repeat {
+    conditions { on #messageHasIntent("repeat"); }
+    do {
+        #repeat();
+        return;
+    }
+} 
+
+digression oops {
+    conditions { on #messageHasIntent("oops"); }
+    do {
+        #sayText("What happened " + $name + "? Did you ue the wrong terminal again?");
+        return;
+    }
+} 
+```
+
+Digressions `wait` and `repeat` help progress the conversation along. The user can ask Dasha to wait a minute, or to repeat her last phrase. The digression `oops` is an easter egg, activated with the intent words "oops", "crap", or your favorite exclamation. The digression `journal` tells the Dasha app to stay quiet until it hears the user say one of the specificly defined intents. Everything that the user says before the intent is loggled into the transcript. This digression lets the user dictate notes to Dasha which are then collated into the transcript. The transcript can be attached to your incident management system. In this case, we will email the transcript to a specified address. 
+
+## 6. Set up nodemailer to email yourself a transcript of the conversation
+
+Look at the last 11 lines of code in the function used for launching your Dasha app that you added to your __index.js__ earlier. Dasha conversation transcripts are JSON. In this code, we are formatting the JSON as HTML and emailing it. To email the code, we call the `sednemail(transcript)` function.  
+
+Let's now add this function to our __index.js__ application. 
+
+```javascript 
+function sendemail(transcript)
+{
+  const nodemailer = require('nodemailer');
+    require('dotenv').config();
+
+  var transporter = nodemailer.createTransport(
+  {
+      service: 'gmail',
+      auth: {
+      		  // be sure to specify the credentials in your .env file
+        user: process.env.gmailuser,
+        pass: process.env.gmailpw
+      }
+  });
+
+  var mailOptions = 
+  {
+    from: process.env.gmailuser,
+    to: process.env.sendto,
+    subject: 'Incident conversation transcript',
+    html: '<h2>Conversation transcript:</h2><p>' + transcript + '</p>'
+  };
+
+  transporter.sendMail(mailOptions, function(error, info)
+  {
+      if (error) {
+          console.log(error);
+      } else {
+          console.log('Email sent: ' + info.response);
+      }
+  });
+}
+```
+
+This code will send an email from your Gmail account to the specified address. 
+
+### 7. Set up .env
+
+You will need to create .env file named __".env"__ (make sure you have dotenv installed). 
+
+In this file you will need to define the following tokens and/or credentials: 
+
+```
+betteruptimetoken = 
+name = 
+phone =
+sendto = 
+gmailuser = 
+gmailpw = 
+```
+
+`betteruptimetoken` is, expectedly, your Better Uptime API token. If you are using a different service, rename the enviornment variable accordingly. If you are using Better Uptime, you can find the token by going to team members > configure team and scroll halfway down. 
+
+`name` is quite literally the name which Dasha will use to refer to you. 
+
+`phone` is the phone number Dasha will call you on. As with name, you are welcome to push this data to Dasha externally. 
+
+`sendto` is the email address to which you want to send your transcript.
+
+`gmailuser` is your Gmail email address. 
+
+`gmailpw` is your Gmail password. 
+
+There is a bit of nuance about those last two. You will need to have additional security disabled on your Gmail account to use simple auth like this. Your other option is writing our OAuth2 authentification as per this [StackOverflow thread](https://stackoverflow.com/questions/26196467/sending-email-via-node-js-using-nodemailer-is-not-working). 
+
+At the end of this step, you should have all needed environment variables defined in your .env file. 
+
+## 8. Set up a tunnelling service to your localhosts. 
+
+Open split terminals in your VSCode. In one, run: 
+
+```bash 
+node helloworld.js
+```
+
+In the other, run: 
+```bash 
+node index.js
+```
+
+Congrats, you should have two servers running. `helloworld.js` on port 3000 and `index.js` on port 1919. They are running as localhosts which will not do because we need them to interact with the web.  To solve this you can use a local tunnel. I used Ngrok but you can use any other one. 
+
+To use Ngrok, you will need to sign up and follow these [instructions](https://dashboard.ngrok.com/get-started/setup). Once you have got Ngrok installed and authorized, open two terminal windows (I did outside of VSCode) and run this command in one: 
+
+```bash
+./ngrok http 3000
+``` 
+
+and this command in the other terminal: 
+
+```bash 
+./ngrok http 1919 
+``` 
+
+This will create two internet domain names which will tunnel to your locally hosted servers. Note: you may have to purchase the paid Ngrok subscription for two tunnels. 
+
+## 9. Set up the monitors and webhooks on Better Uptime
+
+Let's assume that Ngrok gave you two domain names: 
+
+1. 12345.ngrok.io - localhost: 3000 (helloworld.js) (the server we are monitoring)
+2. 67890.ngrok.io - localhost: 1919 (index.js) (the server which catches webhooks)
+
+Go to [Better Uptime](https://betteruptime.com) > Monitors > Create Monitor
+
+Enter "12345.ngrok.io" into the field "URL to monitor". Now, uncheck all boxes under On-call escalation (Call, send sms, send e-mail, push notification). Finally, hit Create monitor. 
+
+Go back to the monitors page and you should see your monitor turn green. 
+
+Now, go to Integrations > Exporting Data > Configure Webhooks > Add
+
+Give your webhook a name and list this Webhook URL: http://67890.ngrok.io/hook
+
+You can hit send test webhook and watch the Terminal in your Dasha app. It should show something like this: 
+
+## 10. Test the entire app 
+Now, to launch a full on call, the only thing you need to do is kill your helloworld server. Ctrl+с in the VSCode terminal running the `helloworld.js` app and you will get an inbound webhook. Watch the terminal for `index.js` and you will see a Dasha call initiated. The call will arrive on your phone ASAP, so make sure it is not in do not disturb mode. 
+
+Congratulations! You have just built a conversational AI app for site reliability engineering automation.
+
+If you need it, here is the link to the [source code](https://github.com/dasha-samples/site-reliability-monitor-handler) again. 
+
+Let us know in the [Dasha community](https://community.dasha.ai) how you did with this app. 

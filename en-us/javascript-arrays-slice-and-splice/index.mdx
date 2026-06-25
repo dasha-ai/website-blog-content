@@ -1,0 +1,231 @@
+---
+slug: "javascript-arrays-slice-and-splice"
+title: Slice and Splice JavaScript Arrays Like a Pro
+author: "Sumudu Siriwardana, Developer Advocate"
+authorPhoto: https://cdn.dasha.ai/blog/javascript-arrays-slice-and-splice/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-12-07"
+updatedAt: "2022-03-25T07:28:26.443Z"
+readLength: ""
+heroImage: https://cdn.dasha.ai/blog/javascript-arrays-slice-and-splice/hero.webp
+heroImageTitle: Slice and Splice JavaScript Arrays Like a Pro
+introduction: "Do you find yourself looking up the difference between javascript splice () and splice() methods all the time?\n\nThe two methods are among the most used array methods when it comes to adding, updating, or removing items in an array, and cloning an array or copying a portion of an array."
+seoTitle: Slice and Splice JavaScript Arrays Like a Pro
+seoDescription: "Slice() and splice() JavaScript Arrays as methods look similar, and they sound similar, so it's very easy to get confused and to remember which is which."
+seoKeywords: "javascript array slice, javascript slice, js array slice, slice array javascript, javascript splice, js splice, splice js, js array splice, javascript array splice"
+---
+
+Javascript Slice() and splice() methods look similar, and they sound similar, so it's very easy to get confused and remember which is which. I've put together this guide on these two methods so that you can slice and splice JavaScrips arrays like a pro.
+
+![slice-vs-splice](https://cdn.dasha.ai/blog/javascript-arrays-slice-and-splice/slice-vs-splice.webp)
+
+## Javascript Array Slice() Method
+
+The array slice javascript method copies a chunk (or slice) from an array and returns that copied part as a new array. It does not modify or change the original array. Instead, it creates a new shallow copy of the original array.
+This method takes two optional arguments. The first argument is the startIndex, and the second is the endIndex. If you do not pass any arguments, the entire original array will be copied by default. Also, If the arguments you pass are greater than the actual array, it will return an empty array.
+
+**Syntax**
+
+```js
+// No arguments
+array.slice();
+
+// One argument
+array.slice(startIndex);
+
+// Two arguments
+array.slice(startIndex, endIndex);
+``` 
+
+**Parameters**
+- `startIndex`: 
+  - The index where the slice should begin. 
+  - If the value is omitted, it will start at 0. 
+- `endIndex`: 
+  - The slice will end before this index. So, for example, adding `index 4` will slice up to `index 3`, omitting the value of `index 4`. 
+  - If the `endIndex` value is omitted, it will slice to the end of the array. 
+
+Let's apply the slice javascript method to an array with no arguments:
+
+```js
+let favoriteFood = ["🍕", "🍔", "🌮", "🍨"];
+
+let slicedArray = favoriteFood.slice();
+
+console.log(slicedArray); // ["🍕", "🍔", "🌮", "🍨"]
+console.log(favoriteFood === slicedArray);  //false
+``` 
+In the above example, since there are no arguments, it has returned a copy of the entire array. 
+
+One important thing to note here is that these two arrays are not equal! They are two separate arrays containing the same values inside them. So if you check their equality as in the example, it will return `false`.   
+
+Now let's check how we can slice an array with a single argument. 
+
+```js
+let favoriteFood = ["🍕", "🍔", "🌮", "🍨"];
+
+let slicedArray = favoriteFood.slice(1);
+
+console.log(slicedArray); // ["🍔", "🌮", "🍨"]
+``` 
+
+When you pass a single argument to the slice() method, it grabs all the elements from that argument until the end of the array, including the index in the argument. So in our example, we have made a copy from `index 1` to `favoriteFood.length - 1`. 
+
+Here's a visual representation of our example:
+
+![slice-example-1](https://cdn.dasha.ai/blog/javascript-arrays-slice-and-splice/slice-example-1.gif)
+
+Let's move on to slicing an array by passing two arguments. 
+
+Imagine that we want to copy only the `🍔` and `🌮` from our previous example to a new array. 
+
+![slice-example-2](https://cdn.dasha.ai/blog/javascript-arrays-slice-and-splice/slice-example-2.gif)
+
+```js
+let favoriteFood = ["🍕", "🍔", "🌮", "🍨"];
+
+let slicedArray = favoriteFood.slice(1, 3);
+
+console.log(slicedArray); // ["🍔", "🌮"]
+``` 
+
+In the above example, 
+- We have added `index 1` as the first argument. Remember that the first argument includes the index itself when slicing the array.
+- As the second argument, we have added `index 3`. But it doesn't include the index when slicing the array. Instead, it only includes the elements up to that index. In this case, it will grab only up to `index 2`. 
+This array slice returns a new array with `🍔` and `🌮`. 
+
+Another thing that we can do with the slice() method is that use negative numbers for arguments. Let's see how this works with the below example.
+
+```js
+let favoriteFood = ["🍕", "🍔", "🌮", "🍨"];
+
+let slicedArray = favoriteFood.slice(-3);
+
+console.log(slicedArray); // ["🍔", "🌮", "🍨"]
+``` 
+
+In the above example, we have added a single argument as `-3`. This will start counting from the end of the array and slice it (not the beginning from the array). If we have given `-2`, it will return only `["🌮", "🍨"]`. This is very useful when you want to get the last element of the array, and then you just have to use  `-1`. 
+
+The slice() method is very useful for cloning an array, copying a portion of an array, and converting an array-like object into an array. 
+
+![slice-it-all](https://cdn.dasha.ai/blog/javascript-arrays-slice-and-splice/slice-it-all.gif)
+
+## Javascript Splice Array () Method
+
+The splice() method in Javascript helps you add, update, and remove elements in an array. This method modifies the array and does not create a new array. It will also return a new array with all the elements you have removed, which is helpful if you want to track what has been removed.
+The JS array splice method takes several arguments to decide which elements to delete, the delete count, and what elements to add. You can check further details on these parameters below.
+
+**Syntax**
+
+```js
+// general
+Array.splice(startIndex)
+
+// With the optional parameters
+Array.splice(start, deleteCount, newElement)
+``` 
+
+**Parameters**
+
+- `start`(required): 
+  - The index where the slice should begin for removing elements in the array.
+  - If the `start` is negative, it will count backward from the end of the array.
+- `deleteCount` (optional): 
+  - The number of elements to be deleted from that index.
+  - If you don't specify the `deleteCount`, it will delete everything in the array after the `startIndex`. 
+ - `newElement` (optional):  The new element(s) to be added to the array.
+
+Let's see how to remove elements with a single argument, with only the `start` parameter. 
+
+We have our favorite fruits in the array below, and we want to remove the last two fruits. 
+
+![splice-example-1](https://cdn.dasha.ai/blog/javascript-arrays-slice-and-splice/splice-example-1.gif)
+
+```js
+let favoriteFruits = ["🍓", "🥑", "🍊", "🍇"];
+
+let removedFruits = favoriteFruits.splice(2);
+
+console.log(favoriteFruits); //  ["🍓", "🥑"]
+console.log(removedFruits); //   ["🍊", "🍇"]
+``` 
+
+In the above example, we have added the `start` parameter as `2`, and that's where it has started removing things from this array. Since we haven't specified a second parameter, it has removed everything after `index 2`, including the `index 2` element. So now the `favoriteFruits` only includes `["🍓", "🥑"]`. And you can see the removed item in the array, `removedFruits`.
+
+If you add `0` as the `start` parameter without any other parameters, it will remove everything from the array and change it to an empty array. Also, if you add any number higher than the largest index number of the array, it will not affect the original array. 
+
+So what happens if we add a negative number as the `start` parameter? If the `start` is negative, it will count backward from the end of the array and remove the elements. Check the below example.
+
+```js
+let favoriteFruits = ["🍓", "🥑", "🍊", "🍇"];
+
+let removedFruits = favoriteFruits.splice(-3);
+
+console.log(favoriteFruits); //  ["🍓"]
+console.log(removedFruits); //   ["🥑", "🍊", "🍇"]
+``` 
+
+In the above example, we have added the `start` parameter as `-3`. This will start counting from the end of the array and remove items. If we have given `-2`, the original array will return `["🍊", "🍇"]`. 
+
+Now let's see how to remove elements with the `start` and `deleteCount` parameters. 
+
+Check the below example.
+
+```js
+let favoriteFruits = ["🍓", "🥑", "🍊", "🍇"];
+
+let removedFruits = favoriteFruits.splice(1, 2);
+
+console.log(favoriteFruits); //  ["🍓", "🍇"]
+console.log(removedFruits); //   ["🥑", "🍊"]
+``` 
+
+In the above example, we removed elements starting from `index 1` and removed two elements. And it has modified the original array with the remaining elements and returned an array with the removed elements. 
+
+So let's move on to adding elements to the array with the `newElement` parameter.
+
+You can add a continuous list of elements separated by commas. Let's add two additional fruits to our favorite Fruits. 
+
+![splice-exaple-3](https://cdn.dasha.ai/blog/javascript-arrays-slice-and-splice/splice-exaple-3.gif)
+
+```js
+let favoriteFruits = ["🍓", "🥑", "🍊", "🍇"];
+
+let removedFruits = favoriteFruits.splice(1, 1, "🍏", "🍒");
+
+console.log(favoriteFruits); //  ["🍓", "🍏", "🍒", "🍊", "🍇"]
+console.log(removedFruits);  //   ["🥑"]
+``` 
+
+Let's see what we have done here:
+
+- We removed `"🥑"`.
+- We set the `deleteCount` as `1` since we want to remove only one element.
+- And we added `"🍏", "🍒"` to the array where we remove the elements. 
+
+We can add any number of elements to the array by separating them by commas. When we add elements to the array, the array will grow in length. Also, if you don't want to remove any items, you can simply add the second parameter as `0`. 
+
+The Javascript array splice is mainly used when you need to delete or add new elements to an array. And you can either assign the returned array to a variable or ignore it as you wish. 
+
+Now we have a clear idea about how slice() and splice() methods work. You can find out what's the main differences between these two methods below.
+
+## Javascript Slice vs Splice
+
+The following table illustrates the differences between slice vs splice Javascript. In summary, the major differences are Slice () doesn’t modify the array while Splice () does. Slice () can fetch a new array from a sub-array of a given array while Splice() can add or remove items. 
+
+| Slice() | Splice() |
+| --- | --- |
+| Does not modify the original array | Modifies the original array |
+| This method is used to get a new array by selecting a sub-array of a given array. | This method is used to add/remove an item from the given array. |
+| The result has to be assigned to a new array variable. | The result is not required to assign to a new variable. |
+| Takes two arguments, both being optional. | Takes 3 arguments, the last two arguments being optional, and the last argument can have any number of parameters (just remember that you don't have to pass it as an array type). |
+| The second argument represents an index. | The second argument represents the count. |
+
+### Conclusion
+
+I hope this post helps you clear the confusion between these two methods. I use one trick to remember things: **the letter "p" of the splice() referred to as *permanently modifying* the array**. I hope it will help you as well 😊
+
+Happy Coding!
+
+![happy-coding](https://cdn.dasha.ai/blog/javascript-arrays-slice-and-splice/happy-coding.gif)

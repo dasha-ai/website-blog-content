@@ -1,0 +1,62 @@
+---
+slug: "how-to-lose-a-hackathon"
+title: "How to Lose a Hackathon: a Step by Step Guide"
+author: "Arthur Grishkevich, Citizen Developer Advocate"
+authorPhoto: https://cdn.dasha.ai/blog/how-to-lose-a-hackathon/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-09-10T01:42:31.095Z"
+updatedAt: "2025-06-06T04:32:34.687Z"
+readLength: ""
+heroImage: https://cdn.dasha.ai/blog/how-to-lose-a-hackathon/hero.webp
+heroImageTitle: How to lose a hackathon in 7 steps
+introduction: "I took part in a hackathon recently. My team lost miserably. Here are the steps we followed to secure this loss.\n\nYou may find these valuable if you do want to win the next hackathon you participate in. Or if you want to lose it."
+seoTitle: "How to Lose a Hackathon: a Step by Step Guide | Dasha.AI"
+seoDescription: "Follow these steps and you'll be sure to secure a loss in any hackathon. A valuable tongue-in-cheek manual from a Dasha.AI hackathon expert."
+seoKeywords: "hackathon, AI, Dasha AI, conversational app, conversational AI app "
+---
+
+*This is a repost of my [Hashnode](https://hashnode.com/edit/ckszz5h13027854s1hoyo87ot) article.*
+
+## Losing a hackathon 
+
+### Step 1 - Don’t prepare until an hour or two before the event starts
+This step is absolutely key. If you ignore it you might actually have a chance of winning. We had thought about reviewing the APIs we would be working with and getting together a week prior to the hackathon. Had we done so, we might have had time to brainstorm and come up with a concept for our product. We might even have mapped out our architecture and integrations, if at a high level. Or we may have defined our areas of responsibility. Certainly we would have been one step closer to winning, so we did not do it. Instead, we got together at the official start of the hackathon, bounced some ideas around, picked the worst one (more on that below) and ran with it.
+
+### Step 2 - Come to the hackathon exhausted
+This step really helps. Stay up for 12-18 hours before you begin your 24 hours of coding. Due to my current timezone constraints, I and one of my teammates were up working at 6am that day and sat down to the hackathon at 10pm. 
+
+Dare I claim this feat made us more productive? Hell no. As a matter of fact, by the time we had gone to get some rest at 6am, we thought we were close to 50% done with our app but after getting some sleep, ended up having to rewrite some of the application code. We also were nowhere near finished in terms of integrating the whole thing together and deploying. I’d guess we were 20% done by the 6am mark, a far shot from the 50%.
+
+### Step 3 - Solve a problem that doesn't exist
+This one is the cherry on the cake. Instead of making sure your app solves a real world problem, create a problem out of thin air. We wanted to showcase our own technology and in our brainstorming session (see Step 1 above) we came up with two use cases. One solved a real problem (replacing call center agents). The other did not (onboarding new customers with voice) but looked cool. We picked the latter. 
+
+### Step 4 - Don’t use the tech made available to you by event organizers
+Obviously this step only applies to those hackathons where organizers want participants to make use of their technologies. This one is quite self explanatory isn’t it? If the organizers want you to use their tech, make a token gesture to it. A nod. This is a sure way to lose the hackathon. 
+
+We made a big mistake in picking our use case (Step 3). We picked the one which used exactly two methods in the US Bank APIs. The Brits might call this “taking the piss.” In contrast, the winner made use of what looked like 80% of the available methods.
+
+### Step 5 - Make it perfect! 
+Instead of building fast and shipping a rough but enticing product, focus on polishing the user experience. This one is all me. I was the team member responsible for the user-facing conversational AI interface and I spent A LOT of time reworking it, adjusting for more and more complex pathways and running test conversations over and over. 
+
+### Step 6 - Forget about the time
+You know how you are going to have to create a presentation and practice presenting, make sure your deploys are working and data is rendering properly and actually run through the full demo a half dozen times to make sure you can fit the entire thing in five minutes? Yeah, forget about that. Instead, focus on Step 5. When you have 20 minutes left before the submission deadline, throw together a half assed deck and submit your code one minute after the cut off. Then find out that you are the second presenter in line and presentations are moved up 1.5 hours and start… right now. If you follow this step, you are guaranteed to lose. 
+
+### Step 7 - Ignore the presentation software 
+WebEx never works like it’s meant to. But that’s no reason for you to worry. Yes, don’t worry about it. When it’s time for you to present, just open the thing in Safari and when you find out that you can’t share your screen, shrug it off and start telling a bad joke while the desktop version downloads. This is sure to put the judges in a good mood and not to penalize you at all. And, yes, this also really happened. 
+
+## What we built 
+
+Reading over this now, it looks like such a trainwreck. It’s making me ask - did we do anything right? I think we did. 
+
+We split up our areas of responsibility and stuck to them, yet helped each other out where needed. We stayed in a Discord voice channel and communicated the entire time we were online and working. We were civil to each other even as the deadline approached. 
+
+For our product, we built an automated voice user onboarding workflow. The user opens the app, enters their phone number, gets a call from an AI agent who asks them a series of questions, helps them to open their account, suggests they may want to create a virtual credit card and takes them through the card creation process. We also built (I think) a fairly cool app concept. 
+
+We used ReactJS, HTML5 on the front-end, ExpressJS, Node.js and MongoDB on the back-end, Websocket for communications, and consumed the bank’s card as a service API. We used Dasha AI Studio to create the conversational workflow and the Dasha SDK in our Node.js back-end to make the conversational workflow an integral part of the application. Here is me giving a demo of the app for some friends after we lost (if you like the conversational part, you can join our [developer community](https://community.dasha.ai) where we build AI apps): 
+
+%[https://youtu.be/FlqnbPQQfv4]
+
+## Final words
+
+Congratulations. Now you know how to lose any hackathon. By extension, you now know what to avoid in order to increase your chances of winning a hackathon. Good luck and godspeed. 

@@ -1,0 +1,101 @@
+---
+slug: "build-conversational-ai-app-1"
+title: "How to get started with your first conversational AI app development. Step 1: map it"
+author: "Artur Grishkevich, Head of Growth"
+authorPhoto: https://cdn.dasha.ai/blog/build-conversational-ai-app-1/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-06-10T09:09:51.614Z"
+updatedAt: "2022-03-15T13:33:07.529Z"
+readLength: "7 minute read"
+heroImage: https://cdn.dasha.ai/blog/build-conversational-ai-app-1/hero.jpg
+introduction: "In this tutorial we focus on the preparatory work - analyzing your proposed conversation, tailoring a conversational script, preparing and implementing it as a voice app."
+seoTitle: "Conversational AI App Development - How to get started?"
+seoDescription: How to develop a conversational AI app. Setting up a conversation map. Making sure the conversation is mapped out in detail before proceeding with development.
+seoKeywords: "ai as a service, conversational AI, ai app development, dasha AI, ai conversational interfaces, conversational automation"
+---
+
+## How to Build a Conversational App with Dasha — First Steps & Prerequisites
+
+A key value proposition of Dasha AI Platform suite of tools is letting you use the latest and greatest in conversational AI without knowing a single thing about machine learning, neural networks or AI for that matter. To this end, we provide AI as a service of the Dasha Cloud Platform. 
+
+Here is the architecture at a glance, for more please refer to the [<u>Platform Overview</u>](https://docs.dasha.ai/en-us/default/platform-overview/) section of the documentation. Everything you see in the Application Layer is the AI as a service component. 
+
+![Dasha AI Platform architecture](https://cdn.dasha.ai/blog/build-conversational-ai-app-1/image1.webp)
+
+## Preparing your script and adapting it for the AI conversational interface
+
+For the purpose of this article we will take a simple conversation that I want to automate with an AI app. It’s an app that will replace an administrator at your favorite restaurant. You call the restaurant, the AI picks up, takes your order and tells you when to come by to pick it up. Of course, we may need to answer a few questions along the way. 
+ 
+To figure out how the conversation usually goes, we sit down with the current receptionist. Here is the conversation, as he conveyed it to us. 
+
+`Administrator: Hi, this is John at Acme Burgers Main Street location. Would you like to place an order for pick-up? 
+Customer: Yes, please. 
+Administrator: What can I get for you? 
+Customer: I’d like a burger, some fries and a milkshake. 
+Administrator. Perfect. Let me just make sure I got that right. You want a burger, fries and a milkshake, correct? 
+Customer: That’s right. 
+Administrator: Great. Will you be paying at the store? 
+Customer: Yes, please. 
+Administrator: Perfect. Your order will be ready in 20 minutes at Acme Burgers Main Street location. Please go straight to the pick up counter. Can I help you with anything else? 
+Customer: No, that’s it. Thanks. 
+Administrator: And thank you for placing your order with us. Have a lovely day and enjoy!`
+
+
+The Administrator also told us that sometimes customers ask about food availability, delivery, ability to eat in, among other things.
+ 
+Let’s structure this script for your use in your conversational AI app development. I like to use a table to do this, as it helps me to get a bird’s eye view of the app I’m building. You can copy [this spreadsheet](https://docs.google.com/spreadsheets/d/1LqBiQOyY77CsirHimHFz0wN7bCVjhGbns6ptiu4_zLA/edit#gid=0) to your Google Drive here or download it as an Excel spreadsheet to use on your machine. 
+
+
+![A pre-filled out conversation map, as a first step to plan your conversational AI app ](https://cdn.dasha.ai/blog/build-conversational-ai-app-1/image2.webp)
+
+## Conversational AI Development — Breaking Down the Conversation
+
+In order to build your conversational AI app, break your conversation into three main areas: 
+
+1. **Perfect world workflow** - that’s the script the administrator shared with us earlier. Note that all nodes here are ***node*** which means that they can only be reached from another ***node*** or ***digression***.
+2. **Additional nodes (logical extensions)** - these are talking points that will have to come up based on some of the responses to the script above. In this case, if the user answers “No” to “Would you like to place an order for pick-up?”, a logical response will be “How can I help you then?” Since this is not described in our perfect world workflow, we place this node in the logical extensions section.
+3. **Digressions (tangents)** - our hypothetical restaurant administrator told us that sometimes customers ask about things outside of the script. In order to sound human-like on the phone (pass the Turing test), the AI has to be prepared to respond to these ***digressions***. Here we prepare it for such. Note that, unlike a node, a digression can be brought up at any point in the conversation. Please note **column C**. It references an **intent name.** Intent classification categorizes phrases by meaning. This is how the AI app makes sense of what the user is saying to it. You can train your AI app to recognize the specific intent that you are looking for in the phrases of the user. To do so, you modify the data.json file and, you guessed it, you need to assign a specific name to each intent. In this spreadsheet we fill out **intent names** in Column C.
+
+*Pro tip: I wrote a piece explaining the difference between nodes and digressions in detail. You can find it *[*here*](https://dasha.ai/en-us/blog/using-digressions)*. Also Iliya wrote a *[*detailed explanation*](https://dasha.ai/en-us/blog/intent-classification)* of how to use intent classification.*
+
+Here is our spreadsheet with the intent names filled out: 
+
+![We filled out the Intent name](https://cdn.dasha.ai/blog/build-conversational-ai-app-1/image3.webp)
+
+## Planning and structuring your conversational AI app 
+
+You should have noticed that a few of the columns in our spreadsheet are empty. Let’s see what they are and what their significance is to building your conversational AI app. 
+
+Let’s start with column F.
+
+**Node name** - here you will name the ***node***; you will use the name in your DashaScript code 
+
+**Digression name** - by the same token, you will name your ***digression*** here
+
+I have gone through and named all of our nodes and digressions. You can see the result here (here is the spreadsheet [<u>link</u>](https://docs.google.com/spreadsheets/d/1LqBiQOyY77CsirHimHFz0wN7bCVjhGbns6ptiu4_zLA/edit#gid=0) again just in case ): 
+
+![Conversation map with Node and Digression names filled out ](https://cdn.dasha.ai/blog/build-conversational-ai-app-1/image4.webp)
+
+We’ve now got the node and digression names. By the way, you probably noticed that **digression names** and **intent names** are identical. They don’t have to be but for ease of mapping I like to keep them identical. 
+
+Note that we have a **node** place_order and a **digression** place_order. We need to duplicate the functionality because you can only transition into a node, yet at any point in the conversation the user might request ordering food. You can have the same name for a **digression** and a **node**. 
+
+Let’s map **transitions** (we’re getting to the fun part). The funnest (and most helpful) part about mapping transitions is realizing how many logical nodes are missing from our initial vision of the conversation map. 
+
+![Our conversation map is complete ](https://cdn.dasha.ai/blog/build-conversational-ai-app-1/image5.webp)
+
+So now we have specified exactly what action the AI app should take upon any given user response. Bear in mind that we are not mentioning **digressions** here because the user can bring the **digression** up at any point in the conversation. That’s why they are digressions. 
+
+# Conclusion 
+
+Congrats. If you follow these steps you’ll be able to map out most any conversation. In the [next installment](https://dasha.ai/en-us/blog/conversational-ai-app-development-build) we go through building this conversation out in Dasha Studio. 
+
+
+
+
+
+
+
+
+

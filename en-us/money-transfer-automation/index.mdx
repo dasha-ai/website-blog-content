@@ -1,0 +1,277 @@
+---
+slug: "money-transfer-automation"
+title: How to get started with customer service automation at your bank. A quick start guide for a simple money transfer AI app.
+author: "Anzhelika Minina, Growth Marketer"
+authorPhoto: https://cdn.dasha.ai/blog/money-transfer-automation/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-06-15T14:04:21.439Z"
+updatedAt: "2022-03-04T11:41:44.162Z"
+readLength: "9 minute read"
+heroImage: https://cdn.dasha.ai/blog/money-transfer-automation/hero.webp
+introduction: "So you’re considering using customer support automation at your bank but are unsure where to begin. The good news is you’re at the right place. \n\nIn this guide we’ll talk about why it is a smart decision to use artificial intelligence in banking, how to use customer service and support automation, and will provide you with a step-by-step guide on creating your own automated money transfer app."
+seoTitle: "AI in banking: Customer Service Automation and Money Transfer App  | Dasha.AI"
+seoDescription: "Why use artificial intelligence in banking, how to do customer service and support automation? A step-by-step guide for creating your own automated money transfer app."
+seoKeywords: "ai in banking customer service, artificial intelligence in banking, customer support automation, automation for banking, conversational AI app, Dasha AI, Dasha conversational AI"
+---
+
+## What exactly are the benefits of automation for banking industry?
+
+Automation is a catalyst for growth for companies. It’s tough to imagine a company that’s not deploying at least some sort of automated procedures. Without automation you are bound to have persistent human errors, overheads and reduced operational efficiency. 
+
+According to a [Pega robotic automation case study](https://drive.google.com/file/d/1N9bD4dSzvOcZ3F6OO-MMxmQXF6xgpnwU/view), automating customer experience reduced error rates down to 2% (from an approximate of 30% rate), reduced processing time
+by a whole 78% and accounts processed number increased twofold. 
+
+Customer service and support automation helps:
+- avoid repetitive tasks,
+- employees to focus on focal projects and task, 
+- reduce operational costs,
+- scale the business,
+- reduce AHT,
+- be available to customers on a 24/7 basis, etc.
+
+## Why you should use customer support automation in banking
+
+Let’s start with something that affected nearly all consumer banking customers.
+
+### Long-hold times
+
+During 2020, the number of times when the customers were put on hold for hours while trying to reach their bank are immense. Some of the clients had to spend three, five, and some even ten hours on hold, which greatly diminished their satisfaction with the banking experience. By letting artificial intelligence take care of incoming calls, banks that employed such tech managed not only to increase CX and to improve customer loyalty and satisfaction, but also avoided unnecessary work, which would’ve been their CS team spending time resolving complaints. This is just one example of how invaluable customer support automation is for the banking industry.
+
+There is no question whether utilizing artificial intelligence in banking is a must in 2021. According to [EY press release](https://www.ey.com/en_gl/news/2020/02/artificial-intelligence-will-be-an-essential-business-driver-for-financial-services-within-two-years-according-to-study-co-sponsored-by-ey), 68% of financial institutions executives are planning to “use AI for new revenue generation, process automation, risk management, customer service and client acquisitions within two years”. And there’s no wonder why: “AI can potentially unlock $1 trillion of incremental value for banks, annually”, as per [McKinsey](https://www.mckinsey.com/industries/financial-services/our-insights/ai-bank-of-the-future-can-banks-meet-the-ai-challenge#).
+
+The banking industry can rest assured that using automation will get their customers’ requests answered promptly and accurately. While AI can handle most customer questions, some require complex problem solving, human interaction and creativity, in which case calls get transferred securely to a human operator. 
+
+### Cost-saving
+
+One of the most compelling reasons for utilizing artificial intelligence in banking is self-explanatory: cost saving. According to [Business Insider](https://www.businessinsider.com/ai-in-banking-report), front- and middle-office AI uses provide banks with a cost saving opportunity of $416 billion. Think about that. 
+
+Now, let’s consider some AI implementation use cases for banks. You will see that AI in banking customer service is indispensable.
+
+## Ways banks can use AI banking 
+
+Conversational AI is a hype nowadays and it’s justified. There are myriad ways artificial intelligence can be used in banking. Banks use it to automate the way customer can:
+- submit a loan application,
+- report a stolen or lost card,
+- check balance of their accounts,
+- schedule an appointment with a bank representative,
+- transfer money, etc.
+
+All of these use cases can be easily and seamlessly be solved with Dasha Studio. Without further ado, let’s take a look at how anyone with little to no coding skills can create the last point mentioned in the list, money transfer. 
+
+## AI and Banking: How to automatically conduct a money transfer with a simple conversational AI app
+
+Let’s take a look at a Dasha conversational AI demo for the money transfer use case.
+
+First things first, you’ll need to install [Visual Studio](https://code.visualstudio.com/), [Node.js](https://nodejs.org/en/download/), join [Dasha’s developer community](http://community.dasha.ai/) (that’d allow you to get any help you need), and finally download a money transfer app code demo. If that sounds confusing to you, don’t fret. We have a [step-by-step guide](https://dasha.ai/en-us/blog/virtual-receptionist-software) that will allow you to do everything in a matter of minutes (you can go straight to the “Installing Dasha Studio and loading a pre-built AI virtual receptionist app” part).
+
+Now to the fun part! Let’s take a look at the code. 
+
+In order to see the full picture of what’s happening in the code without actually distracting yourself with the code lines themselves, check out the Graph Editor. It will show you the pathways conversation might take place. The Graph Editor essentially shows you all the high-level nodes. (P.S. a node describes the system's actions in the current state and the conditions for transitioning to other nodes. For more information on DashaScript language structure (dsl), check out the [Documentation](https://docs.dasha.ai/en-us/default/dasha-script-language/) link).
+
+![Graph Editor](https://cdn.dasha.ai/blog/money-transfer-automation/Graph_Editor.jpg)
+
+Note: if you can’t see the pathways, just zoom out. It should look like this:
+
+![Graph Editor - zoom out](https://cdn.dasha.ai/blog/money-transfer-automation/Graph_Editor_-_zoom_out.jpg)
+
+At this point, zoom in a bit. What you are seeing are digressions. Nodes that have no other nodes leading into them. A user can call a digression up at any point in the conversation. This functionality emulates the way in which humans communicate with each other. For more info on digressions, take a look at this post. 
+
+![Graph Editor - zoom in](https://cdn.dasha.ai/blog/money-transfer-automation/Graph_Editor_-_zoom_in.jpg)
+
+Now, let’s get to the most important part - the code. Open file __main.dsl__ 
+
+![Main.dsl](https://cdn.dasha.ai/blog/money-transfer-automation/Main.dsl.jpg)
+
+With line 1 we import common libraries. In line 7 we declare alias for a type and in lines 12-22 we declare variables for context. The variables will be used later to store data received from the user in the course of the conversation. 
+
+The lines 34-43 describe what happens at the start of the chat between AI and the customer. 
+
+```dsl
+start node root
+{
+    do
+    {
+        #connectSafe($phone);
+```
+
+tells us that Dasha safely connected to a customer’s phone. moving on to the 
+
+```dsl
+#waitForSpeech(1000);
+```
+
+means that Dasha will wait for 1000ms (1 second) and move on to
+
+```dsl
+#say("greeting");
+```
+
+which means Dasha will greet the customer and after that it’ll wait for them to respond:
+
+```dsl
+wait *;
+    }
+```
+
+The lines 43-47 describe the transition the app makes once an event is triggered. In this case we see __#messageHasIntent("transfer_money");__, which refers to the intent __transfer_money__, which is when the customer specifies their intention to transfer money from one account to another. 
+
+It’s now the best time to take a look at the intents themselves. But what are intents? Intents are reusable within the application. It means that you can use it in different steps of the conversational script. You don't need to define individual ones for different transitions, except for those cases when it's necessary for your script. Intent classification is aimed to categorize phrases by their meanings (intention). (Note: for more information on intents you can check out [this blog post](https://dasha.ai/en-us/blog/intent-classification) which focuses on them).
+
+Go to data.json to view all the specified intents  As you can see, there are 2 main parts to each intent: __includes__ and __excludes__. __Includes__ part shows all the specified phrases a customer can say to trigger __transition__. In this case, a customer talks about their intention to have their money transfered. The __excludes__ part describes the phrases that need to be prevented from being included in the intent so that the app doesn’t trigger the unexpected response. 
+
+![Data.json](https://cdn.dasha.ai/blog/money-transfer-automation/Data.json.jpg)
+
+Moving on to lines 48-64. The __onexit__ node section is defined right after transitions section and allows to specify actions to perform before exiting the node. The app goes on to perform the lines 66-115, starting with the __preprocessor digression transfer_data__. 
+
+```dsl
+preprocessor digression transfer_data
+{
+    conditions
+    {
+        on true;
+    }
+
+    var amount: string = "";
+    var source_account: string="";
+    var target_account: string="";
+    var account: string ="";
+```
+
+Here all the entities that the customer could have mentioned in the phrase are mentioned. If they said “$50”, the transfer money app remembers it in the amount (__var amount: string = "";__), if the person said something about their account (savings or deposit) or the bank they want to transfer the money to (Wells Fargo, Bank of America, etc - which are already on file in users_db.json), the app remembers that information, as the lines below show:
+
+```dsl
+var source_account: string="";
+    var target_account: string="";
+```
+Same logic applies to __var account: string ="";__. 
+
+Tags __source__ and __target__ are an extra marker of entities, which help differentiate entities’ meaning. __Source__ refers to which account the money will be transferred from and __target__ refers to where the money will be transferred to.
+
+Lines 105-108 refer to the instance when the __bank__ or __account__ was identified without any tag assigned. For example, if a customer says “transfer $50, savings account”, we don’t yet know whether we should take $50 from the savings account or transfer that amount to the savings account. 
+
+![Account and bank](https://cdn.dasha.ai/blog/money-transfer-automation/Account_and_bank.jpg)
+
+One more important thing to note is that you shouldn’t worry about the customer asking tangential phrases such as “are you a robot?”, “call me back later”, or “wait a moment”:
+
+![commonReactions](https://cdn.dasha.ai/blog/money-transfer-automation/commonReactions.jpg)
+
+As you can see, common reactions not only have the “wait” part, but iAmRobot, for instance, which describes the situation when a customer can digress to asking whether the person on the other side of the phone is a robot. You don’t need to worry about digressions such as a customer asking to repeat a question or a statement AI says, as it’s already accounted for.
+
+Note that the app follows a slot filling system. From lines 186-192 you see that AI will try to get all the information necessary (what bank to transfer money to, from what account to take the funds from, and what amount to transfer) from the customer. It will go in a loop __     loop: goto transfer_money;__ until it has all the information.
+
+```dsl
+  transitions
+    {
+        provide_data: goto transfer_money on #messageHasIntent("transfer_money") or #messageHasData("bank") or #messageHasData("account") or #messageHasData("numberword");
+        loop: goto transfer_money;
+        confirm: goto transfer_confirmation;
+    }
+}
+```
+
+Also note that in this particular demo case the app accounts for 2 different users, yet it can account for all the customers that exist in your bank’s database. Additional logic and security features such as voice verification may be added to ensure that you have the safest money transfer app. 
+
+We can see that from the screenshot below. For this transfer money automation system, we set those two users to have different banks to transfer money to, set one to have both savings and deposit accounts, and the other to have only a deposit account. Additionally, the app accounts for the customer's balance in order to cancel the transaction in case the customer doesn’t have sufficient funds.
+
+![Users](https://cdn.dasha.ai/blog/money-transfer-automation/Users.jpg)
+
+At this point we got all the information we need from a customer, which are the account they want to transfer money from, the bank account they want to transfer money to, and the amount. The lines 224-258 describe the steps to make AI ask for confirmation. It will repeat all the information received from the customer and if it’s correct (__positive: goto process_transfer on #messageHasIntent("agreement", "positive");
+__),__ the app proceeds to transfer the money. If it got something wrong (__negative: goto transfer_money on #messageHasIntent("agreement", "negative");
+__),__ it will ask again for the needed information.
+
+```dsl
+node transfer_confirmation
+{
+    do
+    {
+
+        #say("ask_transfer_confirmation",
+        {
+            amount: $amount,
+            source_name: $source_account?.name,
+            source_num: $source_account?.num,
+            target_name: $target_account?.name,
+            target_num: $target_account?.num
+        }
+        );
+        wait *;
+    }
+    transitions
+    {
+        positive: goto process_transfer on #messageHasIntent("agreement", "positive");
+        negative: goto transfer_money on #messageHasIntent("agreement", "negative");
+    }
+    onexit 
+    {
+        negative: do {
+            set $amount = "";
+            set $source_account = null;
+            set $target_account = null;
+            set digression.transfer_data.amount = "";
+            set digression.transfer_data.source_account = "";
+            set digression.transfer_data.target_account = "";
+            set digression.transfer_data.account = "";
+        }
+    }
+}
+```
+
+Let’s go back to lines 194-222 for a moment. 
+
+![Digression](https://cdn.dasha.ai/blog/money-transfer-automation/Digression.jpg)
+
+This part describes a situation where a customer decides to change the amount they want to be transferred. The __block__ is a graph analog of subroutines that provides a mechanism for code reuse.
+
+The __if__ part describes a situation where a customer says they want to change the transfer amount and say the exact amount they want to change it to. In which case we notify that the amount has been changed and say the new amount.
+
+```dsl
+if(#messageHasData("numberword", { value: true })){
+           var amount = #messageGetData("numberword", { value: true })[0]?.value??"";
+           #sayText("Awesome, I've just changed the transfer amount to " + amount, repeatMode: "ignore");
+           return amount;
+```
+
+The __else__ part describes a situation where a customer only says they want to change the transfer amount. Here we ask the customer to tell us the amount they want to change to. 
+
+```dsl
+  else {
+            #sayText("What's the amount you want to be transfered?", repeatMode: "ignore");
+            wait *;
+```
+
+Note that __digression__ can happen at any moment of the conversation. For example, a customer could decide to change the amount to be transferred after choosing where to transfer the money to. You can see which phrases will trigger “differentamt” intent in the __data.json__ tab on the left.
+
+The final step, as mentioned above, is the transfer money automation app concluding the transaction and sending the funds to where the customer specified, lines 247-267 depict that.
+
+```dsl
+node process_transfer
+{
+    do
+    {
+        #say("wait_for_processing");
+        set $result = external transfer_money($amount, $source_account, $target_account);
+        if($result)
+        {
+            #say("transfer_success");
+        }
+        else
+        {
+            #say("transfer_failed");
+        }
+        #disconnect();
+        exit;
+    }
+    transitions
+    {
+    }
+}
+```
+
+And done! Great job, you now have your own automated money transfer conversational AI app!
+
+## Conclusion
+
+Whether your main goal is to reduce errors of your call center team, scale your business or become more effective in daily operations, automating with Dasha conversational AI is the right next step for your bank. 
+
+Now that you know how to build a money transfer app, you can go on to building more elaborate apps that target your main goals. And don’t worry if you encounter complications or have questions - Dasha AI developer team is always ready to help you out.

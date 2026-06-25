@@ -1,0 +1,482 @@
+---
+slug: "xfinity-customer-service-conversational-ai-app"
+title: "How I turned a 20-minute Xfinity customer support call into a 5-minute conversational AI experience"
+author: "Anzhelika Minina, Citizen Developer"
+authorPhoto: https://cdn.dasha.ai/blog/xfinity-customer-service-conversational-ai-app/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-10-29T16:29:50.964Z"
+updatedAt: "2022-03-21T21:03:24.326Z"
+readLength: "9 minute read"
+heroImage: https://cdn.dasha.ai/blog/xfinity-customer-service-conversational-ai-app/hero.webp
+heroImageTitle: Xfinity + Dasha
+introduction: "I went into this Customer Support call hoping for the best. Instead, I had an inefficient and time-consuming conversation with a live representative. So I opened VSCode and reimagined the Xfinity customer support call center experience with conversational AI."
+seoTitle: "Xfinity Customer Support: How 20-minute Call Becomes a 5-minute Conversational AI Experience"
+seoDescription: "You'll learn how to go from having inefficient live chat to an automated, fast conversational AI app to solve all your user's questions."
+seoKeywords: "xfinity, xfinity customer service, xfinity internet, customer support chat, conversational AI, conversational AI app, Dasha, contact center ai"
+---
+
+## Efficiency comparison: conversational AI and live chat representative
+
+I called Xfinity (Comcast) hotline because I wanted to set up an internet connection at my new apartment. I was also wondering about having a TV plan with them. These were my two main questions, followed by sub-questions, naturally. 
+
+The hotline bot was a waste of time since it couldn’t help me as a new customer and didn’t connect me to an operator no matter how hard I tried. The voice bot told me I had to go to Xfinity website and have a live chat with an Xfinity customer service representative - which I did.
+
+The chat lasted 20 minutes. I had to talk to 2 representatives. 
+
+My questions were FAQs - extremely easy to answer when you call Xfinity customer support. I saw an opportunity for Xfinity customer service to better its customer support operations. So I built this app to demonstrate my thought process.
+
+## Customer support conversational AI app that reduces the chat time by nearly 75%
+
+I created a conversational AI app that solves for the answers I sought in reaching out to Xfinity. The chat with my conversational AI app took me less than 5 minutes and gave me all the answers I needed. Just like the representative did. But at what cost? 20 minutes versus less than 5!
+
+This is what I ended up with: 
+
+<a href="https://youtu.be/m2lCNHpfEGw" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://youtu.be/m2lCNHpfEGw</a>
+
+This app can serve you as a base to create your own customer support conversational AI apps and use them for call center automation.
+
+You can [download the Dasha app here](https://github.com/dasha-samples/xfinity-customer-support-app) or follow the steps below to create your own version of this application.
+
+## Getting started with Dasha conversational AI
+
+If you have never used Dasha before, you need to activate your API key. The API key lets you load your conversational application to the Dasha Cloud Platform, where it is executed. If you have your Dasha API key, ignore this part.  
+
+Download the latest versions of Microsoft VSCode, Node.js and NPM. Dasha Studio is implemented as an extension to VSCode for your convenience. Open Visual Studio Code and install the [Dasha Studio extension](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio) and Dasha Command Line Interface. 
+
+```bash
+code --install-extension dasha-ai.dashastudio && 
+npm i -g "@dasha.ai/cli@latest"
+```
+
+Note, on Mac you might need to add `sudo ` before the command to run it as administrator.
+
+Now, run a command to register your Dasha API key. A browser window will pop up and you will need to sign up for an account. 
+
+```bash 
+dasha account login
+```
+
+Afterwards, run to check your API key. 
+```bash 
+dasha account info
+``` 
+
+Let’s get to know the files you’ll be using to create your conversational AI app. Clone this source code and open the folder in VSCode [Dasha Blank Slate app](https://github.com/dasha-samples/blank-slate-app) source code and use it as a base upon which to write your code. 
+
+You’ll have to open **main.dsl** and **data.json** files and delete everything you see there. This way, you’ll be able to start writing your code from scratch while having all the other essential files (for instance, the `commonReactions` library that has pre-programmed replies so you don’t have to worry about coding those).
+
+You’ll mainly be using 2 files to create your conversational AI app:
+
+* main.dsl -- this is where you’ll write your DashaScript Language code to create the workflow of your conversational AI app. You can read more about it in our [documentation](http://docs.dasha.AI). 
+
+* data.json -- is where you provide data set you to train the Dasha Cloud neural networks to recognize user [intents](https://dasha.ai/en-us/blog/intent-classification) and identify [named entities](https://dasha.ai/en-us/blog/named-entity-recognition). 
+
+* index.js --  is the server-side JavaScript file to which the Dasha SDK is imported and which launches the contents of the __/app__ folder to the Dasha Cloud to be executed.  Here you’ll be adding any external functions you deem necessary once adapting the code to your company’s needs. 
+
+Familiarizing yourself with the files is important, but now let’s get to the fun part - programming the recreated Apple customer support conversational AI app!
+
+## Conversational AI app structure
+
+Now, the basics here are 2 things: 
+
+* importing common library
+
+```dsl
+import "commonReactions/all.dsl";
+```
+
+* writing our the context for the app
+
+```dsl
+context 
+{
+    // declare input variables phone and name  - these variables are passed at the outset of the conversation. In this case, the phone number and customer’s name 
+    input phone: string;
+
+    // declare storage variables 
+    output first_name: string = "";
+    output last_name: string = "";
+    output device_num: string = "";
+    output zip_code: string = "";
+}
+```
+
+This conversational AI Xfinity chat bot will remember the variables it receives to then use them throughout the conversation. The variables, in this case, are first name, last name, the number of devices, and the zip code of the customer.
+
+The next step is writing your first node called root. Take a look at how it’s written out:
+
+```dsl
+start node root 
+{
+    do 
+    {
+        #connectSafe($phone);
+        #waitForSpeech(1000);
+        #sayText("Hello, thank you for contacting Xfinity Support. My name is Dasha. Can I get your name, please?");
+        wait *;
+    }   
+    transitions 
+    {
+
+    }
+}
+```
+
+We’re achieving multiple things here. In the `do` section we establish a connection to the user’s phone, wait for 1 second to speak (or give the user 1 second to say something), and then say our welcome message. 
+
+Since we need to know the user’s name, we should write where the conversation should go after we get that information in the `transitions` section. We make a transition to the node that follows once a particular intent gets triggered (`#messageHasData("first_name");`).
+
+We leave the `transitions` space empty since this start node isn’t connected to any of the nodes. The conversation will move to digressions after this point.
+
+Let’s take a dive into the data.json file and take a look at how entities work there:
+
+```json
+  "entities": {
+    "first_name": 
+    {
+      "open_set": true,
+      "values": 
+      [
+        {
+          "value": "John"
+        },
+        {
+          "value": "Bridgette"
+        },
+        {
+          "value": "James"
+        },
+        {
+          "value": "Sarah"
+        },
+        {
+          "value": "Jermaine"
+        },
+        {
+          "value": "Roseanne"
+        },
+        {
+          "value": "Ahmed"
+        },
+        {
+          "value": "Tony"
+        },
+        {
+          "value": "Jon"
+        }
+      ],
+      "includes": 
+      [
+        "(Oscar)[first_name]",
+        "(Danielle)[first_name]",
+        "My name is (Sophie)[first_name]",
+        "My name is (Sarah)[first_name]",
+        "My name is (Cameron)[first_name]",
+        "My name is (Steven)[first_name]",
+        "My name is (Jessica)[first_name]",
+        "My name is (Jon)[first_name]",
+        "My name is (Ahmed)[first_name]",
+        "My first name is (Lisa)[first_name]"
+      ]
+    },
+```
+
+The `includes` section is very helpful. It provides you with an opportunity to have your model trained better as you feed it more examples. 
+
+`Onexit`section lets the conversational AI app store, remember, and later use the variables we feed it. In this case, we assume the user might say their last name, first name, or both. And we got to store that information for later use. Note that this information will be used in the node you specify right after `onexit`.
+
+Moving on to the next nodes. 
+
+In the following digression, our purpose is to program the conversational AI app to ask the user about their concern or problem and then transition to the corresponding nodes (or digressions). 
+
+```dsl
+digression how_may_i_help
+{
+    conditions {on #messageHasData("first_name");} 
+    do 
+    {
+        set $first_name =  #messageGetData("first_name")[0]?.value??"";
+        set $last_name =  #messageGetData("last_name")[0]?.value??"";
+        #sayText("Hi," + $first_name + " how may I help you out today?");
+        wait *;
+    }
+}
+```
+
+Note that in the `onexit` section, what comes after `set` goes to our context up above. 
+
+As mentioned, the first question was about getting Wi-Fi access. Let’s see how a `digression` works to handle this customer request:
+
+```dsl
+digression internet_inquiry
+
+{
+    conditions {on #messageHasIntent("internet_inquiry");} 
+    do
+    {
+        #sayText("I will be glad to answer your questions and help you with the new account setup. To suggest the best plans, may I know how do you use the internet? Like heavy usage or gaming, streaming, or heavy downloads? Or you can tell me how many devices you will be connecting at the same time?");
+        wait *;
+    }   
+    transitions
+    {
+
+        zip_code : goto zip_code on #messageHasData("number_of_devices");
+    }
+    onexit
+    {
+        zip_code : do {
+        set $device_num =  #messageGetData("number_of_devices")[0]?.value??"";}
+    }
+} 
+```
+
+Right before the `do` section we have to set a condition with specific intent or entity which will trigger the digression to jump in. In this case, we have `#messageHasIntent("internet_inquiry"`, let’s go to data.json file and take a look at this intent:
+
+```json
+{
+  "version": "v2",
+  "intents": 
+  {
+     "internet_inquiry": 
+    {
+      "includes": 
+      [
+        "set up the internet",
+        "set up Wi-Fi",
+        "set up the Wi-Fi",
+        "want to have internet connection",
+        "wanna get connected to the internet",
+        "want to have internet",
+        "wanna have internet",
+        "have internet",
+        "internet",
+        "wi-fi",
+        "Wi-Fi",
+        "wifi",
+        "internet installed",
+        "Wi-Fi installed",
+        "I was wonderfing if I could have Wi-Fi installed",
+        "internet plans and options",
+        "internet plans",
+        "internet options",
+        "wi-fi plans and options",
+        "wi-fi plans",
+        "wi-fi options"
+      ]
+    },
+```
+
+For every intent, you should write out several options of what you think the user might say. The phrases and words that will trigger your digression or node come into place.
+
+Since we mentioned a node to go to in transitions, let’s write it down and get information on the number of devices the user plans to have connected to the internet:
+
+```dsl
+node zip_code
+{
+    do 
+    {     
+        set $device_num =  #messageGetData("number_of_devices")[0]?.value??"";
+        #sayText("Alright, " + $device_num + "! Can you please help me with the zip code you will be moving to?"); 
+        wait*;
+    }
+    transitions
+    {
+        best_offer_internet: goto best_offer_internet on #messageHasData("zip_code");
+    }
+}
+```
+
+We now have all the information we’ve mentioned in the `context` section up above. Because of that, we can provide the most fitting plan to the user:
+
+```dsl
+node best_offer_internet
+{
+    do 
+    {
+        set $zip_code =  #messageGetData("zip_code")[0]?.value??"";
+        #sayText("I have the best offer as per your requirement, it's called performance internet and it includes download speeds up to 100 Mbps and speed good for up to 5 devices at the same time.At the cost of 39.99 dollars per month for the first 12 months with no term agreement. The offer price already Includes 10 dollars per month automatic payments and paperless billing discount for 24 months.");
+        wait *;
+    }   
+}
+```
+
+Wonderful, we now have provided the user with the best plan based on their requirements. At this point, the conversation can go anywhere. This is why we base the conversational script on digressions.
+
+```dsl
+digression what_is_no_term_agreement
+{
+    conditions {on #messageHasIntent("what_is_no_term_agreement");} 
+    do 
+    {     
+        #sayText("It means if you cancel the services there will be no termination fees or any charges"); 
+        wait*;
+    }
+}
+```
+
+The logic of the digressions will be the same. It will have `conditions`, a `do` section, the `#sayText` section, and the `wait`.
+
+Next up, let’s say, the user doesn’t have an idea what the “no term agreement” is:
+
+```dsl
+digression what_is_no_term_agreement
+{
+    conditions {on #messageHasIntent("what_is_no_term_agreement");} 
+    do 
+    {     
+        #sayText("It means if you cancel the services there will be no termination fees or any charges"); 
+        wait*;
+    }
+}
+```
+
+Great, question answered. Let’s now take a look at 2 digressions at once. They will be about what’s needed from the user to set up the internet connection and how easy it is to set it up by themselves:
+
+```dsl
+digression what_needed_for_internet_setup
+{
+    conditions {on #messageHasIntent("what_needed_for_internet_setup");} 
+    do 
+    {     
+        #sayText("You'll need a modem. If you will lease a modem it will be for 14 dollars per month or you can also use your own modem. That's it. If your address will be eligible you can install the services yourself by plugging the modem only.");
+        wait*;
+    }
+
+}
+
+digression how_easy_to_setup_internet_myself
+{
+    conditions {on #messageHasIntent("how_easy_to_setup_internet_myself");} 
+    do 
+    {     
+        #sayText("It will be easy. It can be done from your own device using the link xfinity dot com slash activate. Also you can call at 1 8 5 5 6 5 2 3 4 4 6 and our activation team will do it remotely for you.");
+        wait*;
+    }
+}
+```
+
+What if the user thinks they might once forget to pay for the internet and ask if there’s a grace period? Got to cover that option:
+
+```dsl
+digression grace_period
+{
+    conditions {on #messageHasIntent("grace_period");} 
+    do 
+    {     
+        #sayText("Yes, you can complete the payment in 15 days of the bill generation without interruption of services. You can also select the promise to pay in such cases and there will be no disconnection or extra charges.");
+        wait*;
+    }
+}
+```
+
+At this point, let me list some of the digressions that we won’t cover in this post, but remember these can be checked out in the [source code](https://github.com/dasha-samples/xfinity-customer-support-app):
+
+A user asking about:
+
+* what the timeline is between the user making a call to request internet access set up and the actual setup
+* if there are any internet or service outages, will the user get any kind of notification
+* what if they ever want to upgrade or downgrade their internet plan.
+
+Consider the user decides they want to have a TV plan, too. 
+
+```dsl
+digression tv_access_with_internet
+{
+    conditions {on #messageHasIntent("tv_access_with_internet");} 
+    do 
+    {     
+        #sayText("Let me share the bundle deals with you for internet and cable.");
+        #waitForSpeech(4000);
+        #sayText("So there's choice double pay which includes download speeds up to 100 Mbps and 10 plus local and regional channels. It'll be at the cost of 49.99 dollars per month for the first 12 months with No Term Agreement.");
+        wait*;
+    }
+}
+```
+
+The next two logical questions would be how much money the user would have to pay after the 12 month period for:
+a) both TV and internet bundle
+b) just the internet (shall they decide to stick only with the internet plan):
+
+```dsl
+digression after_twelve_mos_payment
+{
+    conditions {on #messageHasIntent("after_twelve_mos_payment");} 
+    do 
+    {     
+        #sayText("After 12 months the regular rate of 89.99 dollars per month will be applied. However, you can again enroll for the new promotions after 12 months.");
+        wait*;
+    }
+}
+
+digression after_twelve_mos_payment_internet
+{
+    conditions {on #messageHasIntent("after_twelve_mos_payment_internet");} 
+    do 
+    {     
+        #sayText("For only the internet it will be 80.95 dollars per month.");
+        wait*;
+    }
+}
+```
+
+Consider the user wants to know that they need to have prepared to have TV access set up:
+
+```dsl
+digression prep_for_TV_setup
+{
+    conditions {on #messageHasIntent("prep_for_TV_setup");} 
+    do 
+    {     
+        #sayText("You will only need to order the services and there is no preperations required. You’ll only be required to connect them to the outlets to activate them.");
+        wait*;
+    }
+}
+```
+
+Now, what if the user wonders if they can have internet access through the TV?
+
+```dsl
+digression access_internet_through_tv
+{
+    conditions {on #messageHasIntent("access_internet_through_tv");} 
+    do 
+    {     
+        #sayText("Yes, absolutely, you definitely can!");
+        wait*;
+    }
+}
+```
+
+Pretty much done. The last thing left is to take a look at how to finish the conversation and get the conversation going once the user only says “thank you” or something similar.
+
+```dsl
+//final and additional 
+
+digression can_help_else
+{
+    conditions {on #messageHasIntent("thank_you") or #messageHasIntent("got_you");} 
+    do 
+    {     
+        #sayText("Is there anything else I can help you with today?"); 
+        wait*;
+    }
+}
+
+digression thats_it_bye
+{
+    conditions {on #messageHasIntent("that_would_be_it");}
+    do 
+    {     
+        #sayText("No problem, happy to help. I hope you have a great rest of your day. Bye!"); 
+        #disconnect();
+        exit;
+    }
+}
+```
+
+Conversational AI apps are the most efficient way to automate customer service and customer support. Remember the reduction in time spent conversing with the customer/user. Companies can use AI for contact centers, therefore optimizing the time and money they spend.
+
+I haven’t covered everything in this post that I have in the app. However, you can see it all in the source code. Additionally, you can watch and listen to the demo I’ve recorded (https://youtu.be/m2lCNHpfEGw).
+
+Most importantly, edit and modify this app as you see fit. Join [Dasha Developer Community](https://community.dasha.ai) and let us know what you are building! 

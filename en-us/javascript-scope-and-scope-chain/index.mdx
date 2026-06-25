@@ -1,0 +1,353 @@
+---
+slug: "javascript-scope-and-scope-chain"
+title: "What is Scope and Scope Chain in JavaScript?"
+author: "Sumudu Siriwardana, Developer Advocate"
+authorPhoto: https://cdn.dasha.ai/blog/javascript-scope-and-scope-chain/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-12-22"
+updatedAt: "2022-03-22T12:37:05.645Z"
+readLength: "13 minutes"
+heroImage: https://cdn.dasha.ai/blog/javascript-scope-and-scope-chain/hero.webp
+heroImageTitle: Scope and Scope Chain in JavaScript
+introduction: "The scope and scope chain are fundamental concepts in JavaScript and other programming languages. Also, one of the most confusing concepts at the beginning. Understanding the scope and scope chain is crucial for writing efficient, clean code and essential to building a solid foundation and mastering JavaScript."
+seoTitle: "What is Scope and Scope Chain in JavaScript? | Simple Explanation with Examples"
+seoDescription: "Simple and step-by-step explanation of Scope and Scope Chain in JavaScript by experts."
+seoKeywords: "js scope, what is javascript scope, js scope chain, what is scope in javascript"
+---
+
+If you are new to JavaScript, you might be struggling to understand these concepts. I remember how long it took me to get a firm understanding of these two tricky concepts. In this post, we will go through the scope and scope chain with some simple examples to clear out the confusion. 
+
+Without further ado, let's get started 😊
+
+![right](https://cdn.dasha.ai/blog/javascript-scope-and-scope-chain/right.gif)
+
+# What is Scope?
+
+Have you ever wondered why you can't access some of the variables outside a function? Or did you find it strange that you can have the same variable name outside a function and inside a function as well? The reason for this strange behavior is that every variable, function, or code block has its own scope. 
+
+According to  [MDN](https://developer.mozilla.org/en-US/docs/Glossary/Scope), the scope is,
+
+> The current context of execution. The context in which values and expressions are "visible" or can be referenced. If a variable or other expression is not "in the current scope," then it is unavailable for use.
+
+What does this mean?
+
+Scope in JavaScript refers to the accessibility or visibility of variables and expressions. That means the space where an item, such as a variable or a function, is visible and accessible in your code. 
+
+For example, once a variable is declared, it can only be accessible within the scope that it has been declared in and will not be accessible outside the scope.
+
+Let's look at a couple of examples to understand this. 
+
+```js
+const userName = "Sarah";
+
+console.log(userName);  // "Sarah"
+``` 
+
+In the above example, we have declared a variable `userName` and assigned the value of `Sarah`. No issue or error is coming up when we want to access this variable and print the name to the console. 
+
+Now let's declare this variable inside a function and print the value to the console outside the function. 
+
+```js
+function greeting() {
+  const userName = "Sarah";
+  console.log(`Hello ${userName}!`);
+}
+
+greeting(); // "Hello Sarah!"
+console.log(userName); // ReferenceError: userName is not defined
+``` 
+In the above example, when trying to log the variable, JavaScript throws an error, `ReferenceError: userName is not defined`. This is because the `greeting` function creates a scope for the `userName` variable. And the `userName` variable can be accessed only within this scope, inside the function.
+
+You might think that this behavior is strange. But having a scope for variables and expressions helps us to write efficient code and avoid conflicts and errors within our code. 
+
+### Why is Scope important?
+
+#### 1. Ownership
+ One of the main benefits of scope is ownership. If we can access all variables from anywhere within our program, it will lead to unintended modifications to the variable from other parts of the program. Which means anyone can change them from anywhere at any given time.
+
+With scoping, we can only access the variables in a certain area of the code. The scope helps to avoid these modifications, which help us to write secure code. 
+
+#### 2. Avoid name collision
+The scope helps to avoid name collision. For example, imagine that you have to use the same variable name in a different place in your program for a different purpose, or someone else from your team has already declared a variable in the global scope, and you want to identify the boundary of this variable. 
+
+Having clear scope on where you can access a variable makes it easier to identify its boundary, avoid assigning more values to the same variable, and use the same variable name in multiple locations within the code without altering the values.
+
+#### 3. Garbage Collection
+In dynamic languages like JavaScript, when we complete the usage of a variable, the data will be automatically  [garbage collected](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management). If we don't have a clear scope on where we can access certain variables, the compiler will not be able to identify when to collect the garbage, except at the end. 
+
+Having a clear scope on where variables can be accessed helps the compiler to garbage collect these variables at the end of each scope.
+
+# Types of Scope
+
+JavaScript has three different types of scope. 
+
+1. Global Scope
+2. Function Scope 
+3. Block scope
+
+Let's take a few examples to understand these three different scopes. 
+
+## Global Scope
+
+Variables declared outside of functions or code blocks (curly braces `{ }`) are considered to have a global scope. The outermost scope contains the entire code, and there is only one global scope in the program. 
+
+The variables defined in the global scope are named *Global Variables* and can be accessed and altered in any other scopes. 
+
+Check the below example. The function `greeting` can access the `userName` variable inside the function, and it is located in the global scope.
+
+```js
+// Create a variable in the global scope
+const userName = "Sarah";
+
+function greeting() {
+  // Access global variable within the function
+  console.log(`Hello ${userName}!`);
+}
+
+greeting();  // "Hello Sarah!"
+``` 
+
+We have the accessibility to change the value of the variable anywhere in the code with global scope. Check the below example. 
+
+```js
+// Create a global variable
+let userName = "Sarah";
+
+function greeting() {
+  // Assigne a different value to the global variable
+  userName = "Jessica";
+  console.log(`Hello ${userName}!`);
+}
+
+greeting(); // "Hello Jessica!"
+console.log(userName); // "Jessica"
+``` 
+
+In the above example, we have reassigned the value of the variable `userName` inside the function. And it has modified the value of the variable inside the global scope. 
+
+This means that we can alter global variables anywhere within our code. Therefore, it is advised to only use global variables if and only if necessary as a best practice. 
+
+Let's move on to the function scope.
+
+## Function Scope
+
+Each and every function creates its own scope. And the variables declared inside that function are only accessible inside that function and any of its nested functions. This is also called *Local Scope*.   
+
+Check the below examples to understand the function scope.
+
+```js
+function calcAge(birthyear) {
+  // Declare variables inside the calcAge function scope
+  const currentYear = 2021;
+  const age = currentYear - birthyear;
+  return age;
+}
+
+calcAge(1975);
+
+// Attempt to access "currentYear" and "age" outside of the function scope is not possible
+console.log(currentYear); // ReferenceError: currentYear is not defined
+console.log(age); // ReferenceError: age is not defined
+``` 
+
+In the above example, we have a function to calculate the age. However, when trying to print the variables  `currentYear` and `age`, JavaScript throws an error `ReferenceError: currentYear is not defined`. This is because the `calcAge()` function creates a scope for these variables, which can only be accessed within the function scope. 
+
+I hope now you can understand how the function scope works. Let's move on to block scope. 
+
+## Block Scope
+
+ES6 introduced `let` and `const` variables. With that, it introduced the block scope. Block scope means that the variables defined inside a code clock `{}` can only be used inside it. 
+
+For example, a variable created inside an `if` statement or `for` loop can only be accessed within that code block. Same as function scope, it is not accessible outside of the block scope. 
+
+While `let` and `const` are block scoped, the variables defined with `var` have their scope limited to the current function scope or the global scope. Suppose we declare a variable using `var`, that variable is accessible outside the block. So, the variable declared using `var` within a code block is not block scoped; It is function scoped. 
+
+Check the below example,
+
+```js
+function calcAge(birthyear) {
+  const currentYear = 2021;
+  const age = currentYear - birthyear;
+
+  if (age <= 60) {
+    // Create a variable using "var" inside the block
+    var working = true;
+    // Create a variable using "const" inside the block
+    const message = `Peter is still employed!`;
+    console.log(message);
+  }
+
+  // Variable created using "var" can be accessed outside the block
+  console.log(working); // true
+
+  // Attempt to access "message" outside of the function scope is not possible
+  console.log(message); // ReferenceError: message is not defined at calcAge
+}
+
+calcAge(1975);
+``` 
+
+In the above example, we have declared `working` using `var` and `message` using `const`. When trying to print the variable `message`, JavaScript throws an error `ReferenceError: message is not defined at calcAge`. This is because the `if` block creates a scope for this variable, which is only accessible within that block scope. 
+
+However, there is no error when trying to access `working` outside the code block. As explained before, this is because `var` is not block scoped, it's function scoped. So you can access `working` inside the `calcAge()` function since it's the current function scope. But if we try to access the `working` outside the `calcAge()` function, then JavaScript will throw an error. 
+
+## Scope can be nested
+
+The scope can be nested, which means you can create functions inside another function, block inside another function, function inside another block, or block inside a block. 
+
+The scope contained within another scope is named *inner scope*. And the scope that wraps another scope is named *outer scope*. 
+
+When there are nested scopes, the inner scope can also access the outer scope variables. But outside of the scopes, these variables are not accessible. So outer scope does not have access to the variables of inner functions or blocks.
+
+Check the below example to understand this behavior.
+
+```js
+// Outer function
+function calcAge(birthyear) {
+  const userName = "Peter";
+  const currentYear = 2021;
+  const age = currentYear - birthyear;
+
+  // Inner block
+  if (age <= 60) {
+    const message = `${userName} is still employed!`;
+    console.log(message);
+  }
+
+  // Inner function
+  function yearsToRetire() {
+    const retirement = 60 - age;
+    console.log(`${userName} will be retired in ${retirement} years!`);
+  }
+  yearsToRetire();
+}
+
+calcAge(1975);
+``` 
+
+In the above example, the `yearsToRetire()` function and `if` block are nested inside the `calcAge()` function. To calculate the `retirement`, we have accessed the `age` variable, which is declared in the outer scope, inside the `calcAge()` function. 
+
+Also, we have accessed the `userName` variable, which is declared in the `calcAge()` function scope, in both `yearsToRetire()` function and `if` block. We can look outwards to access variables in the parent's scope with nested scope. It could be a variable inside an outer function, outer block, or a global variable.  
+
+I hope now you have a better understanding of global, function, and block scope. However, before moving to the scope chain, there is one more scope that we should learn, which is lexical scope. 
+
+![another-scope](https://cdn.dasha.ai/blog/javascript-scope-and-scope-chain/another-scope.gif)
+
+## Lexical Scope
+
+Lexical scoping means that organizing and accessing variables are controlled by where we write our functions and code blocks. 
+
+For example, a function that is written inside another function has access to the variables of the parent function despite where the function is invoked. 
+
+So the lexical scoping means that the scope is defined at the location where the variable or function is defined, and not where they run.
+
+Let's check the below example to understand this.
+
+```js
+const userName = "Peter";
+
+function sayUserName() {
+  console.log(userName);
+}
+
+function sayUserNameAgain() {
+  const userName = "Sarah";
+  // Invoke the first function
+  sayUserName();
+}
+
+sayUserNameAgain(); // Peter
+``` 
+
+Let's see what has happened here:
+- When the `sayUserNameAgain()` function is called, it creates a local variable `userName` and sets its value as `Sarah`. 
+- In the next line, the `sayUserName()` function is called, and `sayUserName()` function is defined outside the `sayUserNameAgain()` function. 
+- `sayUserName()` function logs the `userName` variable, but `userName` is not defined in the `sayUserName()` scope. So we have to go up one scope to the global scope to get the value of `userName` which is `Peter`. 
+- Even though we have `userName = "Sarah"` right above where the `sayUserName()` function invokes, we have never accessed that value. 
+- This is because lexical scoping requires us to go where the functions are defined, not where they
+ run.
+
+I hope now you understand what lexical scope is. So let's move on to the scope chain.
+
+# Scope Chain
+
+The scope chain is how Javascript looks for variables. When looking for variables through the nested scope, the inner scope first looks at its own scope. If the variable is not assigned locally, which is inside the inner function or block scope, then JavaScript will look at the outer scope of said function or block to find the variable. If Javascript could not find the variable in any of the outer scopes on the chain, it will throw a reference error. 
+
+Let's take an example and go through this process step by step. Check the below code. 
+
+```js
+// Global variable
+const userName = "Peter";
+
+// Outer function
+function calcAge(birthyear) {
+  const currentYear = 2021;
+  const age = currentYear - birthyear;
+
+   // inner block
+  if (age <= 60) {
+    var working = true;
+    const message = `Peter is still employed!`;
+    console.log(message);
+  }
+
+  // inner function
+  function yearsToRetire() {
+    const retirement = 60 - age;
+    console.log(`${userName} will be retired in ${retirement} years!`);
+  }
+
+  yearsToRetire();
+}
+
+calcAge(1975);
+``` 
+
+In the above example, 
+- We have a global variable called `userName`.
+- We have an outer function `calcAge()`,  which is in the global scope.
+- We have an inner function, `yearsToRetire()`, nested inside `calcAge()` function.
+- Also, we have an `if` block inside the `calcAge()` function. 
+
+With the above example, let's try to understand how the scope chain works. 
+
+![1-global-scope](https://cdn.dasha.ai/blog/javascript-scope-and-scope-chain/1-global-scope.webp)
+
+First, we have the global scope, which has only one variable, `userName`. There is a function declared in the global scope, which is `calcAge()`. But to keep things simple, let's focus on the variables. And keep in mind that function and variables work the same way in the scope chain. 
+
+![1-scope-chain](https://cdn.dasha.ai/blog/javascript-scope-and-scope-chain/1-scope-chain.gif)
+
+If you remember, each function creates its own scope. So inside the global scope, the first function scope is created with the `calcAge()` function. 
+
+Inside the `calcAge()` function there are two variables declared, which are `currentYear` and `age`. Also, we have access to the global variable `userName` inside the `calcAge()` function. 
+
+If we have any need to access the variable `userName` inside this function, then JavaScript looks inside the `calcAge()` function to see whether the variable is declared inside the scope. When JavaScript can't find it there, it will reach out to the outer scope, that is the global scope. 
+
+![2-scope-chain](https://cdn.dasha.ai/blog/javascript-scope-and-scope-chain/2-scope-chain.gif)
+
+Next, inside the first scope, there is a second function, `yearsToRetire()`, which also creates its own scope containing the `retirement` variable set to `60 - age`. Now we have a nested structure of scopes with one scope inside the other.
+
+We have a string that needs access to `userName` variable inside this function. Since JavaScript cannot find this variable within the local scope, it will look up in the scope chain until it finds the variable and uses it. 
+
+Also, inside this `yearsToRetire()` function scope we also have the access to variables inside the `caclAge` function scope, since `caclAge` is the parent scope and outer scope of `yearsToRetire()` function. 
+
+![3-scope-chain](https://cdn.dasha.ai/blog/javascript-scope-and-scope-chain/3-scope-chain.gif)
+
+There is an `if` block inside the `calcAge()` function, which has the two variables declared inside that. However, as I explained earlier, the variable declared with `var` is not block scoped. So the variable `working` will be a part of the `calcAge()` function scope. Since the `working` is in the `calcAge()` function scope, the `yearsToRetire()` function scope also has access to it. 
+
+The scope chain applies to block scope as well. Therefore, the `if` block scope gets access to all the variables from its outer scope. So the block scope can access the variable inside the `calcAge()` function scope and global scope. 
+
+Another important thing to remember is that the `if` block scope does not have access to any variables in the `yearsToRetire()` function scope, and vice versa. The reason for this is lexical scoping. 
+
+The way we can access variables depends on where the scope is placed or where it is written in the code. In this scenario, none of these two scopes is written inside one another. We could say that they are sibling scopes since they are both child scopes of the `calcAge()` function scope. So, according to the lexical scoping, they cannot access each other's variables. Scope chain only works upwards, not sideways.  
+
+![2-scope-chain](https://cdn.dasha.ai/blog/javascript-scope-and-scope-chain/2-scope-chain.webp)
+
+So this is how the scope chain works. If one scope needs to use a certain variable but cannot find it in the scope, it will look up in the scope chain and check whether it can find a variable on one of the outer scopes. If the variable is available in the outer scope, then the child scope has the access to it. If it is not there in any outer scopes, the JavaScript will throw a reference error. So this process is called *variable lookup*.
+
+![we-are-done](https://cdn.dasha.ai/blog/javascript-scope-and-scope-chain/we-are-done.gif)
+
+I hope this post helped you understand the different types of scopes in JavaScript and how the scope chain works. 
+
+Happy coding! 

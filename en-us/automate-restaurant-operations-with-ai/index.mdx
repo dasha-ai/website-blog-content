@@ -1,0 +1,722 @@
+---
+slug: "automate-restaurant-operations-with-ai"
+title: "Restaurant Conversational AI: Take Delivery, Takeout or Catering Orders Automatically"
+author: "Anzhelika Minina, Citizen Developer"
+authorPhoto: https://cdn.dasha.ai/blog/automate-restaurant-operations-with-ai/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-10-11T07:47:06.419Z"
+updatedAt: "2022-03-15T13:47:53.425Z"
+readLength: "7 minute read"
+heroImage: https://cdn.dasha.ai/blog/automate-restaurant-operations-with-ai/hero.webp
+introduction: "This post will focus on creating a conversational AI app that automates critical restaurant operations: ordering takeout, delivery, and catering. It showcases the use of AI in restaurants. The restaurant will be able to serve customers in a much more efficient manner all thanks to the app you create."
+seoTitle: "Restaurant Conversational AI: Take Delivery, Takeout or Catering Oders Automatically"
+seoDescription: "Conversational AI App: learn how to build it and automate catering, food delivery and takeout at your restaurant. A detailed step by step guide from Dasha.AI."
+seoKeywords: "conversational AI app, conversational AI, Dasha AI, food delivery, restaurant online ordering system, restaurants with online ordering, restaurant ordering app"
+---
+
+Here are the steps we will take to create this artificial intelligence restaurant app.
+
+## Getting started with Dasha conversational AI
+
+If you have never used Dasha before, you need to activate your API key. The API key lets you load your conversational application to the Dasha Cloud Platform, where it is executed. If you have your Dasha API key, ignore this part.  
+
+Make sure you have the latest Microsoft Visual Studio Code, Node.js and NPM installed. Dasha Studio is implemented as an extension to VSCode for your convenience. Open Visual Studio Code and install the [Dasha Studio extension](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio) and Dasha Command Line Interface . 
+
+```bash
+code --install-extension dasha-ai.dashastudio && 
+npm i -g "@dasha.ai/cli@latest"
+```
+
+Now, run a command to register your Dasha API key. A browser window will pop up and you will need to sign up for an account. 
+
+```bash 
+dasha account login
+```
+
+Afterwards, run to check your API key. 
+```bash 
+dasha account info
+``` 
+
+## Downloading the Blank Slate App Template 
+
+Now let’s get to know the files you’ll be using to create your conversational AI app. We recommend downloading [Dasha Blank Slate app](https://github.com/dasha-samples/blank-slate-app) source code and use it as a base to write your code. For that, you’ll have to open **main.dsl** and **data.json** files and delete everything you see there. This way, you’ll be able to start writing your code from scratch while having all the other essential files (for instance, the `commonReactions` library that has pre-programmed replies so you don’t have to worry about coding those).
+
+## Understanding the Main Application Files: Main.dsl & Data.json
+
+You’ll mainly be using 2 files to create your conversational AI app:
+
+* main.dsl -- this is where you’ll write your DashaScript Language code to create the workflow of your conversational AI app. With Dasha Studio extension on and with the directions in this post, it’ll be an easy job for you. You can read more about it in our [documentation](http://docs.dasha.AI). 
+
+* data.json -- is the data set you provide to train the Dasha Cloud neural networks to recognize user [intents](https://dasha.ai/en-us/blog/intent-classification) and identify [named entities](https://dasha.ai/en-us/blog/named-entity-recognition). 
+
+Additionally, you will want to use the index.js file to write out external functions. External functions are needed to process data with the SDK. For example, you may need to process data, get access to databases or APIs or use it for any other purposes.
+
+* index.js --  is the server-side JavaScript file to which the Dasha SDK is imported and which launches the contents of the __/app__ folder to the Dasha Cloud to be executed.  Here you’ll be adding any external functions you deem necessary once adapting the code to your company’s needs. 
+
+Familiarizing yourself with the files is important, but now let’s get to the fun part - programming your restaurant AI ordering app!!
+
+## Programing Your Conversational AI Restaurant Ordering System
+
+Conversational AI in restaurants can automate a myriad of tasks. In this particular demo, we’ll be focusing on automating food ordering, catering, and food delivery. Artificial intelligence restaurants systems are already optimizing other processes from logistics to helping customers select meals. 
+
+### Configuring the Input Variables for the AI Restaurant App
+
+As you open VSCode with the uploaded Dasha Blank Slate app, delete everything you see in the main.dsl file and import the commonReactions:
+
+```dsl
+import "commonReactions/all.dsl";
+```
+
+Next, we should write out the context. These are the input and output variables and variables you’ll want the app to remember, store, and use throughout the conversation with the user.
+
+```dsl
+context 
+{
+    // declare input variables phone and name  - these variables are passed at the outset of the conversation. In this case, the phone number and customer’s name 
+    input phone: string;
+
+    // declare storage variables 
+    output first_name: string = "";
+    output last_name: string = "";
+    output time: string = "";
+    output c_time: string = "";
+    output order: {[x:string]:string;}[] = [];
+    output feedback: string = "";
+    output rating: string = ""; 
+    output address: string = ""; 
+    output c_address: string = ""; 
+    output c_order: {[x:string]:string;}[] = [];
+
+    counter1: number = 0;
+    counter2: number = 0;
+    counter3: number = 0;
+    namecounter: number = 0;
+    test: string = "test";
+
+}
+```
+
+You can see that we wrote just one input variable - phone. This is the phone number of the user calling your restaurant. 
+
+### Configuring the Output Variables for the AI Restaurant App
+
+As for the output variables, we have a bunch. We want to get and store information regarding the user’s first and last name, time (time they want the order to be delivered, for instance), user’s address, the order itself, the rating the user gives us and their feedback in an open-ended form. 
+
+Additionally, note that there are 3 different “counters”. The first, second, and third ones exist in 3 different nodes. The purpose of these counters is for the app to say a different thing shall the conversation return to the node all over again.
+
+After this, you can declare any external functions. As mentioned, they would have to be written out in index.js file and mentioned in the main.dsl file.
+
+```dsl
+// declaring external functions
+```
+
+It’s now time to write your first node named root.
+
+```dsl
+start node root 
+{
+    do 
+    {
+        #connectSafe($phone);
+        #waitForSpeech(1000);
+        #sayText("Hi, you've called ACME Cafe at 2000 High Street, Boston. I'm Dasha. Your artificially intelligent hostess.");
+        #sayText("You can place a rapid pick up, delivery or catering order with me. How can I help you today?");
+// log brings the data into the terminal
+        #log($test); 
+        wait *;
+    }   
+    transitions 
+    {
+    }
+}
+```
+
+We accomplish the following tasks in this root:
+
+- connecting safely to the user’s phone,
+- waiting 1 second before either the user to say something or to begin our intro message,
+- saying the welcome message,
+- logging what the user has said,
+- and transitioning to one of the digressions.
+
+Note the transitions section is empty here. That is because the conversation can go off on any tangent, AKA the user might either want catering, or ask for food delivery, or, for instance, ask for takeout.
+
+## Intents - training the neural network 
+
+The navigation, if you will, in this app will happen with the use of digressions. A [digression](https://dasha.ai/en-us/blog/using-digressions) is a node that can be called up at any point in the conversation. Digressions are activated when a specific user intent is identified. An intent, in turn, is exactly as it sounds - the user’s intention identified by the neural network. 
+
+### Main Digressions in Our AI App for Restaurants 
+
+In our case, we will have three main digressions, acting as a menu. The three options, as discussed above are - takeout, delivery, or catering. 
+
+Open the __data.json__ file. This file contains the data set which is used to train the neural network to recognize your intents, specific to your app. Select all and delete, and instead pastу this code in:
+
+```json
+{
+  "version": "v2",
+  "intents": 
+  {
+    "yes": 
+    {
+      "includes": 
+      [
+        "yes",
+        "yes please",
+        "yes I would",
+        "correct",
+        "sure",
+        "right",
+        "yep",
+        "I would",
+        "yeah",
+        "that's right", 
+        "I do"
+      ]
+    },
+
+    "no": 
+    {
+      "includes": 
+      [
+
+      ]
+    },
+
+    "takeout": 
+    {
+      "includes": 
+      [
+        "pick-up",
+        "I'd like to pick it up please ",
+        "takeout please ",
+        "carry out", 
+        "pick up ",
+        "pickup",
+        "I want to order take out"
+      ]
+    },
+    "delivery": {
+      "includes": [
+
+      ]
+    },
+    "catering": {
+      "includes": [
+
+      ]
+    },
+    "new_seasonal": {
+      "includes": [
+
+      ]
+    },
+    "bundles": {
+      "includes": [
+
+      ]
+    },
+    "toasted_steak": {
+      "includes": [
+
+      ]
+    },
+    "curbside": {
+      "includes": [
+
+      ]
+    },
+    "instore": {
+      "includes": [
+
+      ]
+    },
+    "nevermind": 
+    {
+      "includes": 
+      [
+
+      ]
+    },
+
+    "bye": {
+      "includes": [
+      ]
+    }
+  }  
+
+}
+```
+
+“Includes” refer to the phrases which are interpreted as signifying a specific intent. As you can see, I left most of these blank for you to fill out, only providing “yes” and “takeout” as examples. 
+
+Let’s delve into the first case scenario for your best restaurant ordering system conversational AI app.
+
+## Catering automation with a simple conversational AI app
+
+I will start by walking you through building the catering workflow of the conversational app because it is the most complex one. Using what you learn here, you will be able to build the takeout and delivery workflows on your own. You’ll also see the possibility of artificial intelligence in restaurants.
+
+To let the user get their catering ordered, a store manager has to do the following things: 
+Get the customer’s name
+Get their order 
+Find out when they will pick up the food 
+Find out whether they want curbside or in-store pick up 
+
+Our AI app will do the same.
+
+### Digression Catering Workflow in an Artificial Intelligence Restaurant App 
+
+Take a look at `digression catering`. It is activated by  the intent “catering”. 
+
+In `digression catering` we have a few things taking place. 
+
+In section `do` we let the app know what action to take. As a restaurant manager would do, Dasha would first ask the user about their name. This is what we write under the `if` section. The `else` section assumes that we’ve already gathered the user’s name somewhere along the way, so the conversation moves forward to `node catering_2`. 
+
+In the `onexit` section we need to specify what type of information should be remembered in `node catering_2`. In this case, we store the first and last names of the user (or either one, depending on whether the user gave the AI their first or last name). 
+
+(*Note*: The `onexit` node section is defined right after the transitions section and allows to specify actions to perform before exiting the node)
+
+```dsl
+// catering 
+digression catering
+{
+    conditions {on #messageHasIntent("catering");}
+    do
+    {
+        if ($namecounter == 0)
+        {
+            #sayText("Perfect. I can help with that. What is your name please?");
+            set $namecounter = 1;
+            #log($namecounter);
+            wait *; // wait for a response 
+
+        }
+        else 
+        {
+            goto cater;
+        }       
+    }
+    transitions 
+    {
+        catering_2: goto catering_2 on #messageHasData("first_name"); // when Dasha identifies that the user's phrase contains "name" data, as specified in the named entities section of data.json, a transfer to node node_2 happens 
+        cater: goto catering_2;
+    }
+    onexit 
+    {
+        catering_2: do
+        {
+        set $first_name =  #messageGetData("first_name")[0]?.value??"";
+        set $last_name =  #messageGetData("last_name")[0]?.value??"";
+        }
+    }
+}
+```
+
+Here comes the exciting part: entities. You can see the first one used in the transitions section under `catering_2: goto catering_2 on #messageHasData("first_name");`. The `#messageHasData("first_name");` is what we’re really interested in right now. Go to the source code data.json file. There are two main sections: intents and entities. Under entities we have, for instance, “first name”:
+
+```json
+  "entities": {
+    "first_name": 
+    {
+      "open_set": true,
+      "values": 
+      [
+        {
+          "value": "John"
+        },
+        {
+          "value": "Bridgette"
+        },
+        {
+          "value": "James"
+        },
+        {
+          "value": "Sarah"
+        },
+        {
+          "value": "Jermaine"
+        },
+        {
+          "value": "Roseanne"
+        },
+        {
+          "value": "Ahmed"
+        },
+        {
+          "value": "Tony"
+        },
+        {
+          "value": "Jon"
+        }
+      ],
+      "includes": []
+    },
+```
+
+Let’s take a quick look at what entities are all about:
+Values are the possible values and their synonyms,
+Open_set: option to restrict possible values (optional, default: true). When it’s set to ‘true`, we can have unrestricted values coming in which the AI will recognize. This way the list of names won’t consist of only the ones we’ve written out.
+Includes provides examples that have the same meaning (optional and though we have it here, it’s empty and is fine to stay that way. Though you could write things like “my name is Jason”, “Jessica is my name” or something else),
+Excludes provides examples that don't have the meaning connected to the specific entity (optional and we don’t have it here. Example would be “my name is teapot”)
+
+But I digress. Let’s go back to our next node, `node catering_2`
+
+This node assumes two outcomes: either the user would want to have their catering order delivered to a specific address (`#messageHasIntent("delivery");`, we go to `node c_deliver`), or would prefer to pick it up at the store(`on #messageHasIntent("takeout");`, we go to `node c_instore`). We mention these two outcomes in the `transitions` section and the conversation flows right into one of the directions.
+
+```dsl
+node catering_2
+{
+    do 
+    {
+        #log($first_name);
+        #log($last_name);
+        #log($c_address);
+        #sayText( $first_name + ". Will you like your catering order delivered or will you want to pick it up at store?");
+        wait*;
+    }
+    transitions
+    {
+        catering_deliver: goto c_deliver on #messageHasIntent("delivery"); 
+        catering_instore: goto c_instore on #messageHasIntent("takeout");
+    }
+}
+```
+
+I want to note that for the sake of this demo, I’ve decided to throw a curveball and let the user know there’s no way to pick up the catering order at the restaurant’s location. Stuff happens and restaurant operations also at times experience unexpected situations like the one described above. To not just leave the user questioning what to do when put into such a confusing position, we offer them a solution - delivering the catering order to their address at no cost. We end up asking a closed-ended question, which can be variations of a “yes” or a “no”. You’ll be able to see the `node can_help_then` under `//final and additional` in the source code or you could come up with your own version of what should be in the node based on what you’ve learned by example so far.
+
+```dsl
+node c_instore
+{
+    do
+    {
+        #sayText("I do apologize but it seems we will not be able to prepare a catering order for pick up at the 2000 High Street Acme Bread location.");
+        #sayText("We will however deliver it wherever you want it at no extra charge. Is this okay?");
+        wait*;
+    }
+    transitions
+    {
+        c_deliver: goto c_deliver on #messageHasIntent("yes");
+        can_help_then: goto can_help_then on #messageHasIntent("no");
+    }
+}
+
+node c_deliver
+{
+    do
+    {
+        if ($counter2 == 0)
+        {
+            #log($first_name);
+            #log($last_name);
+            #log($c_address);
+            #sayText("At what address do you want your Acme Bread catering order delivered?");
+            set $counter2 = $counter2 + 1; 
+        }
+        else 
+        {
+            #sayText("Let's try this again. What is the address where you want to take the delivery?");
+        }
+        wait*;
+    }
+    transitions
+    {
+        c_deliver_2: goto c_deliver_2 on #messageHasData("address"); 
+    }
+}
+```
+
+We’d want to give feedback to the user that we got the address correctly. Should the conversational AI have gotten it right, we can transition to `node c_deliver_3`. Else, we go back to `node c_deliver` into the `else` section and ask the address again. 
+
+```dsl
+node c_deliver_2
+{
+    do
+    {
+        set $c_address =  #messageGetData("address")[0]?.value??"";
+        #sayText("Thank you. Let's confirm, you want the food delivered at " + $c_address + ". Is this right? ");
+        wait*;
+    }
+    transitions
+    {
+        c_deliver_3: goto c_deliver_3 on #messageHasIntent("yes");
+        wrong: goto c_deliver on #messageHasIntent("no");
+    }
+}
+```
+
+It’s time to go back to the `entities` section in **data.json** file and write out all the possible times the user could take their delivery (since we’ll be using `#messageHasData("time");` entity in the transitions). Or you could just look at the source code and check it out there if you prefer so.
+
+```dsl
+node c_deliver_3
+{
+    do
+    {
+        #sayText("And what time will you take the delivery?");
+        wait*;
+    }
+    transitions
+    {
+        c_deliver_4: goto c_deliver_4 on #messageHasData("time");
+    }
+}
+```
+
+It’s time to ask how many people should be accommodated, so we pose a question regarding the number of people the catering should be for. 
+
+```dsl
+node c_deliver_4
+
+{
+    do
+    {
+        set $c_time =  #messageGetData("time")[0]?.value??"";
+        #sayText("How many people do you want to serve?");
+        wait*;
+    }
+    transitions
+    {
+        c_deliver_5: goto c_deliver_5 on #messageHasData("people");
+    }
+}
+```
+
+In `node c_deliver_5` we provide them with an opportunity to listen to the menu options and pick what’s right for them if they agree to go through that. Shall they know exactly what they want, we’ll transition to the node c_deliver_6 where we ask what they’re planning on ordering (more on that later).
+
+```dsl
+node c_deliver_5
+{
+    do
+    {
+        #sayText("Before I take your order, would you like me to tell you about our most popular bundles and platters?");
+        wait*;
+    }
+    transitions
+    {
+        c_deliver_6: goto c_deliver_6 on #messageHasIntent("no");
+        bundles: goto bundles on #messageHasIntent("yes");
+    }
+}
+
+node bundles
+{
+    do 
+    {
+        #sayText("We have the Seasonal Salads and Sandwiches. Morning Fruit & Pastry Platters. and Boxed Salads.");
+        goto c_deliver_6;
+    }
+    transitions
+    {
+        c_deliver_6: goto c_deliver_6;
+    }
+
+}
+```
+We use ` #say("place_order_catering");` here. What goes after `#say` comes from the phrasemap.json file. Here’s an example:
+
+```json
+        "place_order_catering": 
+      {
+        "first": 
+        [
+          {
+            "text": "And what can I get for you today?"
+          }
+        ],
+        "repeat": 
+        {
+          "random": 
+          [
+            [
+              {
+                "text": "So. What can I get for you?"
+              }
+            ],
+            [
+              {
+                "text": "What would you like to get?"
+              }
+            ],
+            [
+              {
+                "text": "What can I get you?"
+              }
+            ]
+          ]
+        }
+      },
+```
+
+There is a part named `repeat`. It means that the AI will not stick to just one phrase if the conversation returns to the AI asking again about what the user wants to order. Instead, it will have a multitude of phrases options to choose from, allowing you to build a diverse AI restaurant menu.
+
+```dsl
+node c_deliver_6 
+{
+    do
+    {
+
+        #say("place_order_catering");
+        wait*;
+    }
+    transitions
+    {
+        c_deliver_7: goto c_deliver_7 on #messageHasData("order");
+    }
+}
+```
+You’ve seen this type of feedback/confirmation node before. You can see it follows all the same logic. We confirm what kind of food the user chose for catering and if the info was got incorrectly, we loop back to node c_deliver_6 where the conversational AI asks about what the user wants (see how phrases in phrasemap.json come in handy?).
+
+```dsl
+node c_deliver_7
+{
+    do
+    {
+        set $c_order =  #messageGetData("order");
+        #log($c_order);
+        #log($first_name);
+        #log($last_name);
+        #log($c_address);
+        #sayText("Perfect. Let's confirm your order.");
+        var food = #messageGetData("order");
+        var res = "You want ";
+        for (var item in food)
+        {
+            set res = res + "," + (item.value ?? "");            
+        }
+        #sayText(res);
+        #sayText("Is that right?");
+        wait *;
+    }
+    transitions
+    {
+        c_deliver_8: goto c_deliver_8 on #messageHasIntent("yes");
+        try_again: goto c_deliver_6 on #messageHasIntent("no");
+    }
+}
+```
+
+node c_deliver_8
+{
+    do
+    {
+        #sayText("Perfect. Your order total is three hundred and six dollars and thirteen cents. We will deliver a feast  to ");
+        #sayText( $first_name + " " + $last_name + " at " + $time + " at the address of " + $c_address + ". Is there anything else I can help you with today?");
+        wait*;
+    }
+    transitions
+    {
+        final: goto final on #messageHasIntent("no"); 
+        can_help: goto can_help on #messageHasIntent("yes");
+    }
+}
+```
+You can use the code from the catering workflow to write out the workflows for take out and delivery. 
+
+As we’ve gathered all the information we needed from the user such as their name, address, time of the delivery and order, we go to node final. While you could make it a literal final node where you end the conversation, you might as well ask the use to rate their experience talking to your conversational AI. Should the rating be high - great news, congratulations! Shall it not be the case - you’ve just got yourself invaluable information since you’ll be getting recorded open-ended feedback from the user. From there on, you can make adjustments to the conversational AI app and make it rock.
+
+```dsl
+//final and additional 
+// asking for feedback on AI-human interaction before ending the call and completing the order
+node final
+{
+    do
+    {
+        #sayText("Before you go, can you please give me a bit of feedback. How would you rate your ordering experience on the scale of zero to ten?");
+        wait*;
+    }
+    transitions
+    {
+        rating_evaluation: goto rating_evaluation on #messageHasData("rating");
+    }
+}
+```
+Note that we consider the rating to be high if the user said a number that’s equal or above 7.
+
+```dsl
+node rating_evaluation 
+{
+    do 
+    {
+        set $rating =  #messageGetData("rating")[0]?.value??""; 
+        #log("User rating is: " + $rating);
+        var rating_num = #parseInt($rating); 
+        if ( rating_num >=7 ) 
+        {
+            goto rate_positive; 
+        }
+        else
+        {
+            goto rate_negative;
+        }
+    }
+    transitions
+    {
+        rate_positive: goto rate_positive; 
+        rate_negative: goto rate_negative;
+    }
+}
+```
+
+Let’s stop right here. You only need two additional nodes related to the rating being positive or negative to write out: node rate_positive and node rate_negative. 
+
+In `node rate_positive`, as you’re already golden, you could thank the user for giving you high praise and tell them you’re waiting to see them again at your restaurant.
+
+In `node rate_negative` you could either thank them for the feedback and promise to do better next time and improve, or ask for feedback (highly recommended!). 
+
+As such, after collecting the rating and/or rating and feedback, we end the call.
+
+## Additional digressions
+
+As promised, here’s the list of the additional digressions to consider writing out:
+
+digression new_seasonal - this is where you go through the seasonal menu and let the app know to repeat the phrase in the node from which the digression the user distracted the AI by and repeating what came in that node by using `#repeat();` followed by  ` return;`,
+digression toasted_steak - write this one out in case the user isn’t sure what a toasted steak is or what comes in it. Just list the ingredients. It goes without saying you should use `#repeat();` followed by  ` return;` in this digression, too (and in the rest of the additional digressions),
+digression how_are_you - it’s only natural for a human to ask the well known “how are you” question. Why not account for that?
+digression bye - very self-explanatory. The user wants to end the conversation. Let them go, but before that apologize for not being able to help. And, maybe, say you’ll give them a call back (imagine the person is in the subway and can’t hear you at all and says bye. You just have to give them a call back!).
+
+## Takeout and delivery
+
+Both takeout and delivery scenarios are available to check out in the [source code](LINK). **However**, I believe you’ve learned enough about creating an artificial intelligence cafe assistant and got a good idea of how the code works (and I believe in your abilities in general!). And so I would like for you to test it out and write both of the cases yourself. Be it the source code or Dasha Developers Community, we’re always ready and glad to help!
+
+Now, just a few tips on implementing AI in restaurants with delivery and takeout scenarios.
+
+### Delivery
+
+Start off by creating a `digression takeout`. Don’t forget to specify which intent it should be triggered by! (`#messageHasIntent("delivery");}`)
+
+Think of what information is needed to be gathered from the user. I believe it should be:
+- user’s name,
+- the order,
+- address,
+- time of food delivery,
+- feedback AKA confirming you got all the information about the order correctly by mentioning the order (you can follow the example above),
+- full confirmation with the price of the order, name, time for delivery and the address to deliver the order to. You can finish by asking if you could help the user in any other way.
+
+### Takeout
+
+Again, start off with `digression takeout` followed by `conditions {on #messageHasIntent("takeout");}` and `do`.
+
+You could ask for the:
+
+- name,
+- time of food pick up,
+- feedback,
+- ask if they want a curbside pickup or they want to go into the cafe to get the order. 
+
+Use 
+
+```dsl
+    transitions
+    {
+        takeout_curbside: goto takeout_curbside on #messageHasIntent("curbside");
+        takeout_instore: goto takeout_instore on  #messageHasIntent("instore");
+    }
+```
+and create two corresponding nodes. In each node say the name of the user, the time of the planned food pick up, location of the restaurant, and ask if you could help in any other way.
+
+## Order confirmation, food delivery, takeout - all great tasks to automate. But do more!
+
+The possible applications of ai in restaurants are virtually limitless. You can build a dedicated conversational AI app that offers seamless customer service with no hold times.  While you’ve just automated these repetitive tasks, don’t stop there. You could program the app to process the payment for the order, send text message or email confirmation or the order and/or receipt.
+Go ahead and try implementing ai in restaurants! 
+
+Go ahead and try it out! As always, [Dasha Developers Community](https://community.dasha.ai/) is always there to step in when you need us! 

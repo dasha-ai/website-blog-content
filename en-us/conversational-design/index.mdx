@@ -1,0 +1,120 @@
+---
+slug: "conversational-design"
+title: "Conversational design. How to make your AI app sound more human. Or should you even bother?"
+author: "Anzhelika Minina, Growth Marketer"
+authorPhoto: https://cdn.dasha.ai/blog/conversational-design/author.jpg
+category: common
+categoryName: Intro
+createdAt: "2021-06-28T21:26:54.384Z"
+updatedAt: "2025-06-06T04:30:58.132Z"
+readLength: "7 minute read"
+heroImage: https://cdn.dasha.ai/blog/conversational-design/hero.webp
+introduction: "What is conversational design and how do you use it for your conversational AI apps? Let’s explore this fascinating and much-needed concept that will make your voice AI applications more human-like."
+seoTitle: "Conversational design | How to make your AI app sound more human"
+seoDescription: "What is conversational design and why care about it? Learn how it can help your voice AI app sound more human with help of Dasha.AI"
+---
+
+## What is conversational design?
+
+Let’s start off with what a conversation is. A conversation is an exchange of information between at least 2 parties. Conversations can take place not only in person or over the phone, but also via text messages, letters, emails, to name a few. By analogy, conversational design is (or can be) present in computer assistant designs, chatbots, UI, etc. The whole point of it is to make the interaction between a human and a digital agent as human-like as possible. This post will also give you food for thought for conversational ux design.
+
+There are constraints to human-machine interactions. When two humans are having a conversation in person, they rely on both verbal, which is a self-explanatory concept, and nonverbal cues, such as facial expressions, body language. Design of the conversation is needed to account for the subtleties occurring in human interaction in order to create a conversational AI to have a natural human to AI interaction. 
+
+## What does it mean for conversational AI to have a personality?
+
+Yup, you read that right. Your conversational AI should have a distinct personality, a __Persona__. A persona is a made-up character who shares the attributes of your businesses’ top customer support representative (in case you’re making a conversational AI app to automate your CS). 
+
+For example, if you work in a consumer banking industry, your customers expect your reps to be formal, serious, to be an expert in financial terminology, and trustworthy. In other words, your persona would have to have the same attributes, which you’ll have to keep in mind while writing out the design of your conversation. If you work in the spa industry. Perhaps, you’ll want your persona to be very friendly, cheerful, casual, and pleasing. After all, your goal is to create an AI that would be able to speak as naturally as possible and be as human-like as it can be. To achieve that goal, you’ll need to emulate elements that are natural to humans, and what can be more natural than a distinctive personality?
+
+However, the concept of building a persona goes beyond mere adjectives. You need to think of an in-depth character, who has their   own voice, both literally and figuratively speaking. You need to focus on how you want to make your AI’s interlocutor feel when conversing with the AI. A happy customer brings higher Customer Lifetime Value to the table. When your AI has social skills close to a human, it makes your customers feel more pleased with the communication, promotes more effective communication, and leaves your customer feeling understood and satisfied. So make sure your conversational AI has both high IQ and EQ. 
+
+While writing the script, think of “what would (your persona’s name) say in this situation?” and go with that. Needless to say, you need to think not only about one option, but of different variations and paths the conversation can take place whenever your persona says something (and the tone it says it in).
+
+## What makes a great conversational design?
+
+You probably can already imagine what a bad one is. Just think of the last time you caught an IVR and had to listen through all the options on seven nodes just to get an operator agent. A great design of a conversation makes it easy for users to accomplish their goals in a swift and easy manner.
+
+In a natural, human-to-human interaction, a person is expecting the other party to understand what they mean and respond appropriately; we expect that we can say anything anytime, go on any tangents, and be understood and responded to. When you are designing a conversation, keep this crucial idea in mind: users must feel like they can and do have a free-flowing conversation, even though the conversation path has been predetermined (or pre-scripted, in other words).
+
+This brings us to one of the pillars of great conversational design - collaboration. Two parties collaborate to arrive at some kind of agreement or solution. Without that there would be no effective conversation. 
+
+## Collaboration in conversational AI design
+
+To illustrate the essence of collaboration, we’ll need to take a dive into what’s called Cooperative Principles and quickly glide through the four underlying rules, the so-called  [Grice's Maxims](http://www.ucl.ac.uk/ls/studypacks/Grice-Logic.pdf). 
+
+Imagine you’re talking to a friend whom you are about to go to a planned dinner at a restaurant with. Let’s say your common friend, Josh, invited you both to dinner. 
+
+You: “Hey Jessica, do you know who’s gonna come to the dinner besides Josh and us?”
+Jessica: “Yes”.
+
+While you phrased your question as a yes or no one, that’s not the kind of response you were expecting. You were expecting her to tell you who the people coming to dinner were. 
+
+Now, this leads us to one of the four rules, which is __quantity__.
+
+### Quantity
+
+The essence of the quantity rule is that your conversational AI as a service should a) reply in an informative manner, and b) not provide too much information. The reason for the latter is simple. Imagine you’re designing a conversation to automate your bank’s money transfer procedure and the person chatting with your conversational AI has multiple accounts from which they can take their money. Let’s say there are four different accounts under one user. Let’s take a look at 2 options (taken from one of Dasha AI app demos) that each reflects either the good or the bad conversational designs in terms of quantity:
+
+```dsl
+  "select_source_account": [
+        {
+          "text": "We found that you have multiple accounts. From which one of these two accounts you would like to transfer from?"
+        }
+      ]
+```
+
+```dsl
+  "select_source_account": [
+        {
+          "text": "We found that you have multiple accounts. We have your Bank of America account, account number ending with 1243, Wells Fargo account, account number ending with 1342, Capital One account, account number ending with 1342, Citibank account, account number ending with 2134. From which one of these two accounts you would like to transfer from?"
+        }
+      ],
+```
+
+The second one sounds cumbersome. The conversational AI provides way too much information, which the interlocutor already knows, it disrespects and wastes their time. It’s almost like whoever was writing down this conversational design failed to remember that people who want to make a money transfer won’t be reading the text the conversation designer wrote; they will be hearing it. There would be no way to skim through the text and pick the bank account they need, there would be no way to fast forward the options. This leads to a horrible user experience and downgrades customer satisfaction, which can lead to the bank simply losing the customer. The statistics back this claim: as per Microsoft’s research, [“56% of global respondents have stopped doing business with a brand due to a poor customer service experience”](https://info.microsoft.com/rs/157-GQE-382/images/EN-CNTNT-Report-DynService-2017-global-state-customer-service-en-au.pdf).
+
+Keep in mind that some people have had bad experiences with conversational AI failing to understand what they say. In such cases, some people give the AI as limited information as possible. It could be something like “transfer to operator”, “book a table”, “appointment scheduling”. 
+
+When designing a conversation, you should  give users the opportunity to provide information piece by piece (the same logic applies for those who are comfortable with talking to AI, expect it to fully comprehend all the information, compute it, and give an expected outcome). With Dasha AI you can create a conversational AI as a service app that would have the best of both worlds: the ability to take in all the information at once and ask questions one at a time when necessary.
+
+### Quality
+
+Real simple: your AI must be truthful and only provide information it has ample evidence for. For instance, you wouldn’t want your conversational AI to tell a customer it reserved a table for 6pm while all tables have already been booked.
+
+It’s worth mentioning the ethical side of creating conversational AI as a service applications. For instance, one of the most prominent conversational AI ethical dilemmas whether you should let your customers know they’re talking to a robot (if you’re having similar dilemmas, you can check [this post](https://dasha.ai/en-us/blog/ai-and-ethics) out). Naturally, there is, perhaps, an even more pressing issue when it comes to the ethical use of conversational AI: [security](https://dasha.ai/en-us/blog/ai-and-ethics-perils-ahead). That includes voice cloning, frauds, etc. As a developer, you should factor in all of these in order to make a safe application.
+
+Creating an AI app requires an ethical mindset, since your end goal is to make your customer’s lives better, easier, and more productive, so it’s good to keep in mind Isaac Asimov’s "Three Laws of Robotics", which are as follows:
+
+A robot may not injure a human being or, through inaction, allow a human being to come to harm.
+A robot must obey the orders given it by human beings except where such orders would conflict with the First Law.
+A robot must protect its own existence as long as such protection does not conflict with the First or Second Laws.
+
+While the third law would hardly apply to conversational AI, the first two are the basis, table stakes, for any well-designed conversational app. 
+
+Let’s take a look at Dasha AI money transfer demo example (which you can download [here](https://github.com/dasha-samples/dasha-money-transfer-demo). You’d want to make sure the right amount of money was taken from the right account and transferred to the right bank before saying something like “You’re all set, the money has been transferred. Goodbye!”. Now, in the same demo (go to user_db.json) there are balances listed for different accounts a user holds. 
+
+![Users](https://cdn.dasha.ai/blog/conversational-design/Users.jpg)
+
+If the AI says that user 1 deposit account balance is $223, it would be misleading, wrong, and the customer would probably be in shock and not want to associate with your bank ever again after such an error. 
+
+### Relation
+
+As the name suggests, the AI has to provide only relevant information to the interlocutor. If your conversational AI asks your customer to confirm whether they are still going to attend their dentist appointment on Friday at 9am and the customer digresses (more on digressions [here](https://dasha.ai/en-us/blog/using-digressions)) by asking where the dental clinic is located, don’t just push for the yes or no answer to the preceding question, make sure you reply first, and then move on to getting the confirmation. Make sure your conversational AI says relevant things (and don’t expect the human interlocutor to reciprocate and always be relevant, they’re actual humans, after all).
+
+### Manner
+
+Straightforwardness, absence of ambiguity, and briefness are the key in this rule. However, make sure that your design stays natural. For example, instead of saying “your hair appointment has been scheduled”, your AI can say “you’re all set!”. The voice has to be relevant to your persona (see section one above).
+
+### Turn-taking
+
+Collaboration requires active listening and responding when appropriate. Keeping in mind the Manner and Quantity rules (remember that the latter tells you to avoid providing more information than is required?), make sure your AI doesn’t bombard the caller with options and/or questions. Make sure it goes step by step, asking one question at a time.
+
+### Randomization
+
+It gets boring to hear the same phrase over and over again. Imagine a customer calling a CS number while being in a noisy environment. If you design your conversational AI script to only say “I’m sorry?” whenever the background noise is blocking the voice of the customer, hearing that question over 2 times would sound robotic and totally unnatural. For instance, it’s more human-like to say “sorry?” or “what’s that?” the first time you missed what was said, followed by “could you repeat that, please?” the second time you didn’t hear your interlocutor’s words. Have variety. 
+
+The same goes for accounting for what a caller might say. It’s never good to assume everyone will reply to the question you scripted with the same exact words that you’ve thought they would. Make sure to [add synonyms and randomize the phrases](https://dasha.ai/en-us/blog/named-entity-recognition) that constitute your design. 
+
+## Parting words
+
+Albeit conversational design is a complex and broad topic, we have covered the essentials that will let you make the most natural-sounding conversational AI app. Now, try it out. 

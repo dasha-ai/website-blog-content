@@ -1,0 +1,164 @@
+---
+slug: "integrate-third-party-telephony"
+title: "Taking your сonversational AI app into production? Here is how to configure a SIP trunk connection to your vendor (using Voximplant as example)"
+author: ""
+category: developers
+categoryName: Developers
+createdAt: "2021-08-06T01:11:36.731Z"
+updatedAt: "2021-08-31T20:05:35.188Z"
+readLength: "6 minutes"
+heroImage: https://cdn.dasha.ai/blog/integrate-third-party-telephony/hero.webp
+heroImageTitle: "Voximplant and Dasha AI SIP Trunk integration for easy customer communications "
+introduction: "Did you know that you can use any telephony vendor to let your Dasha conversational AI application communicate with your users via voice? The majority of our customers use Dasha’s natively built in telephony to train their conversational apps. All of our customers migrate to their own telephony vendor once they launch into production."
+---
+
+## Why use your own telephony for your Dasha apps 
+
+The goal of any development is to deliver some type of business value. In the case of Dasha conversational AI apps, the business value that our customers pursue varies. Yet in over 95% of cases today, it is delivered through the telephone channel. In that sense, most of our customers in production use Dasha to automate some part of their telephone communications with customers. 
+
+Most of these companies have a telephony vendor. Connecting the Dasha application to their existing telephony means that Dasha can seamlessly transfer calls to a live agent, if such a need arises. It also means that Dasha can make phone calls from phone numbers reserved for this company, and answer inbound phone calls which are directed to the company phone number. 
+
+In this tutorial we will go over connecting Dasha for both inbound and outbound telephone communication using [Voximplant](https://voximplant.com). 
+
+## How to use Dasha with a third party telephony vendor? 
+
+First, you need to know if your vendor supports SIP Trunk connections. Here is a simple decision tree flowchart to help you navigate: 
+
+![Decision making flowchart](https://cdn.dasha.ai/blog/integrate-third-party-telephony/Yes__2_.webp)
+
+To give you an idea of how the integration happens, read below for instructions to integrate Dasha with the telephony vendor Voximplant via a SIP Trunk connection. 
+
+### Preparatory actions on the Dasha side
+
+Make sure you have node.js version 13+ and npm installed. You will also want the latest version of Visual Studio Code running to edit and test the Dasha app.
+1. Join [Dasha Community](https://community.dasha.ai) - you will get your API key here automatically
+2. Open VSCode and install the [Dasha Studio Extension](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio&ssr=false) from the extension store.  You’ll get all the DSL syntax highlighting and a GUI interface for debugging your conversation flow.
+3. Run __`npm i -g "@dasha.ai/cli@latest"`__ to install the latest Dasha CLI.
+
+You’ll want to load up a Dasha conversational AI app. For the purposes of this tutorial, you may want to load up either the [inbound tester app](https://github.com/dasha-samples/inbound-voximplant-telephony-test) for inbound calls.  Or the [outbound tester app](https://github.com/arrrgr/outbound-voximplant-telephony-test) for outbound calls. 
+
+## Setting things up on the side of Voximplant (telephony vendor) 
+
+1. [Login to your Voximplant account](https://manage.voximplant.com/auth) or [create an account](https://manage.voximplant.com/auth/sign_up) if you don’t have one.
+2. Create a Voximplant [application](https://manage.voximplant.com/applications).
+3. Purchase a Voximplant phone number in the [Numbers](https://manage.voximplant.com/numbers/my_numbers) section of the control panel and attach it to the app. This number will be used as callerid. 
+4. Go to your [applications](https://manage.voximplant.com/applications), click on the app you had created. Click on Numbers > Available and "attach". This number will be used as __callerid__.
+
+![Voximplant dashboard ](https://cdn.dasha.ai/blog/integrate-third-party-telephony/Screenshot_at_Jul_27_21-26-49.webp)
+
+### For Outbound calls: 
+Go to Scenarios > Create Scenario, name the Scenario and hit the “plus” sign. You will need to paste the code below in the scenario. 
+
+```javascript
+    const callerid = 'number_you_bought'
+    VoxEngine.addEventListener(AppEvents.CallAlerting,(e) => {
+        Logger.write('a call from ' + e.callerid);
+    // an inbound SIP call from Dasha (the first call leg)
+        const inc = e.call;
+    // an outbound call to PSTN (the second call leg)
+        const out = VoxEngine.callPSTN(e.destination, callerid);
+        out.addEventListener(CallEvents.Connected, () => {
+    // answering the call
+            inc.answer();
+        })
+        // adding default event listeners to pass signaling information between two calls
+        VoxEngine.easyProcess(out, inc);
+    })
+```
+
+This scenario be run from the Dasha integration. On an incoming SIP call from Dasha, the phone number which we want to call is passed to the callPSTN method. This is how we connect two calls. Once the call is answered, Dasha will start the conversation. If you want to handle inbound calls to SIP, use your SIP URI as __`callerid`__ and replace the [callPSTN](https://voximplant.com/docs/references/voxengine/voxengine/callpstn) method with [callSIP](https://voximplant.com/docs/references/voxengine/voxengine/callsip). If you are using SIP Registrations on your PBX, you need to create a SIP Registration and use it instead of the SIP URI.
+
+Next,go to the __Users__ section and create a new user. Remember the username and password, they will be used for Dasha's config in the next step.
+
+Now, click on __Routing__ in the left hand menu. Create a new rule (leave the pattern as default), and attach your scenario to this rule.
+
+![Create new rule in Voximplant dashboard](https://cdn.dasha.ai/blog/integrate-third-party-telephony/Screenshot_at_Jul_27_21-45-38.webp)
+
+Now, Connect your sip trunk with Dasha's using this command:
+
+```bash
+dasha sip create-outbound --server <ip_or_dns_of_server:port> [--domain <domain_name>] [--ask-password] --account <accountName> --transport [tcp|udp] <config_name>
+```
+
+- `accountName` is the username you created in the Voximplant panel;
+- `ip_or_dns_of_server:port` is the name of our Voximplant app;
+- `config_name` is the name of the config we’ll use in the next step.
+
+For example:
+
+```bash
+dasha sip create-outbound --server exampleApp.exampleAcc.n4.voximplant.com --account exampleUsername --ask-password vox_outbound
+password: enter_your_password_here
+```
+
+### For Inbound calls: 
+Connect your sip trunk with Dasha's using this command:
+
+```bash
+dasha sip create-inbound --application-name <your_app_name> <config_name>
+```
+
+- `your_app_name` is your Voximplant application name;
+- `config_name` is the name of the config we’ll use later.
+
+For example:
+
+```bash
+dasha sip create-inbound --application-name exampleApp vox_inbound
+```
+
+This command will give us a Dasha’s SIP URI to call. For example: [sip:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx@sip.us.dasha.ai](/)
+
+To see the URI, write: `dasha sip list-inbound`.
+Let’s put it in our Voximplant scenario instead of "your_SIP_URI".
+
+Create a scenario inside the app by pressing a plus icon and paste this code in there:
+
+```javascript
+    // SIP URI that we get in the next step
+    const sipURI = <your_SIP_URI>;
+    VoxEngine.addEventListener(AppEvents.CallAlerting, (e) => {
+      const call = e.call;
+      call.addEventListener(CallEvents.Connected, () => {
+        const callToDasha = VoxEngine.callSIP(sipURI);
+        VoxEngine.easyProcess(call, callToDasha);
+      });
+      call.answer();
+    });
+```
+
+   This is the scenario that will be run when we set everything up. We use the [callSIP](https://voximplant.com/docs/references/voxengine/voxengine/callsip) method to make a call to our SIP URI. On an incoming SIP call from Voximplant, the SIP URI that we want to call is passed to the callSIP method. This is how we connect two call legs. Once the call is answered, Dasha will start a conversation.
+
+If you are using SIP Registrations on your PBX, you need to create a [SIP Registration](https://voximplant.com/docs/howtos/integration/sip/registration) and use it instead of the SIP URI.
+
+Click on __Routing__ in the left hand menu. Create a new rule (leave the pattern as default), and attach your scenario to this rule.
+
+![Create new rule in Voximplant dashboard](https://cdn.dasha.ai/blog/integrate-third-party-telephony/Screenshot_at_Jul_27_21-45-38.webp)
+
+## Get your backend in order and start calling 
+
+The setup is ready, now we need a local app or backend to run our Voximplant scenario using Dasha.
+
+### Placing outbound calls: 
+
+Open your VS Code Dasha conversational AI app project. Open up __index.js__ file and replace **configName** in __`dasha.sip.Endpoint`__ with your config name. Do the same with the __`name`__ field in package.json. To see all the available configs for sip outbound, run the __`dasha sip list-outbound`__ command.
+
+In the __*.dashaapp__ file, change the __`name`__ field so it matches our config name.
+
+For __outbound calls__, run: __`node index.js <the number to call in international format e.g. 12223334455>`__. Now you can watch the application deployment and registration process in the console.
+
+### Taking inbound calls: 
+1. Open up your VS Code with the Dasha project open.
+2. In the __package.json__ file, replace the __`name`__ field with your config name. To see all the available configs for sip inbound, run the __`dasha sip list-inbound`__ command.
+In the inbound.dashaapp file, change the __`name`__ field so that it matches your config name.
+
+To test the integration, run npm i from your folder.
+
+For __inbound calls__, run: __`node main.js`__. Now you can call to the phone number which you purchased in Voximplant’s dashboard. 
+
+You’ll be able to track application deployment in the console. 
+
+## In conclusion 
+
+Congrats, you’ve successfully connected your Dasha conversational AI app to your custom telephony. This is exciting. You can now call anyone in the world. 
+If you haven’t yet, you can join [Dasha community](https://community.dasha.ai) and let us know how useful this was to you. If you want a super quick answer - ask your questions on [StackOverflow](https://stackoverflow.com), using the #dasha hashtag.

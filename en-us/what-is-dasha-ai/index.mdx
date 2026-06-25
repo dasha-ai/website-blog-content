@@ -1,0 +1,92 @@
+---
+slug: "what-is-dasha-ai"
+title: "What is Dasha AI?"
+author: "Anzhelika Minina, Citizen Developer"
+authorPhoto: https://cdn.dasha.ai/blog/what-is-dasha-ai/author.jpg
+category: common
+categoryName: Intro
+createdAt: "2021-10-13T15:57:51.836Z"
+updatedAt: "2021-10-27T12:11:50.651Z"
+readLength: "4 minute read"
+heroImage: https://cdn.dasha.ai/blog/what-is-dasha-ai/hero.webp
+introduction: "You’ve probably heard the terms “conversational AI” and “chatbot” being thrown around. Nowadays, it seems like everyone is getting into the chatbot game, but what is Dasha AI? What does it mean to be a conversational-AI-as-a-service?\n\nIn this article, I’ll explain all of this and more. I’ll also describe the Dasha AI Platform, how it operates, and give you a few examples of what you can do with Dasha."
+seoTitle: What is Dasha AI
+seoDescription: "Dasha AI is a conversational AI as a Service platform that lets developers automate tasks with simple human-like conversational AI apps."
+seoKeywords: "conversational AI, conversational ai as a service, ai platform, conversational ai app, dasha, dasha AI"
+---
+
+## What is Dasha AI?
+
+Dasha is a conversational-AI-as-a-service platform that lets you embed realistic voice and text conversational capabilities into your apps or products. By creating a simple conversational AI app, you can create a conversational experience that is natural, intuitive, and engaging. Just like a human, Dasha can hold a conversation with you, ask questions, and help you and/or your company complete tasks that can be and should be automated.
+To sound indistinguishable from a human, Dasha uses a set of machine learning (ML), natural language processing (NLP), text-to-speech (TTS), speech-to-text (STT).
+
+## What can you build with Dasha?
+
+You could start off by building a simple insurance customer service app: 
+
+<a href="https://www.youtube.com/watch?v=46nyWBTSHgs" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://www.youtube.com/watch?v=46nyWBTSHgs</a>
+
+Or an automated receptionist for a hotel front desk: 
+
+<a href="https://www.youtube.com/watch?v=2Glp_HC-VHc&t=29s" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://www.youtube.com/watch?v=2Glp_HC-VHc&t=29s</a>
+
+OR you can integrate Dasha with an incident management platform to be able to resolve incidents on the go: 
+
+<a href="https://www.youtube.com/watch?v=TeJAFI993_0" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://www.youtube.com/watch?v=TeJAFI993_0</a>
+
+Or build an app to qualify inbound leads and integrate it with Hubspot: 
+
+<a href="https://youtu.be/MjKQ2Zibqgk" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://youtu.be/MjKQ2Zibqgk</a>
+
+## How Dasha works
+
+![How Dasha works](https://cdn.dasha.ai/blog/what-is-dasha-ai/How_Dasha_works.webp)
+
+## Architecture overview
+
+![Architecture Overview](https://cdn.dasha.ai/blog/what-is-dasha-ai/Architecture_Overview.webp)
+
+Dasha platform consists of 3 main parts:
+
+* Dasha Cloud
+* Dasha SDK
+* Dasha Studio
+
+### Dasha SDK
+
+The Dasha SDK (software development kit) is an abstraction layer that lets you connect your locally stored conversational application to the Dasha AI as a service cloud platform where it is executed. It hides (abstracts) communication channels from you and, like other libraries, gives you a programmable Node.js interface that you can use every day.
+We regularly update Dasha SDK so that the users have the best experience possible.
+
+### Dasha Cloud
+
+Dasha Cloud provides conversational AI as a service. This means that you don’t need to be a data scientist to use machine learning when building Dasha conversational apps. For example with Dasha Cloud, your app uses an NLU based on neural networks that are trained with the data you provide, Speech To Text, Voice Activity Detectors, and many other things. 
+Here is a [detailed overview](https://dasha.ai/en-us/blog/dasha-conversational-ai-as-a-service) of these cloud AI services. 
+We use GRPC for communication between SDK and the Dasha Cloud. Here are its advantages: 
+
+- You can connect to Dasha from anywhere, from your PC, from a test environment, from another cloud.
+- You do not need to have the public IP address, DNS name, TLS Certificate, because the connection is initiated from your side. Dasha has DNS names, TLS Certificates.
+- It's easier to implement A/B testing and scaling of your application. 
+- It's secure. You do not need to expose any HTTPS endpoints to the world.
+
+### Dasha Studio
+[Dasha Studio](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio) is a [Visual Studio Code](https://code.visualstudio.com/) extension. It lets you build, train manage and deploy [Dasha applications](https://github.com/dasha-samples). Dasha apps are  human-like voice interfaces for CX, support, sales,notifications, smart IVRs or voice interfaces for web and mobile applications and games.You can also add conversational capabilities to websites, games, mobile apps, voice assistants, smart devices, and more with only a few lines of code, from Visual Studio Code.
+Since Dasha is an open technology you can write Dasha apps without using Dasha Studio but you will lose out on the syntax highlighting, visual graph editor and debugging tools. All code you write resides on your machine and is your intellectual property.
+The language you'll be using to write your conversational AI apps is DashaScript which is the native language of the Dasha Cloud Platform. 
+
+## DashaScript
+DashaScript is an event-driven declarative programming language used to design complex real-world conversations that pass a limited Turing test. Automate call center conversations, recreate the Google Duplex demo in under 400 lines of code or create a no-code GUI for your users that translates into DashaScript code.
+DashaScript program consists of nodes representing AI actions and transitions between nodes representing conversation events. The program written in DashaScript is called a script. The script is an integral part of your dashaapp that determines its behavior at runtime.
+
+## Files that comprise your Dasha conversational AI app
+
+Take any [Dasha app](https://github.com/dasha-samples). You will see the `/app` folder - this is where your Dasha application resides. 
+In building Dasha apps in VSCode, you will mainly work with three files:
+* main.dsl is the Dasha Scripting Language file. DSL is a domain-specific language, derived from TypeScript and used for the exclusive purpose of describing a conversation. You can read more about it in our documentation.
+* data.json is the data set you provide to train the Dasha Cloud neural networks to recognize user intents and identify named entities. I'll discuss them in detail right below.
+* index.js is the server-side JavaScript file to which the Dasha SDK is imported and which launches the contents of the /app folder to the Dasha Cloud to be executed.
+
+## Join Dasha Developer Community and check Dasha out for yourself
+
+Join us in the [Dasha developer community](https://community.dasha.ai) for guidance on your exciting journey of conversational AI app creation. We share thoughts, ideas, problems, and solutions here. See what you can create!
+
+Godspeed! :)

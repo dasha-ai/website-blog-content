@@ -1,0 +1,255 @@
+---
+slug: "conversational-ai-app-development-build"
+title: "How to get started with your first conversational AI app development. Step 2: build it "
+author: "Artur Grishkevich, Head of Growth, Citizen Developer Evangelist"
+authorPhoto: https://cdn.dasha.ai/blog/conversational-ai-app-development-build/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-06-11"
+updatedAt: "2025-06-06T04:25:00.119Z"
+readLength: "9 minute read"
+heroImage: https://cdn.dasha.ai/blog/conversational-ai-app-development-build/hero.jpg
+introduction: "In [Step 1](https://dasha.ai/en-us/blog/build-conversational-AI-app-1) we learned how to map any conversation out in a spreadsheet. After all, preparation is 90% of the victory. Now, let’s bring this app to life. \n\nIn this guide we will learn how to build a custom voice AI conversational app using Dasha Studio and launch test calls."
+seoTitle: "How to get started with your first conversational AI app development. Step 2: build it "
+seoDescription: "Once you've outlined your automated conversation in a conversation map, you can implement it in code and run your first fully automated conversational AI test calls. "
+seoKeywords: "ai as a service, conversational AI, ai app development, dasha AI, ai conversational interfaces, conversational automation"
+---
+
+
+## Building your conversational AI app - intents and entities 
+
+Now that we have our conversation [mapped out](https://dasha.ai/en-us/blog/build-conversational-AI-app-1), implementing it using DashaScript and JSON in Dasha Studio is a breeze.
+
+First, you’ll want to open an existing simple Dasha app. I will use [this one](https://github.com/dasha-samples/dasha-first-app) as the example. If you need instructions on how to get your Dasha Studio set up, you can refer to the second section of [this post](https://dasha.ai/en-us/blog/dasha-sdk-new-release-2021).
+
+Once you’ve got the app opened in Visual Studio Code, make sure you have the following files open: *main.dsl, intents.json*. You will also want to open the visual graph editor
+
+![Visual graph editor](https://cdn.dasha.ai/blog/conversational-ai-app-development-build/Visual_graph_editor.webp)
+
+Perfect. I usually like to start with my intents. It helps me to think through things properly. Oh! And I just realized that we forgot to map our Yes and No intents. There is a system function for sentiment negative/positive, however for an app where Yes and No may be expressed in less than usual ways, I suggest creating custom intents. 
+
+Open Intents.json, select all and delete. Now paste in this code to get you started. 
+
+```json
+{
+ "version": "v2",
+ "intents":
+ {
+   "yes":
+   {
+     "includes": [
+       "yes",
+       "correct",
+       "sure",
+       "for sure",
+       "absolutely",
+       "right",
+       "righto",
+       "yep",
+       "you got it",
+       "I would"
+     ],
+     "excludes": [
+       "fuck off"
+     ]
+   },
+   "no": {
+     "includes": [
+       "no",
+       "hell no",
+       "definitely not",
+       "wrong",
+       "incorrect",
+       "I do not",
+       "I don't",
+       "I would not"
+     ],
+     "excludes": [
+     ]
+   }
+ },
+
+     "entities":
+     {
+
+     }
+}
+```
+
+You will now need to use the same format to fill out of all the intents that you had defined in the [conversation map spreadsheet](https://docs.google.com/spreadsheets/d/1LqBiQOyY77CsirHimHFz0wN7bCVjhGbns6ptiu4_zLA/edit#gid=0). You are stating the name of the intent and then listing examples of phrases that should be interpreted as signifying this intent and examples of phrases that should always be excluded as signifying this intent. Intents.json is the data you provide to train the intent classification neural networks in Dasha Cloud. For most intents 5-10 examples are enough, for some you may need more. 
+
+When you’re done you should have something like [this](https://docs.google.com/document/d/1X9lfCp6K4tK79hgvMbh16_wj3h3vbCBdIQii81bofF8/edit).
+
+You probably noticed the section “entities” which is something that we have not discussed. __Named entities__ are a way to extract specific data from speech. In this case, we are using __named entities__ to get the user’s order over the phone. To use __entities__, we have to define them and state examples in the JSON file. To gain a better understanding of using Named Entity Recognition in Dasha, read Iliya’s write up [here](https://dasha.ai/en-us/blog/named-entity-recognition). 
+Here is the code we will use for the entities: 
+
+```json
+"entities":
+ {
+   "food":
+   {
+     "open_set": true,
+     "values": [
+       {
+         "value": "burger",
+         "synonyms": ["burger", "hamburger", "a burger", "a hamburger", "a tasty hamburger"]
+       },
+       {
+         "value": "fries",
+         "synonyms": ["fries", "some fries", "french fries", "delicious fries"]
+       },
+       {
+         "value": "milkshake",
+         "synonyms": ["milkshake", "shake", "a milkshake", "strawberry milkshake", "a tasty milkshake"]
+       },
+       {
+         "value": "hot dog",
+         "synonyms": ["hot dog", "french dog", "a hot dog", "a french dog", "big dog"]
+       },
+       {
+         "value": "grilled cheese",
+         "synonyms": ["grilled cheese", "cheese sandwich", "grilled cheese sandwich", "a grilled cheese sandwich", "a cheese sandwich"]
+       },
+       {
+         "value": "coke",
+         "synonyms": ["soda", "coke", "a soda", "a coke"]
+       }
+     ],
+     "includes": [
+       "(burger)[food], (fries)[food] and a (milkshake)[food]",
+       "(burger)[food], (fries)[food] and a (coke)[food]",
+       "(grilled cheese)[food], (fries)[food] and a (milkshake)[food]",
+       "(grilled cheese)[food], (fries)[food] and a (milkshake)[food]",
+       "(hot dog)[food], (fries)[food] and a (milkshake)[food]",
+       "(hot dog)[food], (fries)[food] and a (coke)[food]",
+       "I'd like a (burger)[food], (fries)[food] and a (milkshake)[food]",
+       "I'd like a (burger)[food], (fries)[food] and a (coke)[food]",
+       "I'd like   (grilled cheese)[food], (fries)[food] and a (milkshake)[food]",
+       "I'd like a (grilled cheese)[food], (fries)[food] and a (milkshake)[food]"
+     ]
+   }
+ }
+```
+
+Synonyms are various ways in which the user might identify the entity value. Includes are ways in which the sentence, containing the entity value, might be phrased. 
+
+Go ahead and paste the section above to replace the “entities” section already in the JSON file. You may want to add some variations in phrasing to further train the neural network powering your conversational AI’s classification engine. 
+
+## Setting up the nodes and digressions 
+
+Now, switch over to the *__main.dsl__* file. First we need to declare a function that will receive the data collected from the conversation with the user. Later in the conversation we will use this function to read the data back to the user to confirm the order. Here is the function declaration statement and here is what the first 5 lines of your new app should look like: 
+
+```dsl
+context 
+{
+    input phone: string;
+    food: {[x:string]:string;}[]?=null;
+}
+```
+
+Now, let’s move to the nodes. Your first task is to transfer over all the nodes and to map out their transitions. Start with node root. You will want to change the text to reflect what we had defined in the conversation map and you will want to map the transitions accordingly. As the outcome, you should have this statement: 
+
+```dsl
+start node root
+{
+   do
+   {
+       #connectSafe($phone);
+       #waitForSpeech(1000);
+       #sayText("Hi, this is John at Acme Burgers Main Street location. Would you like to place an order for pick-up?");
+       wait *;
+   }   
+   transitions
+   {
+       place_order: goto place_order on #messageHasIntent("yes");
+       can_help_then: goto can_help_then on #messageHasIntent("no");
+   }
+}
+```
+
+Your second node will be place_order. Here we need to use the NLU control function __#messageHasData__ to collect __named entity__ data that we have defined in our intents.json file. This is what it will look like. 
+As you recall, we declared $food to be a data array variable in line 4 of the file. Now we are populating it with the data the user provides. 
+
+```dsl
+node place_order
+{
+   do
+   {
+       #sayText("Great! What can I get for you today?");
+       wait *;
+   }
+   transitions
+   {
+      confirm_food_order: goto confirm_food_order on #messageHasData("food");
+   }
+   onexit
+   {
+       confirm_food_order: do {
+       set $food = #messageGetData("food");
+      }
+   }
+}
+```
+
+Refer to your conversation map. The next step from here is to confirm the food order. In this node we will read the data collected and stored in variable `$food` back to the user. 
+
+```dsl
+node confirm_food_order
+{
+   do
+   {
+       #sayText("Perfect. Let me just make sure I got that right. You want ");
+       var food = #messageGetData("food");
+       for (var item in food)
+           {
+               #sayText(item.value ?? "");
+           }
+       #sayText(" , correct?");
+       wait *;
+   }
+    transitions
+   {
+       order_confirmed: goto payment on #messageHasIntent("yes");
+       repeat_order: goto repeat_order on #messageHasIntent("no");
+   }
+}
+```
+
+With these three examples you will be able to create all the other nodes, as are required by your [conversation map](https://docs.google.com/spreadsheets/d/1LqBiQOyY77CsirHimHFz0wN7bCVjhGbns6ptiu4_zLA/edit#gid=0). 
+
+Now on to the digressions. As discussed previously, digressions are nodes that can be called up at any point of the conversation. They are used to make the conversation more human-like. (for more on digressions, read this [post](https://dasha.ai/en-us/blog/using-digressions))
+
+Let’s start with the delivery digression. 
+
+```dsl
+digression delivery
+{
+   conditions {on #messageHasIntent("delivery");}
+   do
+   {
+       #sayText("Unfortunately we only offer pick up service through this channel at the moment. Would you like to place an order for pick up now?");
+       wait *;
+   }
+   transitions
+   {
+       place_order: goto place_order on #messageHasIntent("yes");
+       can_help_then: goto no_dice_bye  on #messageHasIntent("no");
+   }
+}
+```
+
+You can use the same framework to recreate all the other digressions, as you planned to in the conversation map. The only one to pay attention to will be the __digression place_order__. Make sure you reuse the code from __node place_order__ to properly utilize named entities for data collection. 
+
+When you are done, your main.dsl file should look something like [this](https://docs.google.com/document/d/1gpJSCEGsg22jxIGv1g-ZHzOQf_BJHKzNArhJHWYlKfE/edit?usp=sharing). 
+
+You can get the code to the entire app in our [GitHub repository here](https://github.com/dasha-samples/food-pickup-demo-from-blog). 
+
+## Testing the conversational AI app you have just built 
+
+Type `npm start chat` into your terminal. Give the cloud platform a minute to process the training data and train your intents and entities. A chat will launch within terminal.
+
+Depending on the route you take, it may go something like this: 
+
+Type `npm start number` into your terminal, where number = your phone number in the international format e.g.: 12813308004. You will get a call, when you pick it up give it a second and the AI will begin the conversation, just as you had instructed it to do. 
+
+If you have any feedback on this post, please head over to our Twitter or write to me directly at [arthur@dasha.ai](mailto:arthur@dasha.ai) mail.

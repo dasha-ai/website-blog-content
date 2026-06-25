@@ -1,0 +1,131 @@
+---
+slug: "how-to-control-vacuum-cleaner-robot-with-dasha-1"
+title: How to Control Vacuum Cleaner with Dasha (1)
+author: Vlad Chernyshov
+authorPhoto: https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha-1/author.webp
+category: news
+categoryName: News
+createdAt: "2021-01-11T05:41:42.977Z"
+updatedAt: "2021-01-22T06:18:43.194Z"
+readLength: "10 mins read"
+heroImage: https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha-1/hero.webp
+introduction: "Let’s see how you can easily create a voice & text assistant, and teach it to control your robot vacuum cleaner like Xiaomi or iRobot."
+seoTitle: How to Built Assistant for Controlling Robot Vacuum Cleaner with Dasha
+seoDescription: How to Control Vacuum Cleaner with Dasha
+seoKeywords: "vacuum cleaner, remote control, ai, conversational ai"
+---
+
+Dasha is a Conversational AI for developers. And it’s not only about automating phone calls, it’s also about, for instance, building various personal assistants. Let’s see how you can easily create a voice & text assistant, and teach it to control your robot vacuum cleaner like Xiaomi or iRobot. The full source code is available here.
+It’s a 3 step process:
+Create conversation model
+Train your custom intents
+Connect Dasha to the device
+Step 1: Create conversation model
+Let’s create new DashaScript file called main.dsl and create the first node, entry point of our conversational model:
+
+<a href="https://repl.it/@amasad/PitifulLastingWhoopingcrane?lite=true" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://repl.it/@amasad/PitifulLastingWhoopingcrane?lite=true</a>
+
+<a href="https://www.youtube.com/watch?v=N-iCaO-hxAk&ab_channel=TheDailyShowwithTrevorNoah" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://www.youtube.com/watch?v=N-iCaO-hxAk&ab_channel=TheDailyShowwithTrevorNoah</a>
+
+![8](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha-1/8.webp)
+
+![test](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha-1/guuse.gif)
+
+```typescript
+
+import * as readline from "readline";
+const chalk = require('chalk');
+
+const cli = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
+```
+
+```dsl
+node myNode
+{
+    do
+    {
+        set $x = 10;
+        wait *;
+    }
+    transitions
+    {
+        targetNode: goto targetNode on $x > 5;
+    }
+}
+
+node targetNode
+{
+    do
+    {
+        // Custom code...
+    }
+    transitions
+    {
+    }
+}
+```
+
+It doesn’t do much, just establishes a connection over the phone (or SIP endpoint) and starts listening to the user.
+Next up, let’s create a special node called digression to handle situation when you want to start cleaning:
+
+Digressions, unlike ordinary nodes, can be executed at any point during the conversation if the conditions are satisfied. In this case we enter the digression when we hear start_listening intent. Upon entering the digression, we pronounce text and then call an external function to tell the vacuum cleaner to start cleaning. return statement here is also important, because it returns the control exactly to the point where digression has been called.
+Then let’s add another digression to handle stop cleaning function:
+
+Also let’s implement checking the battery level by defining one more digression:
+
+This code shows how to manipulate variables within DashaScript and how to compose dynamic phrases.
+The last thing to do is to declare our external functions:
+
+That’s it! With under 50 lines of code (mostly new lines and brackets) we created a conversation model that handles 3 situations, and thanks to digressions  it’s non-linear, which means you can ask to start cleaning, stop cleaning or battery level in any order.
+Step 2: train your custom intents
+Next up, let’s implement our intents we’re using in the conversation model: start_cleaning, stop_cleaning and battery_level. In order to do this simply create a plain JSON file called intents.json and put this in:
+
+What we’re doing here is providing Dasha with a few samples that contain desired intent. Usually 5-8 samples is enough.
+Step 3: Connect Dasha to the device
+Now that we have conversational UI in place, it’s time to do the final step and connect your app to the actual device. In order to do that you need to do 2 things using Dasha SDK (in this tutorial, for Node.JS):
+Implement external functions you declared in your DashaScript file.
+Create an app that will be running as a backend and that will be connected to actual device (vacuum cleaner).
+First, you import Dasha SDK into your app:
+
+```dsl
+node myNode
+{
+    do
+    {
+        set $x = #getCurrentTime();
+    }
+    transitions
+    {
+        targetNode: goto targetNode on #getCurrentTime() > $x + 100;
+    }
+}
+node targetNode
+{
+    do
+    {
+        // Custom code...
+    }
+    transitions
+    {
+    }
+}
+```
+
+Then you create an instance of Dasha SDK and initialize it with your API key (you can request access to our closed beta):
+
+Then you deploy your Dasha app (conversational model) onto Dasha platform. Assuming your main.dsl, intents.json, etc. - are in the ./app directory (for full application structure, please refer to the source code):
+
+That’s it! Now it’s deployed. But we need to add channels we want our assistant be available at. Let’s add text channel, so we could connect WhatsApp or email later:
+
+And voice SIP channel so we can assign a Twilio number and call our assistant:
+
+Note stt and tts sections: in this case we’re using both Dasha’s own text-to-speech and speech-to-text, but you can plug in your own, if you want.
+Then we implement a handler that is being called upon start of each conversation, and pass input parameters and external functions:
+
+And the last thing we have to do is to implement external function that actually connect the assistant to the device:
+
+In this tutorial we’re using node-mihome. Notice how we implement external functions from the main.dsl file under the rpcHandler section. 
+That’s it! Let’s run it and see if it works: [https://youtu.be/i-G1VbhnnGA](https://youtu.be/i-G1VbhnnGA)

@@ -1,0 +1,104 @@
+---
+slug: "random-forest-in-machine-learning"
+title: Random Forest in Machine Learning
+author: "Alex Dyakonov, Chief Research Scientist"
+authorPhoto: https://cdn.dasha.ai/blog/random-forest-in-machine-learning/author.jpg
+category: "machine-learning"
+categoryName: Machine learning
+createdAt: "2021-03-08T14:29:50.145Z"
+updatedAt: "2022-03-15T13:44:21.161Z"
+readLength: "7 minute read"
+heroImage: https://cdn.dasha.ai/blog/random-forest-in-machine-learning/hero.jpg
+introduction: "**The machine learning random forest algorithm is one of the most amazing ML algorithms** invented by Leo Breiman and Adele Cutler back in the last century. It has come down to us in its \"original form\" (no heuristics have been able to improve it significantly) and is one of the few universal algorithms."
+seoTitle: Machine Learning Random Forest
+seoDescription: Random forest in machine learning is one of the most engaging algorithms. How RF works and its parameters are explained in this article by Dasha.AI expert.
+seoKeywords: "random forest, machine learning, ml, rf"
+---
+
+## Importance of Machine Learning Random Forest
+
+The versatility lies, firstly, in the fact that it is used to solve many problems (according to my estimates, it can be used to solve around 70% of those machine learning problems encountered in practice, if we do not take into account problems with images), and secondly, in the fact that there are random forests for solving problems classification, regression, clustering, anomaly search, feature selection, etc.
+
+This post is a short practical guide for beginners; it serves as a guide to the main parameters of the algorithm with pictures. The test here means the result on the sliding control (5 folds were used to plot the charts), although the conclusions for the hold-out control will be the same. The charts are in the variance and (if there is a second corridor) the max-min corridor. All conclusions and recommendations are generalized and cannot be used for any specific task.
+
+## What is Random Forest in Machine Learning
+
+**Random forest (RF)** is a set of decision trees. In the regression problem, their answers are averaged; in the classification problem, a decision is made by voting by majority. All trees are built independently according to the following scheme:
+
+- A subsample is selected from the training sample with a sample size (possibly with return) and a tree is built from it (each tree has its own subsample),
+- To build each splitting in the tree, we look through the max_features of random features (for each new splitting - its own random features),
+- We select the best feature and splitting according to it (according to a predetermined criterion). As a rule, a tree is built before the selection is exhausted (until only representatives of one class remain in the leaves), but in modern implementations, there are parameters that limit the height of the tree, the number of objects in the leaves, and the number of objects in the subsample at which the splitting is performed.
+
+It is clear that such a construction scheme corresponds to the main principle of an [ensemble ](https://en.wikipedia.org/wiki/Ensemble_learning)(building a machine learning algorithm based on several, in this case, decision trees): the basic algorithms must be proper and diverse (therefore, each tree is built on its own training set and there is an element of randomness when choosing splits). Is random forest deep learning? Random forest leans towards machine learning while neural networks gravitate towards deep learning. 
+
+## Sklearn Random Forest Classifier
+
+The [scikit-learn](https://scikit-learn.org/stable/) library has such a random forest (RF) implementation (I cite it only for the classification task):
+
+![RF realization](https://cdn.dasha.ai/blog/random-forest-in-machine-learning/image1.jpg)
+
+The algorithm works according to the standard scheme adopted in scikit-learn:
+
+![random forest realization](https://cdn.dasha.ai/blog/random-forest-in-machine-learning/image2.jpg)
+
+Let's describe what the main parameters mean:
+
+***Number of trees*** **- n_estimators**
+
+The more trees the better the quality, but the RF setup and run times also increase proportionally. Please note that often with an increase in n_estimators, the quality on the training sample increases (it can even reach 100%), and the quality on the test reaches the asymptote (you can estimate how many trees you need).
+
+![n estimators](https://cdn.dasha.ai/blog/random-forest-in-machine-learning/image3.webp)
+
+***Number of features for splitting selection***** - max_features
+
+**Max features random forest
+
+The graph of quality on the test versus the value of this parameter is unimodal; it strictly increases during training. As max_features increases, the forest building time increases and the trees become “more uniform”. 
+
+So, random forest max features are just the best number of features to have to achieve the best split. 
+
+By default, it equals sqrt(n) in classification problems and n/3 in regression problems. This is the most important parameter! You must set it up first (with a sufficient number of trees in the forest).
+
+![max features](https://cdn.dasha.ai/blog/random-forest-in-machine-learning/image4.webp)
+
+![max features model](https://cdn.dasha.ai/blog/random-forest-in-machine-learning/image5.webp)
+
+***The minimum number of objects at which splitting is performed** ***- min_samples_split**
+
+This parameter is usually not very important and you can leave the default value (2). The quality control chart may look like a "comb" (there is no clear optimum). With an increase in the parameter, the quality of training decreases, and the time for building RF reduces.
+
+![min samples split](https://cdn.dasha.ai/blog/random-forest-in-machine-learning/image6.webp)
+
+![min samples split model](https://cdn.dasha.ai/blog/random-forest-in-machine-learning/image7.webp)
+
+***Limit on the number of objects in leaves*** **- min_samples_leaf**
+
+Everything that was described min_samples_split is also suitable for describing this parameter. You can often leave the default (1). Note that according to the classics, in regression problems it is recommended to use the value 5 (this is implemented that way in the randomForest library for R, in sklearn it is 1).
+
+![min samples leaf](https://cdn.dasha.ai/blog/random-forest-in-machine-learning/image8.webp)
+
+![min samples leaf model](https://cdn.dasha.ai/blog/random-forest-in-machine-learning/image9.webp)
+
+***Maximum tree depth*** **- max_depth**
+
+### Understanding random forest max depth
+
+It is clear that the shallower the depth, the faster the RF builds and works. With an increase in depth, the quality in training increases sharply, but in control it, as a rule, increases. It is recommended to use the maximum depth (unless there are too many objects and very deep trees are obtained, the construction of which takes a long time). When using shallow trees, changing the parameters associated with limiting the number of objects in a leaf and for division does not lead to a significant effect (leaves are already "large"). Shallow trees are recommended for use in tasks with a large number of noise objects (outliers).
+
+![max depth](https://cdn.dasha.ai/blog/random-forest-in-machine-learning/image10.webp)
+
+![max depth model](https://cdn.dasha.ai/blog/random-forest-in-machine-learning/image11.webp)
+
+In essence, this is a very important parameter, but in fact there are no options for choosing. The sklearn regression library implements two criteria, “MSE”, which is an abbreviation of Mean Square Error, and “MAE”, Mean Absolute Error, which correspond to the error functions they minimize. Most tasks use MSE. I cannot compare them yet, because mae appeared quite recently - in version 0.18 (and in my opinion, it is implemented with a bug). For classification, the “Gini” and “entropy” criteria have been implemented. A simple search will help you choose what to use in a specific problem (Gini was used in the author's implementation of the algorithm). 
+
+
+![criterion](https://cdn.dasha.ai/blog/random-forest-in-machine-learning/image12.webp)
+
+![criterion model](https://cdn.dasha.ai/blog/random-forest-in-machine-learning/image13.webp)
+
+In the sklearn implementation of a random forest in machine learning, there is no samplesize parameter that regulates how many objects to sub-sample for building each tree. There is such a parameter in the R-implementation, but, in fact, it is often optimal to choose from the entire sample. It is also recommended to choose a subsample with the return: bootstrap = True (this is the bootstrap aggregating).
+
+By default, n_jobs = 1 in sklearn methods, i.e. a random forest is built on one processor. If you want to speed up the build significantly, use n_jobs = -1 (build on as many processors as possible). To build reproducible experiments, use the pseudo-random number generator preset: random_state.
+
+P.S. The RF method is also good in that when constructing a forest, in parallel, the so-called oob-estimate of the quality of the algorithm can be calculated (which is very accurate and is obtained not at the expense of the division into training / test), oob-answers algorithms (answers that the algorithm would produce on the training set , if “it didn’t train on it”), the importance of the features is assessed. Finally, do not forget about the full enumeration of parameter values ​​(if there are not that many objects in the task).
+

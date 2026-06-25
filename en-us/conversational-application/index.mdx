@@ -1,0 +1,50 @@
+---
+slug: "conversational-application"
+title: The conversational AI app. Its parts and the communication between them
+author: "Andrey Chernykh, Head of Engineering"
+authorPhoto: https://cdn.dasha.ai/blog/conversational-application/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-06-17T08:24:27.113Z"
+updatedAt: "2025-06-06T04:43:05.144Z"
+readLength: "5 minute read"
+heroImage: https://cdn.dasha.ai/blog/conversational-application/hero.webp
+introduction: "Your Dasha AI conversational app is composed of two parts: SDK and Dasha Cloud.\n\nLet's look at what each part does and how they communicate with each other."
+seoTitle: The conversational AI app. Its parts and the communication between them.
+seoDescription: "As you start building your conversational AI app, you realize its architecture is split into two major parts - conversational model and business logic. "
+seoKeywords: "conversational AI as a service, Dasha conversational AI, dasha AI, conversational AI api, conversational AI app, Dasha SDK, AI as a service"
+---
+
+The conversational application is split into two major parts - conversational model and business logic. It's better to execute business logic on your side because it's secure and easier to maintain. And what about the conversational model? Why is it better run in the Dasha Cloud?
+
+Because the conversational model contains many parts that rely on  extensive resources to execute the conversation. Dasha Cloud provides [conversational AI as a service](https://dasha.ai/en-us/blog/ai-as-a-service). This means that you don’t need to be a machine learning engineer to use machine learning when building Dasha conversational apps.  For example with Dasha Cloud, your app uses an NLU based on neural networks, that is trained with the data you provide, Speech To Text, Voice Activity Detectors, and many other things. Every day we are working on its quality and performance. We are hiding many troubles of research, development and maintenance from you. 
+
+## And what about communication?
+
+A typical solution for many systems is using Webhook (HTTP Request, that is emitted from the Cloud to your server). But using Webhooks has some disadvantages, such as:
+* You need to have DNS name and TLS Certificate if you want to transfer data securely.
+* You need to send all conversation context in each request
+* Your application complexity rises sharply, when you need to have more than one replica of your application
+* It's hard to start a business logic of your application on your PC and try your application at once.
+* It's hard to run your application in the test environment, like Gitlab CI/CD pipelines, or using Github actions.
+
+For us, as developers webhook would be  much easier to implement on the server-side, but it’s not so easy to use it.
+
+And what solution does Dasha use? We are using [GRPC](https://grpc.io) for communication between SDK and the Dasha Cloud. Here are the  advantages:
+* You can connect to Dasha from anywhere, from your PC, from the test environment, from another cloud.
+* You do not need to have the public IP address, DNS name, TLS Certificate, because the connection is initiated from your side. Dasha has DNS names, TLS Certificates.
+* It's easier to implement A/B testing and scaling of your application. You have conversation context during all conversation context in the application, that has started (really - accepted) the conversation.
+* It's secure. You do not need to expose any HTTPS endpoints to the world.
+
+Is the GRPC a silver bullet? No, it has some disadvantages: 
+
+* It's much harder to maintain and update the platform when you are using GRPC streams because at any time you have connected clients.
+* It's harder to implement scaling because there is no simple way to throw connected clients from one instance of the server to another.
+
+But our team knows about the issues I've listed above. We are keeping them in mind and working on better implementation of the SDK and the Dasha Cloud, which allows us to solve these issues.
+
+What about other alternatives?
+You can ask me, what about running the full application in Dasha Cloud? No need for GRPC and webhooks, lesser latency. "It's great!" exclaims you. Yes, but no. Applications can be huge, they can use Databases, multiply frameworks, can contain frontend pages, and many other things. And what about your existing infrastructure, CRM, databases? How to communicate with them, how to do it securely? The solution of starting the full application on Dasha's side is good for small applications, that do not need to communicate with other components of the software. 
+Can such a simple application solve your problem? Maybe.
+
+If you have any ideas about such an applications, and you don't want to host the SDK part on your side, you can write to us in the [Dasha Community](https://community.dasha.ai) and we will discuss this.

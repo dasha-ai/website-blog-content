@@ -1,0 +1,60 @@
+---
+slug: "emotional-speech-synthesis"
+title: "Emotional overtones in synthesized speech: how Dasha makes your AI conversations ever more human-like"
+author: "Valerii Boldakov, ML Researcher"
+authorPhoto: https://cdn.dasha.ai/blog/emotional-speech-synthesis/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-10-21T07:39:01.964Z"
+updatedAt: "2025-06-06T04:24:40.399Z"
+readLength: "3 minutes"
+heroImage: https://cdn.dasha.ai/blog/emotional-speech-synthesis/hero.webp
+heroImageTitle: Emotional speech synthesis
+introduction: "Dasha text-to-speech engine now comes standard with the ability to synthesize emotional speech overtones! Using this feature, you can make your  AI app more empathic and human-like. This way, your AI app can better communicate with the user."
+seoTitle: How to add emotional overtones to conversational voice AI
+seoDescription: "Dasha made the emotional load for synthesized speech a feature available out-of-the-box. Instructions on building emotions into your AI apps.  "
+seoKeywords: "emotional speech synthesis, AI emotions, emotions for AI, voice AI emotions, voice AI "
+---
+
+Better yet, you are not limited to predefining emotions. Instead, you can instruct Dasha to extract information about the emotion from the text you give us. So you are free to find an exact emotion that works best for you! 
+Here are some examples for you to better understand the importance of emotional speech synthesis. 
+
+Let's say you came home after a long day and speak with your Dasha-based Home Assistant that you had written yourself:
+
+```json
+John Doe: Hey, Dasha. It was a hard day. Would you mind dimming the light?
+AI with sorrowful emotion: I'm sorry to hear that. I'll dim the light. Do you need anything else?
+```
+
+Or, for example, you want to make an answering machine which angrily tells the caller not to call back after the caller is identified as a telemarketer: 
+
+```json
+Caller: Hi, I'd like you to buy something you don’t need.
+AI with angry emotion: No! Do not call here ever again!
+```
+
+Try it yourself in 2 simple steps:
+(Install Dasha CLI)[https://docs.dasha.ai/en-us/default/getting-started/#step-1-installing-dasha-cli], run:
+
+```bash
+npm i -g @dasha.ai/cli
+```
+
+Run:
+
+```bash
+dasha tts synthesize \
+--provider-name dasha-emotional \
+--speaker "Kate" \
+--emotion "from text: I am so sorry." \
+"I'm sorry to hear that. I'll dim the light. Do you need anything else?" -o sorry.mp3
+dasha tts synthesize \
+--provider-name dasha-emotional \
+--speaker "Kate" \
+--emotion "from text: You are so stupid! And I’m mad!" \
+"I'm sorry to hear that. I'll dim the light. Do you need anything else?" -o angry.mp3
+```
+
+You can play with text in `emotion` argument to get the emotional speech you want.
+
+Looking for a more sophisticated way to use Emotional Speech Synthesis in your Dasha App? Read up on our [Emotional Speech Synthesis Docs](https://docs.dasha.ai/en-us/default/speech-synthesis/emotional-speech-sythesis/).

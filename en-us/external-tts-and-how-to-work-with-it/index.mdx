@@ -1,0 +1,140 @@
+---
+slug: "external-tts-and-how-to-work-with-it"
+title: What is external TTS and how to work with it
+author: "Dmitry Ionov, Junior Software Engineer"
+authorPhoto: https://cdn.dasha.ai/blog/external-tts-and-how-to-work-with-it/author.webp
+category: "machine-learning"
+categoryName: Machine learning
+createdAt: "2021-01-22T10:13:35.921Z"
+updatedAt: "2021-02-02T11:00:52.145Z"
+readLength: "8 minute read"
+heroImage: https://cdn.dasha.ai/blog/external-tts-and-how-to-work-with-it/hero.webp
+introduction: "In the process of Dasha's dialogue with a person, depending on the phrase said by the person and the algorithm implemented in DashaScript, Dasha chooses a response phrase. After that, to convey that phrase to the person, the TTS service comes into play."
+---
+
+
+The client can choose which TTS service he wants to use in his application. By default, there are several basic options to choose from. To select them, it is enough to indicate the name in the config. However, apart from these options, clients can use their own speech synthesis, so-called external TTS. In this article, we will explain in detail how to do it.
+
+## Creating a handler function for audio file processing
+
+First, let's take a look at the description of the phrases that we plan to use in the dialogue process. Here is a simple example of a phrasemap file that contains a set of phrases:
+
+```json
+{
+ "default": {
+   "voiceInfo": { "emotion": "good", "lang": "en-US", "speaker": "default" },
+   "phrases": {
+     "hello": [
+       { "text": "Hello" },
+       { "type": "dynamic" }
+     ],
+     "sorry_goodbye": [
+       { "text": "Goodbye" }
+     ]
+   }
+ }
+}
+```
+
+This file contains two phrases and global voice information about them. We need to provide two audio files, one for each phrase. To do that, we need to code a special handler function in the application script file.
+
+Let's take a look at the type and arguments of this function:
+
+```typescript
+async function ttsHandler(text: string, voiceInfo: VoiceInfo): Promise<TtsResponse>;
+
+interface TtsResponse {
+ audioFormat: string;
+ audioData: Uint8Array;
+}
+```
+
+First, let’s take a look at function input values. The function has two arguments: text and voiceInfo. Arguments are taken from phrasemap file and function is called one time for each phrase and voiceInfo combination in this file. If a phrase has an internal voiceInfo, it is merged with global. Conflicts are resolved in favor of internal information.
+
+Now let's take a look at function output. This type requires two fields: audioFormat and audioData. The format is a string/enum with an audio file format. Data is an audio file read in bytes.
+
+Furthermore, it’s important to pay attention to the type of phrase in phrasemap file. In the example above, the phrase `Hello` has a dynamic type. It means that a handler function for this phrase will be called only when Dasha chooses this phrase to answer the user in the dialogue process. In the case of `Goodbye` phrase, the function will be called before the dialogue even started.
+
+Let's take a look at some examples of these functions:
+
+```typescript
+async function ttsHandler(text: string, voiceInfo: VoiceInfo): Promise<TtsResponse> {
+
+ var folder = "audio";
+ var format = "mp3";
+ var data = await fs.promises.readFile(join(folder, `${text}.${format}`));
+
+ return {
+   audioFormat: format,
+   audioData: data
+ }
+}
+```
+
+In this function, we read data from the file that has the same name as a given text and has a .mp3 format. The data and format are then returned to the described format. It can be used when you already have all the audio files that you need locally.
+
+```typescript
+import axios from 'axios';
+
+async function ttsHandler(text: string, voiceInfo: VoiceInfo): Promise<TtsResponse> {
+ var folder = "audio";
+ var format = "mp3";
+ var filename = join(folder, `${text}.${format}`);
+ if (fs.existsSync(filename)) {
+   return {
+     audioFormat: format,
+     audioData: await fs.promises.readFile(join(folder, `${text}.${format}`))
+   }
+ }
+ var data = await axios.get(`external-tts-service-address/${text}/${format}`) as Buffer;
+ await fs.promises.writeFile(filename, data);
+
+ return {
+   audioFormat: format,
+   audioData: data
+ }
+}
+```
+
+Here we check the filesystem for having an audio file for a phrase and return data if we have one. Otherwise, we make a query to an external TTS service with a phrase and then save received data to avoid repeated requests.
+
+## Changing a configuration
+
+The next step for activating an external client TTS and written handler is changing a configuration. We will describe an example with a `config.json` file, but if you are using an inline version of configs, it will work the same way.
+
+```json
+{
+ "type": "audio",
+ "channel": {
+   "type": "sip",
+   "configName": "dev-local"
+ },
+ "stt": {
+   "configName": "Default"
+ },
+ "tts": {
+   "type": "synthesized",
+   "configName": "ExternalClient"
+ },
+ "vad": { "interlocutorPauseDelay": 0.8 },
+ "saveLog": true
+}
+```
+
+Here you need to change configName field in tts section to an "ExternalClient". This option says Dasha and that she should ask your application for audio-records (which means calling your handler function) instead of generating them.
+
+## Setting a handler to your application
+
+After that, all you need to do is set a created handler to a registered application via the special method.
+
+```typescript
+let app: IApplication;
+app = await sdk.registerApp({
+ appPackagePath: "dsl",
+ concurrency: 1,
+ progressReporter: progress.consoleReporter,
+});
+app.setTtsHandler(ttsHandler); 
+```
+
+And that's it! Now application uses your speech synthesis.

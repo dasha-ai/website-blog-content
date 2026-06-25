@@ -1,0 +1,419 @@
+---
+slug: "ai-covid-symptom-checker"
+title: Taking care of your shift employees’ health in the midst of the pandemic with an AI Covid symptom checker
+author: Anzhelika Minina
+authorPhoto: https://cdn.dasha.ai/blog/ai-covid-symptom-checker/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-07-21T12:32:25.260Z"
+updatedAt: "2025-06-06T04:24:24.860Z"
+readLength: "11 minute read"
+heroImage: https://cdn.dasha.ai/blog/ai-covid-symptom-checker/hero.webp
+introduction: "There are still new cases and new variants and, while we are better equipped to fight Covid-19 than ever before, we must remain ever-vigilant. According to [<u>Healthline</u>](https://www.healthline.com/health-news/heres-how-well-covid-19-vaccines-work-against-the-delta-variant), over 50% of the U.S. population is now fully vaccinated. Yet being vaccinated doesn’t mean being fully protected from contracting the virus and getting infected."
+seoTitle: AI Covid Symptom Checker for Caring about Shift Employees Health while Pandemic
+seoDescription: Importance of Covid symptom checker app for your company to protect the shift employees. Learn how an AI symptom checker works with Dasha.AI
+seoKeywords: "checkers ai, care ai temperature"
+---
+
+[The Conversation](https://theconversation.com/yes-you-can-still-get-covid-after-being-vaccinated-but-youre-unlikely-to-get-as-sick-163870) states that those who got Covid-positive test results back after being fully vaccinated develop less severe symptoms and don’t normally get admitted to a hospital.
+
+But should that give us peace of mind? And what can employers do to help lower Covid transmission between employees and their families? 
+
+In this post, we’ll discuss why it’s important for your company to protect the shift employees and how to do that with a simple Covid symptom checker ai app.
+
+## What health screening measures companies can take for shift employees under the risk? 
+
+Using checkers with AI makes sense. [Forbes](https://www.forbes.com/sites/mishagajewski/2021/04/26/shift-workers-three-times-more-likely-to-be-hospitalized-for-covid-19-study-finds/) posted results of a study, which suggested that shift employees that are treated in hospitals are 2-3 times more likely to be tested positive for Covid. 
+
+It says that “when compared with workers who engaged in no shift work, day and night shift workers were more likely to test positive for Covid-19, but depending on what type of shift work someone does the risks varied. 
+
+For example, the study found that those who worked irregular night shifts were three times more likely to test positive for the virus in hospitals but irregular day shift work was only twice as likely to test positive.” 
+
+Employee health should be monitored closely in time of the pandemic. The sick staff brings harm to the business: less generated revenue, reduction in effectiveness, potential loss of healthy working employees. Last but not least it means the virus spreads to the friends and families of those infected.
+
+Back in 2020 companies employed various virus screening and control initiatives. Vibrating wristbands that promoted social distancing, [“immunity” badges](https://www.nytimes.com/2020/04/04/world/europe/italy-coronavirus-antibodies.html) given to those with antibodies, on-site temperature screening. All those protective measures were effective only to an extent. It didn’t prevent new outbreaks at facilities and didn’t help companies fully protect employee health. 
+
+For instance, on-site temperature measurement was an ineffective technique and there are two reasons for that. The first one is that the employees could have Covid but be asymptomatic, still transmitting the virus to their fellow workers. The second reason is that the infrared thermometers only tell the temperature of the employees’ skin. And there’s an issue with that. As [BGI](https://www.bgi.com/global/company/news/temperature/) puts it, “skin temperature can be increased or decreased independently of deep body temperature, for many reasons. Having just been in a cold or hot environment, sunburn, having just exercised, wearing too many clothes, having drunk alcohol, having just eaten, having a variety of skin conditions – these can all influence skin temperature.”
+
+### So what are the employee health screening measures that worked well?
+
+One of the tactics was employing health screening apps and remote health monitoring with an AI symptom checker. 
+
+[Stanford](https://www.stanforddaily.com/2020/05/31/stanford-introduces-health-check-to-track-covid-19-symptoms-for-on-site-employees/) created an AI symptom checker website tool to track whether the employees have any Covid symptoms. The staff was asked to complete an online survey 2 hours prior to their shift. After filling out the employee health check up form, the tool determined if an employee is healthy enough to attend their shift or not. In case the algorithm showed that the employee presented any Covid-like symptoms, they were asked to stay at home. With care AI asks for temperature measurement.
+
+[Walmart](https://arktimes.com/arkansas-blog/2020/03/31/walmart-adds-employee-screening-to-coronavirus-precautions) employed employee health screening in form of a questionnaire that had to be filled out before the shift.
+
+[Wilson Sonsini](https://www.wsgr.com/a/web/26191/COVID-19-Health-Screening-Questionnaire.pdf) as well created a covid symptom checker form to be filled out and handed to the employees’ manager or to the HR.
+
+### Better way to remote health monitoring and prevent shift workers from transmitting the virus
+
+Yes, there is. You could reach out to every worker before each shift. But that would be very expensive and likely impossible. You could, on the other hand, use conversational AI symptom checker to make short calls to employees before each shift. This way there is no human contact needed, the information is sent to HR immediately and the shift schedule can be rearranged the fastest. By employing an AI symptom checker to conduct Covid symptom checks, the company can create the healthiest shift work schedule for its staff.
+
+Since the vaccine makes it safer for employees to return to the workplace, it’s necessary to perform employee vaccination tracking. It’s also crucial to be aware of whether the employee has received just one or both doses of the vaccine. It takes time for the body to develop immunity and the risk of getting infected in the period between the doses is still high.
+
+Now, let’s get started with creating a Dasha conversational AI app that will serve your company as the best Covid symptom checker for employees!
+
+## Creating an AI app for better employee shift management and fast remote health monitoring
+
+What is the best symptom checker? The one you build. 
+
+Before getting started, check out what the conversation between the AI and your employees will look like. While watching, think of the ways you could improve this app to tailor it to your business:
+
+<a href="https://youtu.be/yhzKY0eOxDY" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://youtu.be/yhzKY0eOxDY</a>
+
+The first thing you need to do is open the Visual Studio Code and download [Dasha First App](https://github.com/dasha-samples/dasha-first-app) from the Github repository. If you have no idea what I’m talking about, check out this [guide on getting started](https://dasha.ai/en-us/blog/conversational-ai-app-creation-guide). Otherwise, open Dasha First app and delete all the code you see in the __main.dsl__ file because that’s where you’ll be writing your code.
+
+The main.dsl file is the main DashaScript file that you use to establish the conversation flow.
+
+If you get confused at any moment, you can always refer to [the demo](https://github.com/dasha-samples/covid-employee-health-screener) that has the code we’re about to write alongside with all the [intents and entities](https://dasha.ai/en-us/blog/intent-classification) that we’ll be using here. You’ll be writing them down in the intent.json file. The neural network will use the data you put there to learn custom interns and named entities.
+
+Let’s start with importing the [common libraries](https://docs.dasha.ai/en-us/default/dasha-script-language/common-libraries) to our code. The common library is a set of scripts developed and shipped by Dasha and intended to make dialogue scripting easier by covering most common cases:
+
+```dsl
+import "commonReactions/all.dsl";
+```
+Great job so far :)
+
+We now need to determine the context for our app. We’ll need the app to use the phone number of the employee to initiate the call. (**Note: you could also add a context variable for the name or first name/last name of your employees. You can peek at [this tutorial](https://dasha.ai/en-us/blog/customer-feedback-survey) which touches upon how you might do this.** )
+
+```dsl
+context 
+{
+    input phone: string;
+}
+```
+Done with that. Now, let’s write down the way we want the conversation to start. We want to say who we are and why we are calling:
+
+```dsl
+start node root 
+{
+    do 
+    {
+        #connectSafe($phone);
+        #waitForSpeech(1000);
+        #sayText("Hi, this is Dasha calling to complete your daily health checkup. Is it a good time to talk?");
+        wait *;
+    }    
+    transitions 
+    {
+        will_call_back: goto will_call_back on #messageHasIntent("no");
+        symptoms: goto symptoms on #messageHasIntent("yes");
+    }
+}
+```
+
+Start node root is always your starting point. Here you specify that the app will safely connect to the employee’s phone, wait for 1 second to speak, and then say the introductory message. In this case, we notify our shift employee that we’re interested in conducting a daily health checkup. Note that you don’t have to write “daily checkup” as your shift workers may not have shifts every day. The best way to do it is to create a database with the shift schedule and have an external function that will trigger it.
+
+Now that we’ve said why our conversational AI is calling and if it’s a good time to talk, we need to think of how the employee could respond. That’s exactly what the transitions are for. Here we set 2 transitions. If the employee is busy and refuses to talk, the app will transition to the node will_call_back. The app knows whether the employee gave a positive or a negative reply since we specify it in the intents.json file under the intents:
+
+```json
+   "no": {
+{
+  "version": "v2",
+  "intents": 
+  {     
+ 	"includes": [
+        "no",
+        "definitely not",
+        "none of such",
+        "none of the kind",
+        "nothing like that",
+        "nothing of the sort",
+        "none of that",
+        "wrong",
+        "incorrect",
+        "I do not",
+        "I don't",
+        "I would not",
+        "I wouldn't",
+        "nope",
+        "nah",
+        "incorrect",
+        "wrong",
+        "I'm okay",
+        "that's not right",
+        "that's wrong",
+        "I don't think so",
+        "I doubt that",
+        "no contact",
+        "I didn't have any contact",
+        "had zero contact",
+        "zero contact",
+        "haven't been in contact",
+        "no plans",
+        "no plan",
+        "not planning",
+        "not"
+      ]
+    },
+```
+
+Note that the “no” intent doesn’t only have the expected “no” synonyms. We’ll want this intent to be triggered in other nodes where a negative answer will contextually sound different than a simple “no” or “wrong”.
+
+Going back to the transitions. If our conversational AI app called during a convenient time, we’ll get a positive answer from the shift employee and transition to asking them about their symptoms. Let’s check how both transitions look like:
+
+```dsl
+node will_call_back
+{
+    do
+    {
+        #sayText("No worries. Please make sure to call back before your shift. Looking forward to speaking to you soon! Bye!");
+        #disconnect();
+        exit;
+    }
+}
+
+node symptoms
+{
+    do
+    {
+        #sayText("Perfect. Now, do you have any covid-like symptoms such as fever, sore throat, loss of smell or taste, et cetera?");
+        wait *;
+    }
+    transitions
+    {
+        stay_home: goto stay_home on #messageHasIntent("yes") or #messageHasData("symptoms");
+        vaccinated: goto vaccinated on #messageHasIntent("no");
+    }
+}
+```
+
+The logical thing to do if the employee says it’s a bad time for a call is to either ask when to call back or ask them to give us a callback. In this case, let’s resort to the latter option. The `exit;` part means that the app will end the call.
+
+Note that the shift employee might not just give you a “yes” or a “no”. They could say something like “you know, I’ve been having a low-grade fever and my throat is hurting a bit” - not your simple “yes”, though what they’re basically saying is that they might be sick with Covid. You need to account for such replies when writing out your intents.
+
+In the `node symptoms`, we ask whether the shift employee experiences any Covid-like symptoms. We then suggest they stay home if any symptoms are present or continue with the health screening by asking whether they’ve got vaccinated.
+
+Let’s take a look at `node stay_home`. Here we need to tell the shift worker to stay at home since it’s possible they are sick and we don’t want the virus spreading at the workplace. Once we’re done with that, we can ask if they have any questions. For instance, they might be worried that they won’t be paid, so we need to program the app to respond to that. They might ask what the stay-home corporate policy entails or how long they have to stay at home (we’ll answer both of those questions with one node - `node stay_home_policy`). In case the shift employee has no questions, we transition to the `node bye`:
+
+```dsl
+node stay_home
+{
+    do
+    {
+        #sayText("The corporate policy states that employees who present any symptoms should stay home, so I suggest you do just that. I'll call you tomorrow to check how you feel. Do you have any questions?");
+        wait *;
+    }
+    transitions
+    {``
+        stay_home_policy: goto stay_home_policy on #messageHasIntent("yes") or #messageHasIntent("stay_home_policy");
+        paid: goto paid on #messageHasIntent("payment");
+        bye: goto bye on #messageHasIntent("no");
+    }
+}
+```
+
+```dsl
+digression stay_home_policy
+{
+    conditions {on #messageHasIntent("stay_home_policy");}
+    do 
+    {
+        #sayText("Employees who have any covid-like symptoms should stay at home for 24 hours after the symptoms go away completely.");
+        #repeat(); // let the app know to repeat the phrase in the node from which the digression was called, when go back to the node
+        return; 
+    }
+}
+
+node stay_home_policy
+{
+    do 
+    {
+        #sayText("Employees who have any covid-like symptoms should stay at home for 24 hours after the symptoms go away completely. May I help with anything else?");
+        wait *;
+    }
+    transitions 
+    {
+       paid: goto paid on #messageHasIntent("payment");
+ bye: goto bye on #messageHasIntent("no");  
+    }
+}
+```
+
+```dsl
+digression paid
+{
+    conditions {on #messageHasIntent("payment");}
+    do 
+    {
+        #sayText("Yes, absolutely. Your leave will be paid for.");
+        #repeat(); // let the app know to repeat the phrase in the node from which the digression was called, when go back to the node
+        return; // go back to the node from which we got distracted into the digression
+    }
+}
+
+node paid
+{
+    do 
+    {
+        #sayText("Yes, absolutely. Your leave will be paid for. Do you have any other questions?");
+        wait *;
+    }
+    transitions 
+    {
+       question: goto question on #messageHasIntent("yes") or #messageHasIntent("question");
+       bye: goto bye on #messageHasIntent("no");    
+    }
+}
+```
+
+Notice anything interesting? Right, digressions. Digressions that are pretty much exactly the same as the corresponding nodes. You might wonder why to write both digressions and nodes. Your shift workers could ask about the stay-home compensation at any moment and your conversational AI needs to understand that and respond accordingly, that’s what our digressions are for. Once we discuss the compensation, we need to get back on track with the questions, so we write `#repeat(); return;`.
+
+In the `node paid`, we write a `question` transition. For the purpose of this demo, I haven’t gone as far as writing all the possible questions out. I direct the shift employee to HR with any additional questions they might have. However, you might need to properly think of all the possible questions your shift employees might ask.
+
+```dsl
+node question
+{
+    do 
+    {
+        #sayText("I'm sorry but I'm not quite sure I can answer that. I suggest you contact HR about that. Is that okay?");
+        wait *;
+    }
+    transitions 
+    {
+       bye: goto bye on #messageHasIntent("yes");
+       can_help_then_: goto bye on #messageHasIntent("no");    
+    }
+}
+```
+
+And now let’s take a look at `node bye`. It’s very simple:
+
+```dsl
+node bye
+{
+    do
+    {
+        #sayText("Great! Thank you for taking time to reply to the questions, we're looking forward to seeing you at work in a bit. Talk to you tomorrow! Bye!");
+        #disconnect();
+        exit;
+    }
+}
+```
+
+You let your shift worker know that you’re expecting them to show up to their shift and thank them for their time. Then the conversational AI disconnects.
+
+We just talked about how the conversation would go in case the employee is having any Covid-like symptoms. Let’s go back to `node symptoms` and see how to program the conversation to be in case the employee is healthy:
+
+```dsl
+node vaccinated
+{
+    do 
+    {
+        #sayText("That's good news! Did you get your vaccine?");
+        wait *;
+    }
+    transitions 
+    {
+       yes_vac: goto yes_vac on #messageHasData("yes_vac") or #messageHasIntent("yes") or #messageHasIntent("vac_one");
+       yes_two_vac: goto yes_two_vac on #messageHasIntent("yes_two_vac");
+       no_vac: goto no_vac on #messageHasIntent("no_vac") or #messageHasIntent("no");
+    }
+}
+```
+Since over 50% of the U.S. population is vaccinated against Covid-19, it’s important to keep track of the immunization status of your shift employees. Yet it’s even more important to remember that being vaccinated doesn’t mean being fully safe against getting sick again and transmitting the disease. This is why we have to plot 3 options: the employee could’ve received only 1 dose of the vaccine, be fully vaccinated (2 doses), or not vaccinated at all:
+
+```dsl
+node yes_vac
+{
+    do
+    {
+        #sayText("Got that. Have you received both doses of the vaccine?");
+        wait *;
+    }
+    transitions
+    {
+        yes_two_vac: goto yes_two_vac on #messageHasIntent("yes") or #messageHasIntent("yes_two_vac");
+        vac_one: goto bye on #messageHasIntent("no") or #messageHasIntent("vac_one");
+    }
+}
+
+node vac_one
+{
+    do
+    {
+        #sayText("Mgm, got that. Have you possibly been in contact with someone who experiences any covid symptoms in the past 2 weeks?");
+        wait *;
+    }
+    transitions
+    {
+        yes_two_vac: goto yes_two_vac on #messageHasIntent("no");
+        watch_for_symptoms: goto bye on #messageHasIntent("maybe") or #messageHasIntent("yes");
+    }
+}
+
+node watch_for_symptoms
+{
+    do
+    {
+        #sayText("At this point you should look out for any symptoms that might appear. In case you notice any, please stay at home. Do you have any questions?");
+        wait *;
+    }
+    transitions
+    {
+        paid: goto paid on #messageHasIntent("yes") or #messageHasIntent("payment");
+        stay_home_policy: goto stay_home_policy on #messageHasIntent("stay_home_policy");
+        bye: goto bye on #messageHasIntent("no");
+    }
+}
+
+node yes_two_vac
+{
+    do
+    {
+        #sayText("Awesome! We're looking forward to seeing you at work in a bit. Talk to you tomorrow! Bye!");
+        #disconnect();
+        exit;
+    }
+}
+
+node no_vac
+{
+    do
+    {
+        #sayText("Mhm, got that. Are you planning on getting vaccinated?");
+        wait *;
+    }
+    transitions
+    {
+        will_vaccinate: goto will_vaccinate on #messageHasIntent("yes") or #messageHasIntent("will_vaccinate");
+        wont_vaccinate: goto wont_vaccinate on #messageHasIntent("wont_vaccinate");
+        bye: goto bye on #messageHasIntent("no");
+    }
+}
+```
+
+A lot of things going on here, though nothing should look new to you. We let the conversational AI ask if the shift worker had any contact with a potentially sick person in the past 2 weeks after they tell us they’ve only received one dose of the vaccine. We have to account for this option because it takes time for the immune system to develop antibodies, as I previously mentioned. Shall the employee had contact with a sick person, we tell them to watch for potential symptoms to develop.
+
+In case the shift employee hasn’t been vaccinated at all, we ask them if they’re planning to get a vaccine or not.
+
+```dsl
+node will_vaccinate
+{
+    do
+    {
+        #sayText("Perfect, I'm glad to hear that! Please make sure to let the HR know once you get vaccinated. Thank you for taking time to reply to the questions, we'll see you at work in a bit. Bye!");
+        exit;
+    }
+}
+
+node wont_vaccinate
+{
+    do
+    {
+        #sayText("It's recommended you get vaccinated if you don't have any medical limitations. In the meantime, please exercise social distancing and wear your PPE.");
+    }
+transitions
+    {
+        bye: goto bye;
+    }
+}
+```
+
+In case the person is planning on getting vaccinated, we thank them for taking the time to talk to the AI and let them know they’re expected to come to work their shift. If for some reason the shift worker says they don’t want to vaccinate, we don’t push, threaten, or lecture them. We simply let them know that if they don’t have any underlying medical conditions preventing them from getting vaccinated, they should consider doing it. 
+
+## Try AI symptom checker yourself now!
+
+We’ve written out 2 possible scenarios of conversations the Covid symptom checker could have with your shift employees. Keeping your shift workers safe should be a priority and keeping track of their health status is the key to achieving that goal.
+
+Now try adapting this app to your business’s needs. Think of the questions your employees could ask, plot them and write out corresponding nodes and digressions. Improve the app and share the results :) You can always reach me at [angelika@dasha.ai](mailto:angelika@dasha.ai) with any questions,  suggestions, and your improved apps!

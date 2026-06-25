@@ -1,0 +1,192 @@
+---
+slug: "dasha-sdk-new-release-2021"
+title: "We've released the new Dasha conversational AI SDK! Read on for upgrades, capabilities and tutorials."
+author: "Andrey Chernykh, Head of Engineering"
+authorPhoto: https://cdn.dasha.ai/blog/dasha-sdk-new-release-2021/author.webp
+category: news
+categoryName: News
+createdAt: "2021-06-11"
+updatedAt: "2025-06-06T04:23:27.269Z"
+readLength: ""
+heroImage: https://cdn.dasha.ai/blog/dasha-sdk-new-release-2021/hero.webp
+heroImageTitle: Celebrating with balloons
+introduction: "The Dasha SDK (software development kit) is an abstraction layer that lets you run your conversational application to make use of Dasha's AI as a service cloud platform. It hides (abstracts) communication channels from you and, like other libraries, gives you a programmable interface that you can use every day."
+seoTitle: Release notes for the new Dasha conversational AI SDK
+seoDescription: "Comparing new Dasha conversational AI SDK to the legacy version. We also list instructions on how to begin using Dasha if you've never done so before. "
+seoKeywords: "conversational ai, conversational ai user interfaces, conversational AI sdk, AI as a service, conversational AI as a service, Dasha AI"
+---
+
+
+We have recently updated our SDK. Which is the reason I’m writing this post now, so that we can  review the new version of the SDK, some tools, and concepts.
+
+Maybe you’ll want to ask me: *Why would you change your SDK?* I'll try to answer in the next chapter.
+​
+## Reasons  for upgrading the SDK
+​
+The definition of a great community is a group of people who interact with each other and are not afraid to seek help, ask questions and find solutions. We have a great developer community. After reviewing our users’ questions and helping them to  solve their  troubles, we concluded that the current (now legacy) SDK is designed in a way that is too low-level and hard to understand. So we redesigned the new SDK in an easy-to-comprehend, pleasure to use, way. 
+
+We will go through the benefits of the new SDK later, for now, let’s get it set up. 
+
+----
+We have now released the new version of the SDK. It is available at [npm](https://www.npmjs.com/package/@dasha.ai/sdk).
+​
+The Dasha SDK and [cli](https://www.npmjs.com/package/@dasha.ai/cli) give you an ecosystem that lets you plan, develop, train,run and maintain your conversation processing system with the ability to integrate it easily with your existing business process.
+​
+Let's go step by step with Dasha SDK, CLI (command-line interface), and [DashaStudio](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio) from samples to your application, that can automate part of your business process.
+​
+## How to get started using Dasha with the new SDK if you have never used Dasha before
+​
+First off all, install the following
+1. [node.js](https://nodejs.org/), we recommend 14 version. Note: `npm`, by default is included in node.js, but for some linux-based system, it may not be included - in this case you will need to install it.
+2. [Dasha CLI](https://www.npmjs.com/package/@dasha.ai/cli) - just run `npm i -g "@dasha.ai/cli"`
+3. [Visual Studio Code](https://code.visualstudio.com/)
+5. [Dasha Studio Extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio) - we highly recommend to use this extension, because it has syntax highlighting, code completion and error detection for [DashaScript (DSL)](https://docs.dasha.ai/en-us/default/dasha-script-language/). You can download the extension directly from Visual Studio Code -> Extensions. 
+6. [git](https://git-scm.com/) allows you to download samples easily.
+​
+Let's login to Dasha, all you need is Dasha CLI and a browser. Open Terminal and type the command 
+`dasha account login`. A browser tab with our auth system will pop up.
+If you are not yet registered, go to [Sign Up Page](https://auth.dasha.ai/Account/Register) and retry the current step after you complete your registration.
+​
+### What does `dasha account login` do?
+​
+It requests an API KEY from our authorization system and stores it in your user folder (folder location depends on the type of the operating system you use). Later, the application with Dasha SDK can access the retrieved API KEY. To  view your API KEY, use the`dasha account info` command in your terminal. 
+​
+If you want to run your Dasha AI conversational application, based on the Dasha conversational AI SDK, on a browserless system, like a remote server, you can retrieve the API KEY on your PC, and run `dasha account add` on the remote system, which will request the API KEY from stdin (keyboard).
+​
+Another way to pass  the API KEY to your application is by using [Environment Variables](https://en.wikipedia.org/wiki/Environment_variable). The SDK supports `DASHA_APIKEY` and `DASHA_SERVER` environment variables that allow you to configure access options to the Dasha SDK.
+​
+In the previous version of the SDK, users were forced to store API KEY in the source code of their application, which sometimes led to accidental sharing of the API KEY. I guess I don’t need to specify why that is very bad.
+
+​
+## What’s good (and new) in the updated  SDK
+​
+### Simpler to use than ever
+​
+You can run you application and call or chat to yourself in only 15 lines of code 
+
+```javascript
+const dasha = require("@dasha.ai/sdk");
+async function main() {
+ const app = await dasha.deploy(`path_to_source_of_application`);
+ app.connectionProvider = async (conv) =>
+    conv.input.phone
+    ? dasha.sip.connect(new dasha.sip.Endpoint("default"))
+    : dasha.chat.connect(await dasha.chat.createConsoleChat());
+ await app.start();
+ const conv = app.createConversation({phone: process.argv[2] ?? ""});
+ const result = await conv.execute();
+ console.log(result.output);
+ await app.stop();
+ app.dispose();
+}
+main().catch(() => {});
+```
+​
+This simple application will deploy a conversation model, validate its syntax, train a neural network for [NLU](https://docs.dasha.ai/en-us/default/natural-language-understanding/), take a phone number from the argument,pass it to Dasha, and run a call or chat and show logs for each stage of this process.
+​
+All the collected results/data will be shown in the output of this application. In the real world (read: production), you can (and should) transfer collected data to another system, for example to your CRM via API.
+​
+### It allows you to focus on business processes, not on data exchange protocol specification.
+​
+Another feature of good conversation is **interaction** between your customer and your business process during the dialogue. Let me show you how easy it is to do. 
+​
+The concept of interaction between the conversational AI app and your applications/systems/databases/any APIs is called [external function](https://docs.dasha.ai/en-us/default/dasha-script-language/external-functions).
+​
+Let's write an example, that verifies passphrase said by the user in your pass-verification system during the dialogue:
+​
+```dsl
+context {
+    //internal variable, can be accessed only by dialogue
+    pass: string = "";
+}
+​
+external function verify(pass:string):boolean;
+​
+node askPass
+{
+    do
+    {
+        #sayText("Tell me your passphrase");
+        wait *;
+    }
+    transitions
+    {
+        verify: goto verifyPass on true;
+    } onexit
+    {
+        verify: do { set $pass = #getMessageText(); }
+    }
+}
+​
+node verifyPass
+{
+    do
+    {
+        if (external verify($pass))
+        {
+            #sayText("Password is correct");
+            goto correct;
+        } else
+        {
+            #sayText("Password is in correct");
+            goto incorrect;
+        }
+    } transitions
+    {
+        correct: goto correctPass;
+        incorrect: goto askPass;
+    }
+}
+​
+​
+node correctPass
+{
+    do
+    {
+        //your flow for correct password
+    }
+}
+```
+​
+This simple part of the conversation will ask for the password and call `verify` in your application. Let's describe password verification in your application:
+​
+```javascript
+    app.setExternal("verify", ({pass}, conv) => {
+      if (pass === "dog")
+        return true;
+      return false;
+    });
+```
+​
+It's just a sample, with the correct password **dog**, in real life, you can access another verification system or database. 
+​
+*Why not pass the correct password to the dialogue at startup? Why do I need to verify the password in my application?* 
+​
+Because it's more secure and flexible. I think you know, that it's bad practice to send a password  directly to the user interface, you should send it to the server and check it there. In building conversational AI user interfaces, we should remember the GUI best practices. 
+​
+The attentive reader will  ask “but what about the user-AI dialogue? What happens to the user experience while the password gets verified? How will the user experience suffer if my function runs too slowly?”. The answer is simple: the dialogue will be suspended. But I can give you a tip (or a trick). If you have a slow function that cannot be optimized for performance (for example it's a third-party API) you can split it into two functions. The first function will start the calculation, and the second one will check the completion of the first. In this situation you can do something like this:
+​
+```dsl
+external StartPasswordVerification(pass);
+#sayText("Wait a second please, I am verifying");
+if (external IsPasswordCorrect())
+{
+    ...
+} else
+{
+    ...
+}
+```
+​
+And you will have time, while Dasha is saying `give me just a minute... ..` to do your calculations.
+​
+Let me know, what you think about this trick. You can find me in the [Dasha Community](https://community.dasha.ai/).
+​
+### Last but not least
+​
+The new SDK will reconnect to Dasha if you run into networking issues, like a short dropped connection. The SDK will try reconnecting time and again.
+​
+​Dear reader, I hope that this article was as interesting and helpful for you to read as it was for me to write.  If you have more questions you can ask me (Andrey) or our Team in the [Dasha Community](https://community.dasha.ai/) and we will be glad to help in any way we can. Your questions will help you to reach your goals with Dasha and us to tailor the conversational AI developer experience to our users’ expectations. 
+​
+Coming up - write ups on telephony integration, SIP trunks, A/B testing of your application, building High Availability solutions and working in Dasha Studio. 
+​

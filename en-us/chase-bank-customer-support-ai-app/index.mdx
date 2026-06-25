@@ -1,0 +1,403 @@
+---
+slug: "chase-bank-customer-support-ai-app"
+title: "How to use AI to keep your bank from losing potential clients "
+author: Anzhelika Minina
+authorPhoto: https://cdn.dasha.ai/blog/chase-bank-customer-support-ai-app/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-11-18T21:16:45.530Z"
+updatedAt: "2025-06-06T04:24:17.095Z"
+readLength: "6 minute read"
+heroImage: https://cdn.dasha.ai/blog/chase-bank-customer-support-ai-app/hero.webp
+introduction: "International students face difficulty when it comes to getting a debit or credit card at a US bank. Unfortunately, the problem is not only true for international students. There is also an entire pool of potential bank customers who want answers and cannot easily get them.\n\nSo what's the problem, exactly? And how can it be solved with conversational AI?"
+seoTitle: How to use AI to keep your bank from losing potential clients
+seoDescription: "It's a fact: banks are losing potential clients at the very first interaction - phone call. Learn from their mistakes, create an AI in 2 hours that will give you a constant pool of potential clients forever!"
+---
+
+
+# How to use AI to keep your bank from losing potential customers 
+
+International students face difficulty when it comes to getting a debit or credit card at a US bank. Unfortunately, the problem is not only true for international students. There is also an entire pool of potential bank customers who want answers and cannot easily get them.
+
+So what's the problem, exactly? And how can it be solved with conversational AI?
+
+## Chase bank: my story with their customer support 
+
+I'm an international student currently on an LOA. I have one semester left and plan  to finish it and get my Masters degree next year.  I need a bank account, so I called Chase bank. My mission was to get as much relevant information (mainly  FAQ's). 
+
+My call was answered by a bot (unsurprised). The bot was useless. It kept asking for an account number, which I did not have. Chase did  not think of the customer segment that prefers calls to text but are potential customers. What a waste!
+
+I had to go a long, long way to reach Chase customer service. The customer support line was useless to me, as I mentioned earlier. I had to find an unorthodox way of reaching a human customer support agent - I called the hotline for the Chase customer service number for corporate clients…
+
+Without further ado, let me just tell you that all my questions were finally answered, but at what time cost! 
+
+I saw a huge opportunity to make fellow international students and potential bank customers' experience 10 times better by creating a short conversational AI app. Which can tackle all of my questions with ease. 
+
+## Get over 60% reduction in call time with customer support conversational AI app
+
+This is what I ended up with: 
+
+<a href="https://www.youtube.com/watch?v=hsGnE3AWbRo" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://www.youtube.com/watch?v=hsGnE3AWbRo</a>
+
+You can create your own customer support conversational AI using this app as the base upon which to build. 
+
+You can [download the Dasha app here](https://github.com/dasha-samples/xfinity-customer-support-app) or follow the steps below to create your own version of this application.
+
+## Getting started with Dasha conversational AI
+
+If you have never used Dasha before, you need to activate your API key. The API key lets you load your conversational application to the Dasha Cloud Platform, where it is executed. If you have your Dasha API key, ignore this part.  
+
+Download the latest versions of Microsoft VSCode, Node.js and NPM. Dasha Studio is implemented as an extension to VSCode for your convenience. Open Visual Studio Code and install the [Dasha Studio extension](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio) and Dasha Command Line Interface. 
+
+```bash
+code --install-extension dasha-ai.dashastudio && 
+npm i -g "@dasha.ai/cli@latest"
+```
+
+Note, on Mac you might need to add `sudo ` before the command to run it as administrator.
+
+Now, run a command to register your Dasha API key. A browser window will pop up and you will need to sign up for an account. 
+
+```bash 
+dasha account login
+```
+
+Afterwards, run to check your API key. 
+
+```bash 
+dasha account info
+``` 
+
+Let’s get to know the files you’ll be using to create your conversational AI app. Clone this source code and open the folder in VSCode [Dasha Blank Slate app](https://github.com/dasha-samples/blank-slate-app) source code and use it as a base upon which to write your code. 
+
+You’ll have to open **main.dsl** and **data.json** files and delete everything you see there. This way, you’ll be able to start writing your code from scratch while having all the other essential files (for instance, the `commonReactions` library that has pre-programmed replies so you don’t have to worry about coding those).
+
+You’ll mainly be using 2 files to create your conversational AI app:
+
+* main.dsl -- this is where you’ll write your DashaScript Language code to create the workflow of your conversational AI app. You can read more about it in our [documentation](http://docs.dasha.AI). 
+
+* data.json -- is where you provide data set you to train the Dasha Cloud neural networks to recognize user [intents](https://dasha.ai/en-us/blog/intent-classification) and identify [named entities](https://dasha.ai/en-us/blog/named-entity-recognition). 
+
+* index.js --  is the server-side JavaScript file to which the Dasha SDK is imported and which launches the contents of the __/app__ folder to the Dasha Cloud to be executed.  Here you’ll be adding any external functions you deem necessary once adapting the code to your company’s needs. 
+
+Familiarizing yourself with the files is important, but now let’s get to the fun part - programming the recreated Apple customer support conversational AI app!
+
+## Conversational AI app structure
+
+Now, the basics here are 2 things: 
+
+* importing common library
+
+```dsl
+import "commonReactions/all.dsl";
+```
+
+* writing our the context for the app
+
+```dsl
+context 
+{
+    // declare input variables phone and name  - these variables are passed at the outset of the conversation. In this case, the phone number and customer’s name 
+    input phone: string;
+
+    // declare storage variables 
+    output first_name: string = "";
+    output last_name: string = "";
+}
+```
+
+This conversational AI app will remember these output variables to then use them throughout the conversation. 
+
+The next step is writing your first node called root. Take a look at how it’s written out:
+
+```dsl
+start node root 
+{
+    do 
+    {
+        #connectSafe($phone);
+        #waitForSpeech(1000);
+        #sayText("Hi, welcome to Chase Bank, my name is Dasha, may I have your name please?");
+        wait *;
+    }   
+    transitions 
+    {
+
+    }
+}
+```
+
+We’re achieving multiple things here. In the `do` section we establish a connection to the user’s phone, wait for 1 second to speak (or give the user 1 second to say something), and then say our welcome message. 
+
+Since we need to know the user’s name, we should write where the conversation should go after we get that information in the `transitions` section. We make a transition to the node that follows once a particular intent gets triggered (`#messageHasData("first_name");`).
+
+We leave the `transitions` space empty since this start node isn’t connected to any of the nodes. The conversation will move to digressions after this point.
+
+Let’s see what the data.json file and take a look at how entities work there:
+
+```json
+  "entities": {
+    "first_name": 
+    {
+      "open_set": true,
+      "values": 
+      [
+        {
+          "value": "John"
+        },
+        {
+          "value": "Bridgette"
+        },
+        {
+          "value": "James"
+        },
+        {
+          "value": "Sarah"
+        },
+        {
+          "value": "Jermaine"
+        },
+        {
+          "value": "Roseanne"
+        },
+        {
+          "value": "Ahmed"
+        },
+        {
+          "value": "Tony"
+        },
+        {
+          "value": "Jon"
+        }
+      ],
+      "includes": 
+      [
+        "(Oscar)[first_name]",
+        "(Danielle)[first_name]",
+        "My name is (Sophie)[first_name]",
+        "My name is (Sarah)[first_name]",
+        "My name is (Cameron)[first_name]",
+        "My name is (Steven)[first_name]",
+        "My name is (Jessica)[first_name]",
+        "My name is (Jon)[first_name]",
+        "My name is (Ahmed)[first_name]",
+        "My first name is (Lisa)[first_name]"
+      ]
+    },
+```
+
+The `includes` section is very helpful. It provides you with an opportunity to have your model trained better as you feed it more examples. 
+
+`Onexit`section lets the conversational AI app store, remember, and later use the variables we feed it. In this case, we assume the user might say their last name, first name, or both. And we got to store that information for later use. Note that this information will be used in the node you specify right after `onexit`.
+
+Moving on to the next nodes. 
+
+In the following digression, our purpose is to program the conversational AI app to ask the user about their concern or problem and then transition to the corresponding nodes (or digressions). 
+
+```dsl
+digression how_may_i_help
+{
+    conditions {on #messageHasData("first_name");} 
+    do 
+    {
+        set $first_name =  #messageGetData("first_name")[0]?.value??"";
+        set $last_name =  #messageGetData("last_name")[0]?.value??"";
+        #sayText("Awesome, nice to meet you " + $first_name + ", how may I assist you today?");
+        wait *;
+    }
+}
+```
+
+At this point, let's take a look at the questions the way I had them answered and how to make a conversational AI app part out of that. Let’s see how a `digression` works to handle this particular user request:
+
+```dsl
+digression debit_card_intenational_student
+
+{
+    conditions {on #messageHasIntent("international_student") and #messageHasIntent("debit_card");} 
+    do
+    {
+        #sayText("You can definitely open a checking account with us.");
+        wait *;
+    }   
+}
+```
+
+**Pro tip:** your main goal in creating a conversational AI app is to do just that - make it conversational. To the point the person on the other line won't ever suspect it's Dasha talking to them.
+
+Moving on to the next digression. 
+
+```dsl
+digression open_debit_docs_needed
+{
+    conditions {on #messageHasIntent("open_debit_docs_needed");} 
+    do 
+    {     
+        #sayText("Oh that's an easy part. You’ll just need two forms of valid IDs. That's it!"); 
+        wait*;
+    }
+}
+```
+It's perfect time to introduce intents to you. Take a look at your data.json file:
+
+```json
+{
+  "version": "v2",
+  "intents": 
+  {
+    "open_debit_docs_needed": {
+      "includes": [
+        "what type of documents do I need to get a debit card",
+        "what type of documents I need to get a debit card",
+        "what kind of documents do I need for a checking account application",
+        "kind of docs do I need to apply for a debit card",
+        "type of docs do I need to bring to get my debit card application processed",
+        "any docs to apply for the debit card",
+        "what are the documents do I need to apply for the debit card",
+        "kind of documents do I need to submit to get my debit card application"
+      ]
+    },
+```
+
+The intents are the representation of what your users could potentially say to trigger a specific intent. And that's an over-simplified explanation.
+
+Now, can you spot the logic of these digressions? They are simple. Couldn't be simpler, actually. The structure of the digressions we saw is as follows:
+
+```dsl
+digression **name**
+{
+    conditions {on #messageHasIntent("**some intent**");} 
+    do 
+    {     
+        #sayText("**some text the AI customer support operator should reply based on the received intent**"); 
+        wait*;
+    }
+}
+```
+
+There are three more questions I asked about the debit card:
+
+How soon could I receive the debit card?
+Can I pick the card up at a local bank or is sending it via mail the only option?
+Do I get any cashback with debit cards?
+
+You know what the next 3 digressions should be, I have no doubt! :) Write them out by the example I showed you!
+
+Done with the debit card, but only starting with the credit!
+
+```dsl
+digression international_student_credit_card
+{
+    conditions {on #messageHasIntent("credit_card");} 
+    do
+    {
+        #sayText("Oh certainly, we offer Freedom student card and it’s definitely welcome for any international student to have.");
+        wait *;
+    }   
+}
+```
+
+Make sure you give your potential customers the most fitting information you have available. And be brief. No one likes to listen to lectures over the phone.
+
+```dsl
+digression documents_apply_credit
+{
+    conditions {on #messageHasIntent("documents_apply_credit");} 
+    do 
+    {     
+        #sayText("Okay, absolutely. In most cases we would require to provide verification of your name, date of birth, and social security number. It can be a social security card or if you have an I-10 that works too. And for the address we’d need like a lease or a rental agreement, utility bill or a bank statement."); 
+        wait*;
+    }
+    transitions
+    {
+        no_ssn: goto no_ssn on #messageHasIntent("no_ssn");
+    }
+}
+```
+
+In this digression, as a customer support assistant, be it AI or human, we encounter a roadblock. The international student has no social security number. Let's tell them what they should do!
+
+```dsl
+node no_ssn
+{
+    do 
+    {     
+        #sayText("Are you currently applying for one?"); 
+        wait*;
+    }
+    transitions
+    {
+        ssn_explain: goto ssn_explain on #messageHasIntent("no");
+    }
+}
+
+node ssn_explain
+{
+    do 
+    {     
+        #sayText("You would need one, or you’d need to apply for one in order to apply for a credit card application. And if you apply for the SSN and get a confirmation letter then we can use that as well. So you would need an I-10 or the social."); 
+        wait*;
+    }
+}
+```
+
+Customer experience is the priority, isn't it? And even though conversations usually go off on a tangent, at times they can and need to be linear. That's what we see in the nodes above.
+
+Fees and payments… Let's answer those questions too:
+
+```dsl
+digression fees_associated_credit
+{
+    conditions {on #messageHasIntent("fees_associated_credit");} 
+    do 
+    {     
+        #sayText("Nope, no fees at all."); 
+        wait*;
+    }
+}
+
+digression credit_monthly_fee
+{
+    conditions {on #messageHasIntent("credit_monthly_fee");} 
+    do 
+    {     
+        #sayText("There might be an annual fee depending on the type of card you decide to apply for. Like for example Chase Freedom cards and Freedom Student cards don’t have any fee.."); 
+        wait*;
+    }
+}
+
+digression debit_monthly_fee
+{
+    conditions {on #messageHasIntent("debit_monthly_fee");} 
+    do 
+    {     
+        #sayText("With debit cards you might pay a twelve-dollar monthly fee but if you keep a certain amount on your card, you wouldn’t have to pay that fee."); 
+        wait*;
+    }
+}
+```
+
+These were mostly all the questions I had to be answered. The only couple of questions were:
+
+How long does it take to get the credit card?
+Since there is an expedited way of shipment, is it free?
+How long does the expedited shipping takes?
+
+Once again, these are all simple digressions that can be written out by the example above!
+
+Now, while it seems like we've dealt with all the debit and credit questions, we're not quite done yet, are we?
+
+We need digressions that would let us handle such inquiries as:
+
+how are you,
+help me,
+need some other type of help,
+please just end this conversation and let me goooo! (AKA digression bye).
+
+You can look them up in the [source code](https://github.com/dasha-samples/bank-customer-support), that's always accessible on Dasha Github page.
+
+## Delight your customers, create conversational AI apps for their convenience!
+
+I've given you examples of how you can easily build a conversational AI app, fast. With the source code (not just this one, but all the codes we have on [Dasha Github page](https://github.com/orgs/dasha-samples), the sky is your limit. Iterate, create, develop. Do it with Dasha. (Because it's fun ;) ).
+
+And don't forget to join the [Dasha developer community](https://community.dasha.ai/) of like-minded people. Waiting to see you there! 

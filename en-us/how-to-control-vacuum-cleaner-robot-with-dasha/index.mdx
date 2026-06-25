@@ -1,0 +1,104 @@
+---
+slug: "how-to-control-vacuum-cleaner-robot-with-dasha"
+title: How to Control Vacuum Cleaner with Dasha
+author: Vlad Chernyshov
+authorPhoto: https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/author.webp
+category: news
+categoryName: News
+createdAt: "2020-12-16T20:09:10.609Z"
+updatedAt: "2021-01-12T17:23:09.025Z"
+readLength: "10 mins read"
+heroImage: https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/hero.webp
+introduction: "Let’s see how you can easily create a voice & text assistant, and teach it to control your robot vacuum cleaner like Xiaomi or iRobot."
+seoTitle: How to Build Assistant for Controlling Robot Vacuum Cleaner with Dasha
+seoDescription: How to Control Vacuum Cleaner with Dasha
+seoKeywords: "vacuum cleaner, remote control, ai, conversational ai"
+---
+
+Dasha is a Conversational AI for developers. And it’s not only about automating phone calls, it’s also about, for instance, building various personal assistants. Let’s see how you can easily create a voice & text assistant, and teach it to control your robot vacuum cleaner like Xiaomi or iRobot. The full source code is [available here](https://github.com/dasha-samples/dasha-miio-vacuum-cleaner).
+
+It’s a 3 step process:
+
+1. Create conversation model
+2. Train your custom intents
+3. Connect Dasha to the device
+
+# Step 1: Create conversation model
+
+Let’s create new [DashaScript ](https://docs.dasha.ai/en-us/default/dasha-script-language/)file called ***main.dsl*** and create the first node, entry point of our conversational model:
+
+![image](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/image1.webp)
+
+It doesn’t do much, just establishes a connection over the phone (or SIP endpoint) and starts listening to the user.
+
+Next up, let’s create a special node called ***digression*** to handle situation when you want to start cleaning:
+
+![image](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/image2.webp)
+
+[Digressions](https://docs.dasha.ai/en-us/default/dasha-script-language/program-structure/#digression), unlike ordinary nodes, can be executed at any point during the conversation if the conditions are satisfied. In this case we enter the digression when we hear ***start_listening*** intent. Upon entering the digression, we pronounce text and then call an external function to tell the vacuum cleaner to start cleaning. ***return*** statement here is also important, because it returns the control exactly to the point where digression has been called.
+
+Then let’s add another digression to handle stop cleaning function:
+
+![image](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/image3.webp)
+
+Also let’s implement checking the battery level by defining one more digression:
+
+![image](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/image4.webp)
+
+This code shows how to manipulate variables within **DashaScript** and how to compose dynamic phrases.
+
+The last thing to do is to declare our external functions:
+
+![image](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/image5.webp)
+
+That’s it! With under 50 lines of code (mostly new lines and brackets) we created a conversation model that handles 3 situations, and thanks to digressions  **it’s non-linear, which means you can ask to start cleaning, stop cleaning or battery level in any order**.
+
+# Step 2: train your custom intents
+
+Next up, let’s implement our intents we’re using in the conversation model: ***start_cleaning***, ***stop_cleaning*** and ***battery_level***. In order to do this simply create a plain JSON file called ***intents.json*** and put this in:
+
+![image](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/image6.webp)
+
+What we’re doing here is providing Dasha with a few samples that contain desired intent. Usually 5-8 samples is enough.
+
+# Step 3: Connect Dasha to the device
+
+Now that we have conversational UI in place, it’s time to do the final step and connect your app to the actual device. In order to do that you need to do 2 things using Dasha SDK (in this tutorial, [for Node.JS](https://docs.dasha.ai/en-us/default/sdk/node-js)):
+
+1. Implement external functions you declared in your **DashaScript** file.
+2. Create an app that will be running as a backend and that will be connected to actual device (vacuum cleaner).
+
+First, you import Dasha SDK into your app:
+
+![image](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/image7.webp)
+
+Then you create an instance of Dasha SDK and initialize it with your API key (you can [request access](https://dasha.ai/en-us/developers) to our closed beta):
+
+![image](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/image8.webp)
+
+Then you deploy your Dasha app (conversational model) onto Dasha platform. Assuming your ***main.dsl***, ***intents.json***, etc. - are in the ***./app*** directory (for full application structure, please refer to the [source code](https://github.com/dasha-samples/dasha-miio-vacuum-cleaner)):
+
+![image](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/image9.webp)
+
+That’s it! Now it’s deployed. But we need to add channels we want our assistant be available at. Let’s add text channel, so we could connect WhatsApp or email later:
+
+![image](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/image10.webp)
+
+And voice SIP channel so we can assign a Twilio number and call our assistant:
+
+![image](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/image11.webp)
+
+Note ***stt*** and ***tts*** sections: in this case we’re using both Dasha’s own text-to-speech and speech-to-text, but you can [plug in your own](https://docs.dasha.ai/en-us/default/tutorials/external-client-tts/), if you want.
+
+Then we implement a handler that is being called upon start of each conversation, and pass input parameters and external functions:
+
+![image](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/image12.webp)
+
+And the last thing we have to do is to implement external function that actually connect the assistant to the device:
+
+![image](https://cdn.dasha.ai/blog/how-to-control-vacuum-cleaner-robot-with-dasha/image13.webp)
+
+In this tutorial we’re using [node-mihome](https://github.com/maxinminax/node-mihome). Notice how we implement external functions from the ***main.dsl*** file under the ***rpcHandler*** section. 
+
+That’s it! Let’s run it and see if it works: [https://youtu.be/i-G1VbhnnGA](https://youtu.be/i-G1VbhnnGA)
+

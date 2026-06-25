@@ -1,0 +1,172 @@
+---
+slug: "how-connect-jambonz-dasha-ai"
+title: How to connect jambonz with Dasha AI
+author: "Dave Horton, founder jambonz"
+authorPhoto: https://cdn.dasha.ai/blog/how-connect-jambonz-dasha-ai/author.jpeg
+category: developers
+categoryName: Developers
+createdAt: "2021-09-29T15:00:11.456Z"
+updatedAt: "2021-10-03T06:40:49.705Z"
+readLength: "5 minutes"
+heroImage: https://cdn.dasha.ai/blog/how-connect-jambonz-dasha-ai/hero.jpg
+introduction: "Note from the editor: this is a repost of David Horton's [article](https://blog.jambonz.org/how-to-connect-jambonz-with-dasha-ai). [jambonz](https://jambonz.org) is an open source CPaaS for communications service providers."
+seoTitle: How to connect jambonz with Dasha AI
+seoDescription: An article describing how to connect Dasha conversational voice AI to jambonz open source CPaaS
+seoKeywords: "conversational AI, Conversational AI application, jambonz, Dasha AI"
+---
+
+
+[Dasha](https://dasha.ai/en-us) is a conversational-AI-as-a-service platform that lets you embed realistic voice and text conversational capabilities into your apps or products.  Dasha is a relatively new entry in the conversational AI space, albeit one with that is [getting some nice press](https://dasha.ai/en-us/blog/gartner-cool-vendor-dasha) and brings some interesting capabilities, including such things as handling conversational digressions more easily and a nice [VSCode](https://code.visualstudio.com/) plugin for creating applications using their [declarative language](https://docs.dasha.ai/en-us/default/dasha-script-language/).
+
+When building contact center solutions using [jambonz](https://jambonz.org), integrating with Dasha is a breeze!
+
+### Dasha side
+
+Make sure you have node.js version 13+ and npm installed. You will also want the latest version of Visual Studio Code running to edit and test the Dasha app.
+1. Join [Dasha Community](https://community.dasha.ai) - you will get your API key here automatically
+2. Open VSCode and install the [Dasha Studio Extension](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio&ssr=false) from the extension store.  You’ll get all the DSL syntax highlighting and a GUI interface for debugging your conversation flow.
+3. Run __`npm i -g "@dasha.ai/cli@latest"`__ to install the latest Dasha CLI.
+
+### Run a dasha app
+You’ll want to load up a Dasha conversational AI app. For the purposes of this tutorial, we will load up the simple [inbound tester app](https://github.com/dasha-samples/dasha-sip-test) that they provide.
+
+```bash
+$ git clone https://github.com/dasha-samples/dasha-sip-test \
+&& cd dasha-sip-test \
+&& npm install
+
+Cloning into 'dasha-sip-test'...
+remote: Enumerating objects: 66, done.
+remote: Counting objects: 100% (66/66), done.
+remote: Compressing objects: 100% (51/51), done.
+remote: Total 66 (delta 27), reused 41 (delta 14), pack-reused 0
+Unpacking objects: 100% (66/66), done.
+
+added 204 packages, and audited 205 packages in 2s
+```
+
+Dasha integrates with voice systems over SIP.  That makes it super simple to integrate with jambonz.
+
+So the next thing we shall do is create a SIP endpoint on the hosted Dasha platform that we can send our calls to.  We will create a unique SIP URL that routes to their platform and which on the Dasha side is linked to our application.
+
+```bash
+$ dasha sip create-inbound --application-name sip-test-app sip-test-app
+{
+  "applicationName": "sip-test-app",
+  "priority": 0,
+  "groupName": "Default",
+  "uri": "sip:5de44e6b-c0df-4532-b952-e4e4c5a5a9ec@sip.us.dasha.ai"
+}
+```
+
+Whoa, slow down!  What just happened there?
+
+We used the dasha cli to create a SIP URI on the Dasha platform that we can send to.  We specified an application name and a config name -- in this case, using `sip-test-app` for both.  
+
+We can also use the dasha cli to list the sip-inbound endpoint we have created:
+
+```bash
+$ dasha sip list-inbound
+{
+  "sip-test-app": {
+    "applicationName": "sip-test-app",
+    "priority": 0,
+    "groupName": "Default",
+    "uri": "sip:5de44e6b-c0df-4532-b952-e4e4c5a5a9ec@sip.us.dasha.ai"
+  }
+}
+```
+We can see the data returned is an object keyed by the config name where the values are objects containing information about an individual SIP URI.
+
+> Note that in order for everything to link up properly on the Dasha side, the `application-name` you use in the `dasha sip create-inbound` command must match the value in the `name` field of your `dashaappfile` (which is found in `app/app.dashaapp`).  If you want to change the name of the application, change it in the dashaappfile and create a new sip inbound URI using that same name, then restart your app.
+
+Now all we need to do is start our Dasha app:
+
+```bash
+$ npm start in
+
+..skipping startup log messages here..
+
+Waiting for calls via SIP
+sip:5de44e6b-c0df-4532-b952-e4e4c5a5a9ec@sip.us.dasha.ai
+```
+Note that it again tells us the SIP URI Dasha has exposed for our application.
+
+### jambonz side
+On the jambonz side, all we need to do is to [dial](https://www.jambonz.org/docs/webhooks/dial/) an outbound call leg to that SIP URI provided.  Let's whip up a jambonz app to do just that:
+
+```bash
+$ npx create-jambonz-app --scenario dial dasha-connect
+
+Creating a new jambonz app in /Users/dhorton/dasha/dasha-connect
+
+Installing packages...
+```
+
+> Note: you can see the finished app [here on github](https://github.com/jambonz/dasha-connect).
+
+This gives us a basic demo jambonz application that by default dials a talking time clock.  Let's change it to dial the Dasha SIP URI instead.  
+
+First, let's rename the webhook file:
+```bash
+$ cd dasha-connect
+$ mv lib/routes/endpoints/dial-time.js lib/routes/endpoints/dial-dasha.js
+```
+
+Next, replace the contents of `lib/routes/endpoints/dial-dasha.js` with this:
+```js
+const router = require('express').Router();
+const WebhookResponse = require('@jambonz/node-client').WebhookResponse;
+
+router.post('/', (req, res) => {
+  const {logger} = req.app.locals;
+  logger.debug({payload: req.body}, 'POST /dial-dasha');
+  try {
+    const app = new WebhookResponse();
+    app.dial({
+      answerOnBridge: true,
+      target: [
+        {
+          type: 'sip',
+          sipUri: 'sip:5de44e6b-c0df-4532-b952-e4e4c5a5a9ec@sip.us.dasha.ai'
+        }
+      ]
+    });
+    res.status(200).json(app);
+  } catch (err) {
+    logger.error({err}, 'Error');
+    res.sendStatus(503);
+  }
+});
+
+module.exports = router;
+```
+> Note: replace the `sipUri` above with your own SIP URI that you generated in the previous step.
+
+You can see that all we are doing is using the jambonz dial target type to dial out to a SIP URI.
+
+Finally, edit the `lib/routes/endpoints/index.js` to reference `dial-dasha` instead of `dial-time`
+```js
+const router = require('express').Router();
+
+router.use('/call-status', require('./call-status'));
+router.use('/dial-dasha', require('./dial-dasha'));
+
+module.exports = router;
+```
+As with any jambonz Node.js app, we need to provide environment variables to reference our account sid and other details, so edit the `ecosystem.config.js` file accordingly, then start it
+```bash
+$ pm2 start ecosystem.config.js
+```
+
+Now that it's running, all we need to do is create an application in our jambonz portal for this webhook:
+
+![dasha-app.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1632667376844/-gRvaADWM.png)
+
+and then point a phone number to it:
+
+![dasha-pn.png](https://cdn.hashnode.com/res/hashnode/image/upload/v1632667393265/d7uDy417Z.png)
+
+That's it!  Time to test by calling the number we assigned.  This dasha sample app is quite simple so you will simply hear a woman's voice saying hello and then waiting for your response after which she will close out the conversation.  
+
+Of course, this simple Dasha app is only meant to provide an easy way to verify SIP connectivity, and you can now proceed to build out more sophisticated conversational AI apps using Dasha and connect them to your jambonz voice applications.

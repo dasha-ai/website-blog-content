@@ -1,0 +1,297 @@
+---
+slug: "type-discriminator-converter"
+title: "Type discriminator converter - TypeScript to C#"
+author: "Aleksander Alexashin, Engineer "
+authorPhoto: https://cdn.dasha.ai/blog/type-discriminator-converter/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-10-19T06:44:41.000Z"
+updatedAt: "2022-03-22T12:37:48.804Z"
+readLength: "9 minutes"
+heroImage: https://cdn.dasha.ai/blog/type-discriminator-converter/hero.webp
+heroImageTitle: "Converting TypeScript types for use in C#"
+introduction: "At Dasha we use communication between applications written in weakly-typed and strong-typed languages. For example, TypeScript and C#.  Sometimes we need to pass typed messages from TS to C#. This is usually a problem."
+seoTitle: " Type discriminator converter - TypeScript to C#"
+seoDescription: "I built a library that lets you deserialize JSON/xml, when passing typed messages from TypeScript to Csharp for example. Here is how to use it."
+seoKeywords: "type discriminator converter, convert typescript types to c#, serialize json, deserialize json, deserialize xml, deserialize by more than one field, pass typed messages"
+---
+
+A Type discriminator converter is a converter which can be used to serialize/deserialize JSON/xml to a typed Object.
+
+For example, we can describe a union typed interface with a complex indicator(discriminator) field in ts. When we pass an implementation of this message to a C# application we need to convert it, for example, to JSON string and deserialize to strongly typed hierarchy of class in C#.  
+We searched for an  existing library to solve this task. We found some libraries, for example, [JsonKnownTypes](https://github.com/dmitry-bym/JsonKnownTypes) and [JsonSubTypes](https://github.com/manuc66/JsonSubTypes). We did not look at the [Json.NET](https://www.newtonsoft.com/json) because it does not provide a custom indicator(discriminator) field. It is not possible to create more than one indicator(discriminator) field in these libraries.  
+
+For this task, we created a converter named `TypeIndicatorConverter`. Not so long ago we used only one library for serialization named `Newtonsoft.Json`, but in some new components, we start using `System.Text.Json`. Because these serializers have different implementation and we created an abstraction under these converters and named it `TypeIndicatorConverter.Core`. We've separated all of the serializer-related information from the main logic by creating a helper abstraction.  
+
+Our solution makes it possible to select types while deserializing by more than one field. In addition, the indicator(discriminator) fields can be not a basic type but for example custom objects.  
+Other advantages our solution is respecting serializer settings such as case-sensitive and specific serializer attributes. Such as `[JsonPropertyName]` for `System.Text.Json` and `[JsonProperty]` and `[DataMember]` for `Newtonsoft.Json`.  
+
+## Example of usage
+
+Imagine we need to write a calculator. By design, calculations can be resource-dependent and very complex. We wrote a UI application to write some expressions. Then we need to send the user-written expression to the server and evaluate it. We also need to get a textual representation of the written expression. By design, we chose to communicate with the server using JSON.
+Let's start to develop from a very basic example and do it more complex.  
+We have four operation: Addition, Multiplication, Division and Subtraction. Also we have constants as operand.
+Describe this operation in C# classes.
+Introduce abstract class overall expression `BaseExpression` and say then base abstraction for the indicator(discriminator) converter. Only because before .net 6 `System.Text.Json` disallows use attribute `[JsonConverter]` on interface we use an abstract class.
+If you use `Newtonsoft.Json` then you can use interface implementation.
+```csharp
+[JsonConverter(typeof(TypeIndicatorConverter<BaseExpression>))] // say use this interface as base for deserialize
+public abstract class BaseExpression
+{
+    public abstract double Eval();
+}
+```
+
+Now implement classes responsible for operations and constant value:
+```csharp
+public class UserConst: BaseExpression
+{
+   [TypeIndicator]
+   public string Type => "Const";
+   public double Value { get; set; }
+   public override double Eval() => Value;
+   public override string ToString() => Value.ToString();
+}
+public class Addition: BaseExpression
+{
+   [TypeIndicator]
+   public string Type => "Addition";
+   public BaseExpression LeftOperand { get; set; }
+   public BaseExpression RightOperand { get; set; }
+   public override double Eval() => LeftOperand.Eval() + RightOperand.Eval();
+   public override string ToString() => $"(({LeftOperand}) + ({RightOperand}))";
+}
+public class Subtraction: BaseExpression
+{
+   [TypeIndicator]    
+   public string Type => "Subtraction";
+   public BaseExpression LeftOperand { get; set; }
+   public BaseExpression RightOperand { get; set; }
+   public override double Eval() => LeftOperand.Eval() - RightOperand.Eval();
+   public override string ToString() => $"(({LeftOperand}) - ({RightOperand}))";
+}
+public class Division: BaseExpression
+{
+   [TypeIndicator]
+   public string Type => "Division";
+   public BaseExpression LeftOperand { get; set; }
+   public BaseExpression RightOperand { get; set; }
+   public override double Eval() => LeftOperand.Eval() / RightOperand.Eval();
+   public override string ToString() => $"(({LeftOperand}) / ({RightOperand}))";
+}
+public class Multiplication: BaseExpression
+{
+   [TypeIndicator]
+   public string Type => "Multiplication";
+   public BaseExpression LeftOperand { get; set; }
+   public BaseExpression RightOperand { get; set; }
+   public override double Eval() => LeftOperand.Eval() * RightOperand.Eval();
+   public override string ToString() => $"(({LeftOperand}) * ({RightOperand}))";
+}
+```
+
+Now we can write the basic operation under constants. Here is a simple example:
+```csharp
+var jsonExpresion = "{\"Type\":\"Addition\",\"LeftOperand\":{\"Value\":1.0,\"Type\":\"Const\"},\"RightOperand\":{\"Type\":\"Multiplication\",\"LeftOperand\":{\"Type\":\"Division\",\"LeftOperand\":{\"Value\":6.0,\"Type\":\"Const\"},\"RightOperand\":{\"Value\":2.0,\"Type\":\"Const\"}},\"RightOperand\":{\"Value\":6.0,\"Type\":\"Const\"}}}";
+var deserializedExpresion = JsonConvert.DeserializeObject<BaseExpression>(jsonExpresion);
+Console.WriteLine($"Expression: {deserializedExpresion}");// Expression: ((1) + (((((6) / (2))) * (6))))
+Console.WriteLine($"EvalValue: {deserializedExpresion.Eval()}");// EvalValue: 19
+```
+
+Now extend our classes with predefined constants. For example, Pi.
+```csharp
+public class PiConst: BaseExpression
+{
+   [TypeIndicator]
+   public string Type => "Const";
+   [TypeIndicator]
+   public string ConstantName => "PI";
+   public override double Eval() => Math.PI;
+   public override string ToString() => Math.PI.ToString();
+}
+```
+Now, if we try to pass an ordinary constant, we will get an error during deserialization, because we have ambiguously determined which type to choose. There are two ways to solve this problem. Allow an ambiguous conclusion, and then the one will be deserialized into the type that has more satisfying indicator fields. Another way, which will be more correct, is to add an indicator field to ordinary constants without changing the already working structure.
+
+Permission of an ambiguous choice of type is done with the help of an attribute `[AmbiguousMatching(true)]` for base interface:
+```csharp
+[JsonConverter(typeof(TypeIndicatorConverter<BaseExpression>))] 
+[AmbiguousMatching(true)] //allows amiguous matching types.
+public abstract class BaseExpression
+{
+    public abstract double Eval();
+}
+```
+In some situations, you cannot do without it. But in this situation, we can. 
+To do this, we indicate in the Value field that it is discriminatory, but its values can be any. To do this, we will use the attribute `[TypeIndicator]` argument `comparingOptions`. Specifically, we use `ComparingOptions.UnknownValue`.
+
+```csharp
+public class UserConst: BaseExpression
+{
+   [TypeIndicator]
+   public string Type => "Const";
+   [TypeIndicator(ComparingOptions.UnknownValue)]
+   public double Value { get; set; }
+   public override double Eval() => Value;
+   public override string ToString() => Value.ToString();
+}
+```
+
+Now we can allow users to work with constant value PI.
+
+```csharp
+var jsonExpresion = "{\"Type\":\"Const\",\"ConstantName\":\"PI\"}";
+var deserializedExpresion = JsonConvert.DeserializeObject<BaseExpression>(jsonExpresion);
+Console.WriteLine($"Expression: {deserializedExpresion}"); // Expression: 3,141592653589793
+Console.WriteLine($"EvalValue: {deserializedExpresion.Eval()}"); // EvalValue: 3,141592653589793
+```
+
+We can rewrite the PiConst class as follows: If we have a `ConstName` field with a value of `PI` and not necessarily have a `Type` field with a value of `Const`.
+
+```csharp
+public class PiConst : BaseExpression
+{
+   [TypeIndicator(ComparingOptions.AllowNotExist)]
+   public string Type => "Const";
+   [TypeIndicator]
+   public string ConstantName => "PI";
+   public override double Eval() => Math.PI;
+   public override string ToString() => Math.PI.ToString();
+}
+```
+
+Attribute argument `ComparingOptions.AllowNotExist` allows fields to not exist in JSON representation. But we allowed that when serializing back, the field could have a null value. You can disable this action using the standard attributes for the serializer used.
+For `Newtonsoft.Json` can be used next attribute `[JsonProperty(NullValueHandling = NullValueHandling.Ignore)]` or for `System.Text.Json` - `[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]`.
+
+```csharp
+public class PiConst : BaseExpression
+{
+   // [JsonProperty(NullValueHandling = NullValueHandling.Ignore)] // for Newtonsoft.Json
+   // [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] // for System.Text.Json
+   [TypeIndicator(ComparingOptions.AllowNotExist)]
+   public string Type => "Const";
+   [TypeIndicator]
+   public string ConstantName => "PI";
+   public override double Eval() => Math.PI;
+   public override string ToString() => Math.PI.ToString();
+}
+```
+
+Example usage:
+```csharp
+var jsonExpresion = "{\"Type\":\"Const\",\"Value\":\"PI\"}";
+var deserializedExpresion = JsonConvert.DeserializeObject<BaseExpression>(jsonExpresion);
+Console.WriteLine($"Expression: {deserializedExpresionNull}"); // Expression: 3,141592653589793
+Console.WriteLine($"EvalValue: {deserializedExpresionNull.Eval()}"); // EvalValue: 3,141592653589793
+var jsonExpresionWithoutConst = "{\"Value\":\"PI\"}";
+var deserializedExpresionWithoutConst = JsonConvert.DeserializeObject<BaseExpression>(jsonExpresionWithoutConst);
+Console.WriteLine($"Expression: {deserializedExpresionWithoutConst}"); // Expression: 3,141592653589793
+Console.WriteLine($"EvalValue: {deserializedExpresionWithoutConst.Eval()}"); /// EvalValue: 3,141592653589793
+```
+
+In server-side code we have a helper class for logging expressions. It is a descendant of `BaseExpression` and we want to exclude this class from deserialization. We can do this by attribute `IgnoreIndicators`. 
+For example: 
+
+```csharp
+[IgnoreIndicators]
+public class SomeLoggingHelper : BaseExpression
+{
+   private readonly BaseExpression _expression;
+   public SomeLoggingHelper(BaseExpression expression)
+   {
+       _expression = expression;
+   }
+   public override double Eval()
+   {
+       var value = _expression.Eval();
+       Console.WriteLine($"Expression: {_expression} Result: {value}");
+       return value;
+   }
+   public override string ToString() => _expression.ToString();
+}
+```
+
+Let's say we updated the UI and it began to send a new type of expressions, but we didn't have time to add them. In our current structure, we will get an error when deserializing. It so happened that such expressions turned out to be optional. In this case, we can create a separate class which will be responsible for such events. This can be done by adding the `[FallbackIndicator]` attribute to the class.
+
+```csharp
+[FallbackIndicator]
+public class UnknownExpression: BaseExpression
+{
+   public string Type { get; set; }
+   public override double Eval() => double.NaN;
+   public override string ToString() => "UnknownExpression";
+}
+```
+Classes with this attribute are used last during deserialization. There can be only one such class and its attributes `[TypeIndicator]` are ignored.
+
+Example of usage FallbackIndicator:
+```csharp
+var jsonExpresion = "{\"Type\":\"ZeroFunction\"}";
+var deserializedExpresion = JsonConvert.DeserializeObject<BaseExpression>(jsonExpresion);
+Console.WriteLine($"Expression: {deserializedExpresion}"); // Expression: UnknownExpression
+Console.WriteLine($"EvalValue: {deserializedExpresion.Eval()}"); // EvalValue: NaN
+```
+
+Resulting code structure we can find here [tests](https://github.com/aleksandr-aleksashin/TypeIndicatorConverter/tree/main/Unit.Tests/ArticleCalculator).
+
+More documentation and examples can be found here [repository](https://github.com/aleksandr-aleksashin/TypeIndicatorConverter).
+
+## Benchmarks
+```
+BenchmarkDotNet=v0.13.1, OS=Windows 10.0.19043.1237 (21H1/May2021Update)
+11th Gen Intel Core i7-11700K 3.60GHz, 1 CPU, 16 logical and 8 physical cores
+.NET SDK=5.0.400
+  [Host]    : .NET 5.0.9 (5.0.921.35908), X64 RyuJIT
+  MediumRun : .NET 5.0.9 (5.0.921.35908), X64 RyuJIT
+```
+### Complexity to deserialize
+The first benchmark is oriented on getting information about complexity to deserialize base types with different count indicator fields (1,2,4,8).
+
+|                                                          Method |     Mean |     Error |    StdDev |
+|---------------------------------------------------------------- |---------:|----------:|----------:|
+|    &#39;TypeIndicatorConverter object with one indicator field&#39; | 1.812 μs | 0.0826 μs | 0.1236 μs |
+|   &#39;TypeIndicatorConverter object with two indicator fields&#39; | 2.453 μs | 0.0885 μs | 0.1212 μs |
+|  &#39;TypeIndicatorConverter object with four indicator fields&#39; | 3.560 μs | 0.0204 μs | 0.0299 μs |
+| &#39;TypeIndicatorConverter object with eight indicator fields&#39; | 5.962 μs | 0.0871 μs | 0.1303 μs |
+
+We see that the complexity grows linearly with the number of indicator fields.
+
+The second benchmark is oriented to show information about complexity to deserialize types with a different count of descendants.
+
+|                                Method |     Mean |     Error |    StdDev |
+|-------------------------------------- |---------:|----------:|----------:|
+|  &#39;Object with 1 indicator field&#39; | 1.916 μs | 0.0193 μs | 0.0276 μs |
+| &#39;Object with 2 indicator fields&#39; | 2.623 μs | 0.0300 μs | 0.0440 μs |
+| &#39;Object with 4 indicator fields&#39; | 3.972 μs | 0.0635 μs | 0.0950 μs |
+| &#39;Object with 8 indicator fields&#39; | 6.443 μs | 0.0351 μs | 0.0503 μs |
+
+We see that the complexity grows linearly with the number of descendants.
+
+### Comparison with other discriminating serializers
+In this benchmark we look at three libraries. Ours, [JsonKnownTypes](https://github.com/dmitry-bym/JsonKnownTypes) and [JsonSubTypes](https://github.com/manuc66/JsonSubTypes).
+
+In these tests we have 4 descendants with one indicator field.
+
+|                                                         Method |        Mean |       Error |   StdDev |
+|--------------------------------------------------------------- |------------:|------------:|---------:|
+| &#39;Direct type deserialization 1 indicators field 4 descendants&#39; |    523.3 ns |     4.05 ns |  5.68 ns |
+|              &#39;JsonKnownTypes 1 indicators field 4 descendants&#39; |  1,876.4 ns |    39.04 ns | 57.23 ns |
+|      &#39;TypeIndicatorConverter 1 indicators field 4 descendants&#39; |  3,369.2 ns |    32.69 ns | 46.88 ns |
+|       &#39;JsonSubTypesConverter 1 indicators field 4 descendants&#39; | 11,538.7 ns |    41.90 ns | 60.08 ns |
+
+All the compared serializers use inside `Newtonsoft.Json`. That means that mean time can not be less than in it. Our implementation is not the fastest but provides more features as a discriminator converter. Naturally, there are places that can be changed and our converter will work faster.
+The project is open-source and you can contribute to it.
+
+### Source code
+
+The source code of the package and code for the examples used in this article can be found in this [repository](https://github.com/aleksandr-aleksashin/TypeIndicatorConverter).
+
+Nuget packages: 
+ - Core package [TypeIndicatorConverter.Core](https://www.nuget.org/packages/TypeIndicatorConverter.Core)
+ - Newtonsoft.Json implementation [TypeIndicatorConverter.NewtonsoftJson](https://www.nuget.org/packages/TypeIndicatorConverter.NewtonsoftJson)
+ - System.Text.Json implementation [TypeIndicatorConverter.TextJson](https://www.nuget.org/packages/TypeIndicatorConverter.TextJson)
+
+Authored by: Aleksashin Aleksandr (aleksandr-aleksashin)
+
+Developed in [Dasha.AI Inc](https://dasha.ai/) (Human-like conversational AI for developers)
+
+This project is under MIT license. You can obtain the license copy [here](https://github.com/dmitry-bym/JsonKnownTypes/blob/master/LICENSE).

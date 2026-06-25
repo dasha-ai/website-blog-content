@@ -1,0 +1,59 @@
+---
+slug: "synthesized-vs-prerecorded-speech-for-voice-ai"
+title: "Synthesized vs pre-recorded speech: what’s better for your voice AI app?"
+author: Dasha Smirnova
+category: ""
+categoryName: ""
+createdAt: "2020-10-30T12:57:17.138Z"
+updatedAt: "2020-10-30T16:28:55.947Z"
+readLength: "5 minute read"
+heroImage: https://cdn.dasha.ai/blog/synthesized-vs-prerecorded-speech-for-voice-ai/hero.webp
+introduction: "If you’re considering voice AI as a way to boost your call center performance, sooner or later you’ll face the big question: should you use synthesized or pre-recorded speech for AI voice output?"
+seoTitle: "Synthesized vs pre-recorded speech: what’s better for your call center AI?"
+seoDescription: "Let's compare synthesized and pre-recorded speech for your call center voice AI."
+---
+
+The short answer is, it depends. In order to help you decide, let’s examine the pros and cons of each solution.
+
+#### What’s synthesized speech?
+
+When you type in text to transform it into spoken words using solutions provided by text-to-speech vendors, you get synthesized speech. Traditionally, the process has two stages: text analysis, where the text is analyzed and prepared for spoken output, and waveform generation, where the analyzed text is converted into speech. 
+
+Here are the pros: 
+
+- **Easy to deploy**. Most TTS vendors (like Google or Amazon) will provide you with an out of the box solution for synthesized speech, which usually comes with the rest of the SDK. To get it up and running, you’ll have to install it, configure it and call in a few lines of code. For a non-expert, it can take as little as half an hour to set up the first synthesized message. For* *an expert, it’s even faster.
+- **Available in a ton of languages**. This is useful if you are a multinational company with clients across the globe. Modern speech synthesis engines support all popular languages (and a lot of less mainstream ones). Typing in whatever utterances you need and letting the tool do the rest is considerably faster and cheaper than hiring voice talent to pre-record the same amount of text.
+- **Great with variables**. Speech synthesis comes in very handy with all the things that just can’t be pre-recorded: an account balance, company names, addresses, you name it. With numbers, there have been attempts to concatenate output from pre-recorded segments, but in many cases the result turned out jerky. Speech synthesis algorithms can ensure certain smoothness.
+
+And these are the cons:
+
+- **Not so great with variables**. When the output text is unpredictable, chances it will be uttered properly are pretty slim. The engine might make mistakes if it’s lacking context. This is especially true for English, where a lot of words are spelled the same but have different meanings and pronunciations (take the word *lead *as in “lead gen” and lead as a chemical element. What’s worse, the engine might pronounce the customer’s name wrong if it’s datasets are lacking.
+- **Struggling to tackle long passages**. Requesting your account balance and getting a short synthesized reply is one thing. Customers can handle that. But if you make them listen to an entire short story (told in a devoid of logical stress and monotonous way), things can go south. Sometimes your caller’s environment is far from perfect, they can’t hear your synthesized prompts and have to repeat menus more. Call times increase. Customers start to hate you. Even if you have a good engine and reliable telephony backend, you can’t control what’s happening on the other end.
+- **In general, just less user friendly**. Despite all the progress that has been made, we still can tell with almost a 100% certainty that synthesized speech just **doesn’t sound human**. And when you (a human) are forced to speak to a robot on the hotline, how does that make you feel? Me, far from being appreciated. Does that help with customer loyalty? Not really.
+
+#### Pre-recorded speech
+
+To use pre-recorded speech for your voice AI, you have to hire professional voice talent. This is text-to-speech as well, but here the utterances aren’t generated along the way – they’re recorded and integrated in advance. What’s good and bad about this?
+
+Pros:
+
+- **It sounds human**. Why shouldn’t it? It’s recorded by humans! Employing professional voice artists will guarantee high-quality output. The customers on the other end of the line will be able to hear the AI regardless of their surroundings and feel much more appreciated than if they were talking or a robot.
+- **It ensures better control**. Along with natural intonation, another key to high-quality communication with customers is turn-taking, which, combined with the human voice, will allow you a lot of control. Voice talent is trained to get the effect you’re aiming for. And during the production process, prompts are often edited to insert precise pauses when necessary. You can control speech synthesis as well, but it can require additional markup to do so, and even then, it’s versatility can’t be compared to that of a human.
+- **It provides a smooth transition between words**. The human voice naturally elides words and sentences in order to smooth the transitions. When you record text in larger bits, it’s more understandable and won’t spark any suspicion. Synthesized speech can only go so far.
+
+Cons: 
+
+- **It’s costly**. Especially when it comes to recording text for multiple languages. Although prices vary, chances are it will still cost you more than solutions provided by synthesized TTS vendors.
+- **It takes longer to deploy**. Audio recordings are manually processed and require manual input. It takes its toll on production time.
+- **It’s not good at unpredictable output**. While pre-recorded audio performs extremely well with variables that are known in advance (like company names or abbreviations), it’s difficult to handle the unknown. Like I said, when dealing with pre-recorded numbers, the end result is often jerky and unnatural. That’s why it might make sense to integrate a little synthesized TTS into the script.
+
+#### Choosing the right option
+
+I think you should base your decision on how you answer this question: who needs this call to happen more - you or your customer? 
+
+If it’s the first option, if hanging up on you will not lead to a loss for your customer, then it’s a must for your voice AI app to pass [the Turing test](/blog/turing-shaped-ai), so make sure it’s indistinguishable from a human. A robot voice will almost certainly be a deal breaker here. You should focus on delivering superior customer service through pre-recorded speech and keep synthesized speech to a minimum. Use cases here are mostly outbound calls: lead generation, sales, upsells and cross sales, as well as VOC surveys.
+
+If you’ve already established a connection with your customer, you can inject a little synthesis into your communication. Here we’re talking about scenarios where the customer wants your service and has an expectation for this type of dialog — here I mean conversations where the customer’s supposed to provide or receive certain information. Possible use cases: intelligent call routing, appointment confirmation, short answers to incoming questions. 
+
+I hope that now you feel more certain about what option is the best fit for your business. If you’re still in doubt, you can always [reach out to us](https://meetings.hubspot.com/arthur110).
+

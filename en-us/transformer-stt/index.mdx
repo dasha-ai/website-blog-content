@@ -1,0 +1,205 @@
+---
+slug: "transformer-stt"
+title: "Transformers: Breakthroughs in Speech Recognition"
+author: "Dmitry Obukhov, ML Researcher"
+authorPhoto: https://cdn.dasha.ai/blog/transformer-stt/author.webp
+category: turingTest
+categoryName: "Turing test and R&D"
+createdAt: "2021-02-22T13:53:54.781Z"
+updatedAt: "2022-03-21T20:58:37.053Z"
+readLength: "15 minute read"
+heroImage: https://cdn.dasha.ai/blog/transformer-stt/hero.webp
+introduction: "Let’s talk about something that cannot but excite your imagination - let’s talk about key breakthroughs that have occurred in speech recognition thanks to transformers."
+seoTitle: "Speech Recognition: Breakthroughs Achieved with the Use of Transformers"
+seoDescription: "Speech recognition and key breakthroughs that have occurred thanks to transformers. All the tricks for transformer-based architectures are explained here."
+seoKeywords: "Speech recognition, AI, artificial intelligence, machine learning, ML, conversational AI, voice AI, transformers"
+---
+
+This article provides an overview of the main tricks that were used when using Transformer-based architectures in speech recognition. Every particularly exciting idea is highlighted in bold. Along the way, there will be many links that will allow you to parse the details of the described techniques in more detail. At the end of the article, you will find benchmarks of Transformer-based speech recognition models.
+
+## A bit about transformers for speech recognition
+
+Developers use speech recognition to create user experiences for a variety of products. Smart voice AI assistants, call center agent enhancement and conversational voice AI are just a few of the most common uses. Analysts like Gartner expect the use of speech to text (STT) to only increase in the next decade. 
+
+The task of speech recognition (speech-to-text, STT) is seemingly simple - to convert a speech (voice) signal into text data.
+
+![speech recognition](https://cdn.dasha.ai/blog/transformer-stt/image1.gif)
+
+There are many approaches to solving this problem, and new breakthrough techniques are constantly emerging. To date, the most successful approaches can be divided into hybrid and end-to-end solutions.
+
+In **hybrid approaches to STT**, the recognition system consists of several components, usually an acoustic machine learning model, a pronunciation ML model, and a language ML model. The training of individual components is performed independently, and a decoding graph is built for inference, in which the search for the best transcription is performed.
+
+**End-to-end approaches** are a system, all parts of which are trained together. In inference, such systems often return text immediately. End-to-end approaches are categorized according to learning criteria and architecture type.
+
+It is interesting that transformer-based solutions not only found application in both hybrid and end-to-end systems but also turned out to be better than many other modern solutions!
+
+## A bit about transformers for speech recognition
+
+The Transformer architecture appeared in 2017 in the [following paper](https://arxiv.org/abs/1706.03762) [1] to solve the problem of machine translation. There are awesome papers that explain in detail how this architecture works - check out these two ([1](http://jalammar.github.io/illustrated-transformer/). [2](http://peterbloem.nl/blog/transformers)).
+
+![The Transformer - model architecture](https://cdn.dasha.ai/blog/transformer-stt/image2.webp)
+
+Later on, there was a boom in NLP, transformer architectures evolved, the range of tasks to be solved increased, the results of transformer-based solutions more and more went into the gap.
+
+Having taken over NLP, transformers have been introduced into other machine learning areas: speech recognition, speech synthesis, and computer vision, and so on.
+
+Now let’s get to the point.
+
+### Transformers speech recognition
+
+The first mentions of the transformer in speech recognition date back to 2018, when a group of Chinese scientists published a research [paper](https://ieeexplore.ieee.org/document/8462506) [2].
+
+![Model architecture of the Speech Transformer](https://cdn.dasha.ai/blog/transformer-stt/image3.webp)
+
+The changes in the architecture are minimal - convolutional neural networks (CNN) layers have been added before submitting features to the input to the transformer. This makes it possible to **reduce the difference in the dimensions of the input and output sequences** (since the number of frames in audio is significantly higher than the number of tokens in the text), which has a beneficial effect on training.
+
+Even though the results were not dizzying, this work confirmed that speech to text transformers can indeed be successfully used in speech recognition!
+
+## Transformers improvements
+
+In 2019 there were several key Speech-Transformer improvements in different directions:
+
+- the authors of this [paper](https://pdfs.semanticscholar.org/ffe1/416bcfde82f567dd280975bebcfeb4892298.pdf) [3] proposed a way to **integrate CTC loss into Speech-Transformer**. CTC loss has been used in speech recognition for a long time and has several advantages.
+
+First, it allows us to take into account the correspondence of specific audio frames to specific transcription characters, due to the allowable alignments using the blank character.
+
+Secondly, and this is the second improvement of Speech-Transformer, it simplifies the **integration of the language model into the learning process**.
+
+- **rejection of Sinusoid Positional Encoding (PE)**. The problems associated with long sequences are more acute in speech recognition. The rejection occurred in different ways - in some papers, a transition was made from absolute positional encoding to relative PE (as seen in the [following paper](https://arxiv.org/abs/1911.00203) [4]), in others - by replacing PE with pooling layers (as seen in the [following paper](https://arxiv.org/abs/1910.07204) [5]), in the third - replacing positional encoding with trainable convolution layers (as seen in the [following paper](https://arxiv.org/abs/1904.11660) [6]). Much later work has confirmed the superiority of other techniques against sidusion PE.
+- the first adaptations of the transformer for **streaming recognition**. The authors of papers these two papers [[5](https://arxiv.org/abs/1910.07204)] and [[7](https://arxiv.org/abs/1910.11871)] did this in two stages - first, they adapted the encoder so that it was able to receive information as input in blocks and preserve the global context, and then used the [Monotonic Chunkwise Attention](https://arxiv.org/abs/1712.05382) (MoChA) technique for online decoding.
+- **using only Encoder blocks of the transformer**. For some systems (for example, hybrid approaches or transducer-based solutions), it is required that our acoustic model works exactly as an encoder. This technique made it possible to use transformers in [hybrid systems](https://arxiv.org/abs/1910.09799) [8], and in [transducer recognition systems](https://arxiv.org/abs/1910.12977) [9].
+
+In October 2019, in a [research paper](https://arxiv.org/abs/1909.06317) [10], an extensive comparison of transformers with other approaches based on the ESPNet framework was carried out, which confirmed the quality of recognition of transformer-based models. In 13 out of 15 tasks, the transformer-based architecture turned out to be better than recurrent systems.
+
+## Hybrid Speech Recognition with Transformers
+
+In late 2019 - early 2020, transformers achieved SOTA results in hybrid speech recognition (as seen in [[8](https://arxiv.org/abs/1910.09799)]). 
+
+As mentioned earlier, one of the components of the hybrid approach is the acoustic model, which today uses neural networks. The acoustic model in this paper consists of several layers of the transformer encoder. A diagram of one such layer is shown in Figure 3.
+
+![gelu nonlinear activation](https://cdn.dasha.ai/blog/transformer-stt/image4.webp)
+
+Figure 3. Architecture of one transformer layer for hybrid speech recognition. “LN” means layer normalization, “FC” means fully connected linear transformation; “gelu” means the gelu nonlinear activation.
+
+Of the most interesting things in this work, I would like to highlight that the authors again demonstrate the advantage of **trainable** **convolutional (namely, VGG-like) embeddings** compared to sinusoid PE. They also use **iterated loss** to improve convergence when training deep transformers. The topic of deep transformers will be discussed further.
+
+## Transformer Transducer
+
+More precisely, two Transformer Transducers - one from [Facebook](https://arxiv.org/abs/1910.12977) [9] and one from [Google](https://arxiv.org/abs/2002.02562) [11] appear at the end of 2019 and the first half of 2020. Formally, in the work of Facebook, it is called Transformer-Transducer (separated by a hyphen). But the essence of both works is the same - **the integration of the transformer into the RNN-Transducer architecture**.
+
+![Transducer model architecture](https://cdn.dasha.ai/blog/transformer-stt/image5.webp)
+
+Figure 4. Transducer model architecture
+
+Integration does not take place for the entire transformer, but **only for the encoder**, as an audio encoder in the RNN-T framework. In this [paper](https://arxiv.org/abs/2002.02562) [11], the predictor network is also transformer-based, however with a smaller number of layers - in the process of inference it is often necessary to call this component, there is no need for a more complex architecture.
+
+RNN-T loss, unlike the CTC loss, allows you to take into account not only the probabilities based on the input sequence, but also based on the predicted labels. In addition, one of the advantages of the Transformer Transducer architecture is that this approach is much easier to adapt for streaming recognition because only the encoder part of the transformer is used.
+
+In the summer of 2020, another [paper](https://arxiv.org/abs/2008.05750) [12], named Conv-Transformer Transducer, was published, in which the audio encoder consists of three blocks, each of which contains convolution layers and then transformer layers. And in the fall of this year, in [[13](https://arxiv.org/abs/2010.03192)] (which is a continuation of [[11](https://arxiv.org/abs/2002.02562)]), the authors proposed the **variable context layers** technique, which allows training a model capable of using the variable size of the future context, providing trade-off latency / quality at the inference stage.
+
+### Local & global context
+
+One of the strengths of transformer-based architectures is their high efficiency while taking into account the global context. In the audio signal, local connections play a greater role than global ones. In the summer of 2020, several works were published that draw attention to these aspects and once again lead the transformer-based model into the gap:
+
+- the authors of [[14](https://arxiv.org/abs/2005.08100)] proposed to change the architecture of the transformer block by adding a **Convolution module after the Multi-Head Attention (MHA) block**. Convolutions are better at taking into account local information, while the transformer model is good at extracting global information. The authors named the resulting model **Conformer**. Also, inspired by [Macaron-Net](https://arxiv.org/pdf/1906.02762.pdf), the authors used the **half-step feed-forward network**.
+
+- the paper [[15](https://arxiv.org/abs/2005.09137)] introduced **weak attention suppression** technique; it was proposed to use sparse attention, dynamically zeroing weights less than a certain threshold, so that we make the model scatter attention less in the entire context and focus more on meaningful frames.
+
+## Streamable Transformers
+
+As noted above, the Transducer approach allows the system to be used for streaming speech recognition, i.e. when audio enters the system in real-time, processing immediately occurs and the system returns responses as soon as it is ready. Streaming recognition serves as a prerequisite for voice conversational AI tasks.
+
+However, for the system to be streaming, it is necessary that the transformer model itself be able to process audio sequentially. In the original transformer, the attention mechanism looks at the entire input sequence.
+
+There are the following streaming data processing techniques in speech recognition that are used with transformer-based solutions:
+
+- **time-restricted self-attention** is used, for example, in the following [paper](https://arxiv.org/abs/2002.02562) [11]. Each transformer layer has a limited forward-looking context. The disadvantage of this approach is the increase in latency as the number of layers increases, as the general context of looking into the future increases.
+
+- **block processing** - the idea can be seen in [[5](https://arxiv.org/abs/1910.07204)], [[16](https://arxiv.org/abs/1912.02958)], and [[17](https://arxiv.org/abs/2005.08042)]. The idea is to feed segments/blocks/chunks as input to the transformer. The disadvantage of this method is that the context is limited to the segment. In order not to lose the global context, it can be transferred as a **separate embedding**, as seen in [[5](https://arxiv.org/abs/1910.07204)], or use architectures with **recurrent connections**, in which embeddings from previous segments are transferred to the current ones, as seen in [[16](https://arxiv.org/abs/1912.02958)], or use information from all previous processed segments stored in a memory bank. This approach is called **augmented memory** and is proposed in [[17](https://arxiv.org/abs/2005.08042)].
+
+## Emformer
+
+In the following research [paper](https://arxiv.org/abs/2010.10759v3) [18], a model that is suitable for streaming recognition is presented, both in a hybrid setup and in a transducer system.
+
+Emformer continues to develop the idea represented in [[17](https://arxiv.org/abs/2005.08042)]. Like its predecessor, Emformer uses augmented memory. Computational optimizations, computation caching are performed, the memory bank is used not from the current layer, but from the previous transformer layer, and GPU parallelization is added.
+
+As a result, it was possible to achieve significant acceleration of system training and a reduction in inference time. In addition, the model converges better as a result of fewer useless computations.
+
+## Unsupervised speech representation learning
+
+Another area in which transformers have found successful use is the construction of high-level audio representations based on unlabeled data, on which even a simple model will produce good results.
+
+Here I would like to note a number of works - [Mockinjay](https://arxiv.org/abs/1910.12638) [19], [Speech-XLNet](https://arxiv.org/abs/1910.10387) [20], [Audio ALBERT](https://arxiv.org/abs/2005.08575) [21], [TERA](https://arxiv.org/abs/2007.06028) [22], and [wav2vec 2.0](https://arxiv.org/abs/2006.11477) especially [23].
+
+One of the ideas for constructing such a view is to spoil the spectrogram (by masking it along the time axis, as in Mockingjay and Audio ALBERT, or along both time and frequency axes, as in TERA, or shuffle some frames, as in Speech-XLNet ), and train the model to restore it. Then the latent representation of such a model can be used as the high-level representation. The transformer here acts as a model, or rather its encoder plus additional modules before and after.
+
+![proposed TERA self-supervised speech representation approach](https://cdn.dasha.ai/blog/transformer-stt/image6.webp)
+
+The resulting views can be used for downstream tasks. Moreover, the weights of the model can be either frozen or left to fine-tune for the downstream task.
+
+Another idea is implemented in wav2vec 2.0. It is the continuation of [vq-wav2vec](https://arxiv.org/abs/1910.05453) [24].
+
+First, latent representations are built from the audio signal using convolutional neural network layers. Latent representations are fed to the input of the transformer and are also used to construct discrete representations. Some of the frames at the entrance to the transformer are masked. The transformer model is trained to predict discrete-like grants by means of a contrastive loss. Unlike vq-wav2vec, learning of discrete and latent representations now happens together (end-to-end).
+
+
+![Illustration of wav2vec 2.0 framework which jointly learns contextualized speech representations and an inventory of discretized speech units.](https://cdn.dasha.ai/blog/transformer-stt/image7.webp)
+
+In [[25](https://arxiv.org/abs/2010.10504)], the authors used the idea of wav2vec pre-training in conjunction with the Conformer architecture. The authors have used LibriLight data for pre-training and obtained SOTA on the LibriSpeech corpus at the time of this writing.
+
+### Large-scale Settings
+
+Most scientific publications consider the results of models trained on small, approximately 1000 hour cases such as the LibriSpeech.
+
+Nevertheless, there are studies such as [[26](https://arxiv.org/abs/2005.09684)] and [[27](https://arxiv.org/abs/2010.14665)], which show that Transformer-based models show an advantage even on large amounts of data.
+
+### Bottom line
+
+This article examined the techniques that are encountered when using transformer-based models in speech recognition.
+
+Of course, not all papers related to transformers in the field of speech recognition are reflected here (the number of works related to transformers in STT is growing exponentially!), But I tried to collect the most interesting ideas for you.
+
+And finally - WER graphs on the LibriSpeech Transformer-based models case:
+
+![WER Transformer-based models on Librispeech test-clean dataset](https://cdn.dasha.ai/blog/transformer-stt/image8.webp)
+
+![WER Transformer-based models on Librispeech test-other dataset](https://cdn.dasha.ai/blog/transformer-stt/image9.webp)
+
+**References**
+
+1. A.Vaswani et al., 2017, “Attention Is All You Need”, [<u>https://arxiv.org/abs/1706.03762</u>](https://arxiv.org/abs/1706.03762)
+2. L.Dong et al., 2018 “Speech-Transformer: A No-Recurrence Sequence-to-Sequence Model for Speech Recognition”, [<u>https://ieeexplore.ieee.org/document/8462506</u>](https://ieeexplore.ieee.org/document/8462506)
+3. S.Karita et al., 2019, “Improving Transformer-based End-to-End Speech Recognition with Connectionist Temporal Classification and Language Model Integration”, [<u>https://pdfs.semanticscholar.org/ffe1/416bcfde82f567dd280975bebcfeb4892298.pdf</u>](https://pdfs.semanticscholar.org/ffe1/416bcfde82f567dd280975bebcfeb4892298.pdf)
+4. P.Zhou at al., 2019, “Improving Generalization of Transformer for Speech Recognition with Parallel Schedule Sampling and Relative Positional Embedding”, [<u>https://arxiv.org/abs/1911.00203</u>](https://arxiv.org/abs/1911.00203)
+5. E.Tsunoo et al., 2019, “Transformer ASR with Contextual Block Processing”, [<u>https://arxiv.org/abs/1910.07204</u>](https://arxiv.org/abs/1910.07204)
+6. A. Mohamed et al., 2019, “Transformers with convolutional context for ASR”, [<u>https://arxiv.org/abs/1904.11660</u>](https://arxiv.org/abs/1904.11660)
+7. E.Tsunoo et al., 2019, “Towards Online End-to-end Transformer Automatic Speech Recognition”, [<u>https://arxiv.org/abs/1910.11871</u>](https://arxiv.org/abs/1910.11871)
+8. Y.Wang et al., 2019, “Transformer-based Acoustic Modeling for Hybrid Speech Recognition”, [<u>https://arxiv.org/abs/1910.09799</u>](https://arxiv.org/abs/1910.09799)
+9. C.Yeh et al., 2019, “Transformer-Transducer: End-to-End Speech Recognition with Self-Attention”, [<u>https://arxiv.org/abs/1910.12977</u>](https://arxiv.org/abs/1910.12977)
+10. S.Karita et al., 2019, “A Comparative Study on Transformer vs RNN in Speech Applications”, [<u>https://arxiv.org/abs/1909.06317</u>](https://arxiv.org/abs/1909.06317)
+11. Q.Zhang et al., 2020, “Transformer Transducer: A Streamable Speech Recognition Model with Transformer Encoders and RNN-T Loss”, [<u>https://arxiv.org/abs/2002.02562</u>](https://arxiv.org/abs/2002.02562)
+12. W.Huang et al., 2020, “Conv-Transformer Transducer: Low Latency, Low Frame Rate, Streamable End-to-End Speech Recognition”, [<u>https://arxiv.org/abs/2008.05750</u>](https://arxiv.org/abs/2008.05750)
+13. A.Tripathi et al., 2020, “Transformer Transducer: One Model Unifying Streaming and Non-streaming Speech Recognition”, [<u>https://arxiv.org/abs/2010.03192</u>](https://arxiv.org/abs/2010.03192)
+14. A.Gulati et al., 2020, “Conformer: Convolution-augmented Transformer for Speech Recognition”, [<u>https://arxiv.org/abs/2005.08100</u>](https://arxiv.org/abs/2005.08100)
+15. Y.Shi et al., 2020, “Weak-Attention Suppression For Transformer Based Speech Recognition”, [<u>https://arxiv.org/abs/2005.09137</u>](https://arxiv.org/abs/2005.09137)
+16. Z.Tian et al., 2020, “Synchronous Transformers for End-to-End Speech Recognition”, [<u>https://arxiv.org/abs/1912.02958</u>](https://arxiv.org/abs/1912.02958)
+17. C.Wu et al., 2020, “Streaming Transformer-based Acoustic Models Using Self-attention with Augmented Memory”, [<u>https://arxiv.org/abs/2005.08042</u>](https://arxiv.org/abs/2005.08042)
+18. Y.Shi et al., 2020, “Emformer: Efficient Memory Transformer Based Acoustic Model For Low Latency Streaming Speech Recognition”, [<u>https://arxiv.org/abs/2010.10759v3</u>](https://arxiv.org/abs/2010.10759v3)
+19. A.T.Liu et al., 2019, “Mockingjay: Unsupervised Speech Representation Learning with Deep Bidirectional Transformer Encoders”, [<u>https://arxiv.org/abs/1910.12638</u>](https://arxiv.org/abs/1910.12638)
+20. X.Song et al., 2020, “Speech-XLNet: Unsupervised Acoustic Model Pretraining For Self-Attention Networks”, [<u>https://arxiv.org/abs/1910.10387</u>](https://arxiv.org/abs/1910.10387)
+21. P.Chi et al., 2020, “Audio ALBERT: A Lite BERT for Self-supervised Learning of Audio Representation”, [<u>https://arxiv.org/abs/2005.08575</u>](https://arxiv.org/abs/2005.08575)
+22. A.T.Liu et al., 2020, “TERA: Self-Supervised Learning of Transformer Encoder Representation for Speech”, [<u>https://arxiv.org/abs/2007.06028</u>](https://arxiv.org/abs/2007.06028)
+23. A.Baevski et al., 2020, “wav2vec 2.0: A Framework for Self-Supervised Learning of Speech Representations”, [<u>https://arxiv.org/abs/2006.11477</u>](https://arxiv.org/abs/2006.11477)
+24. A.Baevski et al., 2020 “vq-wav2vec: Self-Supervised Learning of Discrete Speech Representations”, [<u>https://arxiv.org/abs/1910.05453</u>](https://arxiv.org/abs/1910.05453)
+25. Y.Zhang et al., 2020, “Pushing the Limits of Semi-Supervised Learning for Automatic Speech Recognition”, [<u>https://arxiv.org/abs/2010.10504</u>](https://arxiv.org/abs/2010.10504)
+26. L.Lu et al., 2020, “Exploring Transformers for Large-Scale Speech Recognition”, [<u>https://arxiv.org/abs/2005.09684</u>](https://arxiv.org/abs/2005.09684)
+27. Y.Wang et al., 2020, “Transformer in action: a comparative study of transformer-based acoustic models for large scale speech recognition applications”, [<u>https://arxiv.org/abs/2010.14665</u>](https://arxiv.org/abs/2010.14665)
+
+
+
+
+
+
+
+
+
+

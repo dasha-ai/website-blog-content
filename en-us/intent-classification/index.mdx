@@ -1,0 +1,130 @@
+---
+slug: "intent-classification"
+title: "Intent Classification Datasets & Algorithms for Realistic Automated Conversations"
+author: "Ilya Ovchinnikov, ML Research Team Lead"
+authorPhoto: https://cdn.dasha.ai/blog/intent-classification/author.webp
+category: turingTest
+categoryName: "Turing test and R&D"
+createdAt: "2021-07-22"
+updatedAt: "2022-03-15T13:49:45.515Z"
+readLength: "8 minute read"
+heroImage: https://cdn.dasha.ai/blog/intent-classification/hero.jpg
+introduction: "[Natural language understanding](https://en.wikipedia.org/wiki/Natural-language_understanding) (NLU) is an essential part of intelligent dialog systems. The goal of NLU is to classify the [intents](https://docs.dasha.ai/en-us/default/natural-language-understanding/custom-intents) and extract meaning and [entities](https://docs.dasha.ai/en-us/default/natural-language-understanding/custom-entities) from words (speech). Natural language understanding algorithms extract semantic information from text. By using this information on intent classification, the dialog system can decide what action to perform next."
+seoTitle: "Intent Classification Datasets & Algorithms for Realistic Automated Conversations"
+seoDescription: "What is intent classification and how to use it to create realistic automated conversations? Natural language understanding (NLU) is used to classify the intents and extract meaning and entities from words (speech)."
+seoKeywords: "intent classification, dataset for intent classification, intent classification algorithm, what is intent classification"
+---
+
+In this blog post, we’ll learn how to create and use intents in Dasha Studio, as well as the common problems with datasets, and how to solve them. You can check out our post about [Named Entity Recognition (NER)](https://dasha.ai/en-us/blog/named-entity-recognition) to get the full picture of the NLU.
+
+For each Dasha application, you create single or multiple intents. The purpose of the intents is to make the [dialog system](https://en.wikipedia.org/wiki/Dialogue_system) understand the user’s intentions. You can use the newly created intents in the [DashaScript](https://docs.dasha.ai/en-us/default/dasha-script-language/) conversation script to instruct the system on how to respond to user messages.
+
+To train the intent classification model, you don't need to write any code, nor do you need to know AI or machine learning. The ML models are automatically trained in the Dasha Cloud Platform by our intent classification algorithm, providing you with AI and ML as a service. To start the conversation and the training process, launch your AI app with an npm start chat command.
+
+Intents and entities are reusable within the application - you can use them in different steps of the script. You don't need to define individual ones for different [transitions](https://docs.dasha.ai/en-us/default/dasha-script-language/program-structure/#transitions), except for those cases when you feel it is necessary for your script.
+
+## What is intent classification?
+
+Intent classification categorizes phrases by meaning. The meaning signifies the speakers’ intention. You can use default [system intents](https://docs.dasha.ai/en-us/default/natural-language-understanding/system-intents) in your application or create [custom](https://docs.dasha.ai/en-us/default/natural-language-understanding/custom-intents) intents for specific purposes (most developers create custom intents for the Dasha AI apps. Helps that it’s super easy).
+
+For example, intent classifications could be greetings, agreements, disagreements, money transfers, taxi orders, or whatever it is you might need. The model categorizes each phrase with single or multiple intents or none of them.
+
+To create an intent classification model you need to define training examples in the json file in the intents section. Check out the [documentation](https://docs.dasha.ai/en-us/default/natural-language-understanding/custom-intents) to get a deeper understanding of how to do it. Don't forget to [connect the dataset](https://docs.dasha.ai/en-us/default/natural-language-understanding/connecting-to-the-application) file to the application. Also, note that custom intents can work simultaneously with [system intents](https://docs.dasha.ai/en-us/default/natural-language-understanding/system-intents).
+
+## Use intents in DashaScript
+
+There are two NLU control functions in DashaScript, that detect and classify intent:
+
+- [messageHasIntent](https://docs.dasha.ai/en-us/default/dasha-script-language/built-in-functions/#messagehasintent): Checks if the phrase being processed contains the specified intent
+
+```dsl
+#messageHasIntent("transfer_money")
+```
+
+- [messageHasAnyIntent](https://docs.dasha.ai/en-us/default/dasha-script-language/built-in-functions/#messagehasanyintent): Checks if the phrase being processed contains any of the specified intents. (Use it if you want to trigger any intent from a list)
+
+```dsl
+#messageHasAnyIntent(["agreement", "interest"])
+```
+
+You can use these functions in different parts of the script. 
+Most common use case are to [process transitions](https://docs.dasha.ai/en-us/default/dasha-script-language/program-structure?searchResult=p36-highlight-0#transition-on-event) or define [digression](https://docs.dasha.ai/en-us/default/dasha-script-language/program-structure?searchResult=p81-highlight-0#digression) condition with intent event:
+
+```dsl
+node myNode
+{
+    do {
+           wait*;
+     }
+    transitions {
+            dont_know : goto dont_know on #messageHasIntent("dont_know");
+}
+}
+```
+
+```dsl
+digression callBack
+{
+    conditions { on #messageHasAnyIntent(["call_back", "busy"]); }
+    do {}
+    transitions {}
+}
+```
+
+You may also do some actions inside node depending on intent appearance:
+
+```dsl
+node schedule 
+{
+    do {
+    	if (#messageHasIntent(“schedule”){
+	// Do something
+}
+    }
+    transitions {}
+}
+```
+
+## Problems you don't need to worry about with intent classification on Dasha
+
+### Architecture selection and hyperparameters tuning
+
+Dasha provides a platform for developers, not data scientists. We believe that the platform user need not worry about coding an intent classification NLP model from scratch or dive deeply into model architecture selection, hyperparameters tuning, or model training. We provide all of these cutting-edge AI and ML capabilities as a cloud service for our developer users. The only thing you need to worry about is creating a good dataset for intent classification. And as a data scientist, let me tell you, that is worry enough.
+
+### Out-of-vocabulary words
+
+Another common problem with text intent classification is out-of-vocabulary (OOV) words. The model works with a numerical representation of the words of the text (also known as embeddings). It is very important to make the model know all words to be sure it understands the message with previously unseen words in training data. We use such embeddings to solve this issue. Embeddings are trained on plenty of conversational texts encoded using byte-pair encoding.
+
+It uses subword information if the whole word is unknown. As all machine learning and AI processing is done as a service in the background, don't worry about OOV words. Just worry about a great dataset for query intent classification.
+
+### Data balance
+
+Some intents may be less common than others. For example, there are two intents and for each of them, we write example phrases. Let's say that one of the intents has 5 phrases, and the other has 100, which gives us an imbalance in the amount of data. Usually, it is hard to come up with new phrases to strike a balance of examples for different intents. However, to train a good model we need a class-balanced dataset. We use a heuristic approach to detect if data balancing is needed, how many examples we need to oversample for each class and we do it automatically to achieve the best results.
+
+## Problems to pay attention to with intent classification
+
+### Lack of training examples
+
+It commonly occurs that a dialog system may not properly classify intent from some messages that users pronounce. Especially in the first live call iteration of your Dasha AI app. However, that doesn’t mean you need to specify all possible phrase variations. It's recommended to specify only 5 - 10 - 20 phrases (depending on the complexity of the intent and variability of phrases) for each intent in the first iteration. 
+
+If it is hard for you to come up with the phrases, run the application as soon as possible and use data from real conversations. To improve intent quality, you need to train on live conversations to extend training examples. We strongly recommend analyzing your system periodically with the Profiler tool. Read how to improve your NLU model overtime to fix errors. The more training data you have the better the NLU model performs. To achieve the best user experience, maintain and extend your intent classification dataset continuously.
+
+### Similar intents
+
+Sometimes different intents may be very similar. Examples may contain the same words, collocations, or sentence structures. In such cases, it is harder for the intent model to distinguish intents from one another and properly classify them. There are two common cases for this problem.
+
+As an example, the first one could be that there are transfer_money, cancel_transfer_money, and transfer_money_limit intents. To make sure that these intents work properly, you should add more training examples for each of the intents (more than 10). The more examples you have, the better the model you get.
+
+The second case example could be that sentences have similar structures. If you have intents like inform_weather and inform_location, consider to join intents into one inform and use entities.
+
+### Multiple intents in message
+
+It is possible to extract multiple intents from a message that’s known as multi-label classification. For example, the classifier can detect greeting and a what_you_can_do intents. So, the algorithm will classify the phrase "Hello" as a greeting; "Hello, what can you do?" as a greeting, and a ‘what_you_can_do’; while it won’t extract any of the intents from "What is your name?". To make this work, you should add such examples to the training dataset for both intents.
+
+## Summary
+
+In this blog post, we sorted out what intents are and why we need them. Intents are usually custom. To understand what intents you need, you should develop the conversation script and define it based on the script. Intents may be used not only for transition between nodes but for conditional actions as well. You don’t need to think about how it works: simply create the dataset and use intents in DashaScript. Don’t forget to extend the dataset with examples all the time to fix errors and make your model more knowledgeable.
+
+Now you know how to deal with intents in the Dasha applications. Learn about [Named Entity Recognition](https://dasha.ai/en-us/blog/named-entity-recognition) to create more complex dialog systems.
+
+See [Dasha application code samples](https://github.com/dasha-samples) to understand how it works in practice in more detail.

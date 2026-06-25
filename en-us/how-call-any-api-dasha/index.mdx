@@ -1,0 +1,215 @@
+---
+slug: "how-call-any-api-dasha"
+title: "How to call any API from within your Dasha app  "
+author: "Arthur Grishkevich, Citizen Developer Advocate "
+authorPhoto: https://cdn.dasha.ai/blog/how-call-any-api-dasha/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-10-22T07:03:45.266Z"
+updatedAt: "2022-02-16T15:15:33.314Z"
+readLength: "7 minutes "
+heroImage: https://cdn.dasha.ai/blog/how-call-any-api-dasha/hero.webp
+introduction: "Here is what we will go over today: \n1. Why you might want to call external APIs with Dasha\n2. What external functions are in Dasha Script and how to use them\n3. How to use external functions to interact with APIs"
+seoTitle: How to call any API from your Dasha AI app
+seoDescription: "Dasha lets you call any API in the course of an automated AI conversation. Learn how to use this feature with this quick tutorial. "
+seoKeywords: "calling APIs conversational AI, conversational AI API, conversational AI app, Dasha AI, HTTPS request voice AI"
+---
+
+## Why call external APIs with Dasha? 
+A technology witnout a use case is a dud (hello Bitcoin). Here are some use cases to answer that question: 
+
+### Getting customer data 
+Imagine that you are a contact center agent. You pick up the phone, it's a customer. The customer asks what the status of their claims process is. You need to a) identify the customer and b) go into a database and look up the status. If you are a human, you would type and click stuff on your computer terminal. If you are an AI you would make an API call to the database to retrieve the data. 
+
+### Updating customer data
+Now, imagine you are a sales person. You got an inbound lead, so you call the contact number. You speak with the interested party and book them into a meeting. You also ask a few questions. Now you need to update the records in the CRM and set a calendar meeting. If you are a human, you would use your computer keyboard to do this. If you are an AI, you make an API call. (*psst! Here is a [tutorial](https://dasha.ai/en-us/blog/hubspot-dasha-lead-qualification-integration) on how to build something like this using Dasha's integration with Zapier.*) 
+
+### Executing actions on voice command
+You have set up an AI app to call you whenever something, somewhere goes awry. Maybe a website is down. As you talk to the app, it provides you with information and you are able to resolve the issue right on the call. Yes, [there is also a tutorial for something like this](https://dasha.ai/en-us/blog/voice-AI-site-reliability-engineering).
+
+### Controlling your web app 
+With voice over WebRTC, you can set up a Dasha app that will give your users full voice control over a website. 
+
+## What are external functions in Dasha Script?
+First, let's go over the architecture. Dasha platform consists of 3 main parts:
+
+__Dasha Studio__ -  is a Visual Studio Code extension. It lets you build, train manage and deploy Dasha applications. 
+__Dasha Cloud__ - provides [conversational AI as a service](https://dasha.ai/en-us/blog/dasha-conversational-ai-as-a-service). This means that you don’t need to be a data scientist to use machine learning when building Dasha conversational apps. 
+__Dasha SDK__ - is an abstraction layer that lets you connect your locally stored conversational application (created with the Studio) to the Dasha Cloud where it is executed. It gives you a programmable Node.js interface.
+
+The SDK is imported into a JavaScript Node.js file where it runs as a function. This means that Dasha can be imported into an existing Node.js application or that you can expand on your Node.js file controlling the Dasha app to do pretty much anything that can be done with Node, including calling APIs. 
+
+As we have discussed, Dasha conversations are designed and developed in the Dasha Studio (for syntax highlighting. In theory, you could use Notepad++ for the task) using a language called DashaScript. It is a domain-specific language and its purpose is to let you create human-like conversational workflows. It is built on the basis of TypeScript, so if you know JS, you will feel right at home. 
+
+As I've also mentioned, your Dasha app gets uploaded to and executed in the Dasha cloud through the Node.js SDK. As DashaScript is limited in function, there are some things that you will not be able to do with it. For example, complex calculations, receiving webhooks or calling an API. 
+
+This is exactly where external functions come into play. You can place an external function in the body of your DashaScript file (__main.dsl__) and have it refer to an external function of the same name in the body of the Node.js file running the SDK (__index.js__). Node.js is an extremely flexible language and using it, you can do pretty much anything your heart desires. 
+
+Now, let's take a look at some real code. 
+
+## How to use external functions in Dasha to interact with APIs
+
+Here is the demo app below in action: 
+<a href="https://youtu.be/Xmy5h7n7THU" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://youtu.be/Xmy5h7n7THU</a>
+
+### Installing and preparing 
+Make sure you have the latest Microsoft Visual Studio Code, Node.js and NPM installed. Dasha Studio is implemented as an extension to VSCode for your convenience. Open Visual Studio Code and install the [Dasha Studio extension](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio) and Dasha Command Line Interface . 
+
+If you have never used Dasha before, you need to activate your API key. The API key lets you load your conversational application to the Dasha Cloud Platform, where it is executed. If you have your Dasha API key, ignore this part. Otherwise, run:
+
+```bash
+code --install-extension dasha-ai.dashastudio && 
+npm i -g "@dasha.ai/cli@latest"
+```
+
+Now, run a command to register your Dasha API key. A browser window will pop up and you will need to sign up for an account:
+
+```bash 
+dasha account login
+```
+
+Afterwards, run this command to check your API key:
+```bash 
+dasha account info
+``` 
+
+Great. Now, you need to clone [this repository](https://github.com/dasha-samples/HTTPS-call-with-dasha-demo) and open up the folder 
+
+```bash 
+cd HTTPS-call-with-dasha-demo
+```
+
+Now, open up the following three files: 
+* __main.dsl__ - this is the DashaScript file. DashaScript is a domain specific language based on Typescript that is used to design human-like conversations. 
+* __index.js__ - this is your Node.js file where you import the Dasha SDK. The SDK is used to launch your Dasha app (contents of the /app folder) to the Dasha Cloud, where the conversation is executed, providing you with all the [AI as a service](https://dasha.ai/en-us/blog/dasha-conversational-ai-as-a-service) components.  
+* __data.json__ - is the dataset used to train the neural network powering your AI app (in the Dasha Cloud). Here you can specify data to train intents and to train named entities. 
+
+Let's open up __main.dsl__.
+
+### Working with DashaScript in main.dsl 
+
+```dsl
+context {
+    input phone: string;
+}
+
+// declare external functions here 
+external function confirm(fruit: string): boolean;
+external function status(): string;
+```
+
+External functions are declared at the outset of the file, right after context variables. In this case, the only context variable is input variable phone - the phone number which your Dasha AI app calls.
+
+In `start node root` and `node hello` (lines 11-29) Dasha greets the user and asks how she can help. 
+
+For the sake of the demo, our user is Wile E. Coyote and he wants to know if he has been approved for the purchase of ACME rockets. Once the intent `status` is identified (as defined by lines 32-42 in __data.json__), the `digression status` is activated. Here, Dasha recognizes the user by their phone number and asks the user to confirm their identity by specifying their favorite fruit (yes, I'm quite aware of the security implications of such a thing in production, thank you very much). 
+
+```dsl
+digression status {
+    conditions { on #messageHasIntent("status"); }
+    do {
+        #sayText("Great! To tell you your ACME Rockets application status, I need to confirm your identity.");
+        #sayText("It seems your phone number is tied to a Mr. Wile E. Coyote. Can you please confirm the answer to the secret question. ");
+        #sayText("What is your favourite fruit?");
+        wait *;
+    } 
+    transitions {
+        confirm: goto confirm on #messageHasData("fruit");
+    }
+}
+```
+
+Once a named entity `fruit` (lines 75-126 in __data.json__) is identified in the speaker's speech, the conversation transitions to the next node - `confirm`.  
+
+```dsl
+node confirm {
+    do {
+        var fruit = #messageGetData("fruit", { value: true })[0]?.value??"";
+        var response = external confirm(fruit);
+        if (response) {
+            #sayText("Great, identity confirmed. Let me just check your status. ");
+            goto approved;
+        }
+        else {
+            #sayText("I'm sorry but your identity is not confirmed. Let's try again. What is your favourite fruit?");
+            wait *;
+        }
+    } 
+    transitions
+    {
+        approved: goto approved;
+        confirm: goto confirm on #messageHasData("fruit");
+    }
+}
+```
+
+Named entities collect data as an array of objects. We store the first object in the array collected under named entity `fruit` as variable `fruit`. And then we pass this variable to the external function `confirm`. 
+
+Remember that when we initialized the external function, we expect it to return a boolean value (line 6 __main.dsl__): 
+```dsl
+external function confirm(fruit: string): boolean;
+```
+
+If the returned response is `true`, Dasha says identity is confirmed and moves on to the next step. If the response is `false`, Dasha asks the user to try again. 
+
+Now, let's take a look at the external function JavaScript code in __index.js__. 
+
+### Working with JavaScript in index.js
+In lines 1-3 we require Dasha, fs and Axios: 
+```javascript
+const dasha = require("@dasha.ai/sdk");
+const fs = require("fs");
+const axios = require("axios").default;
+```
+The function running the Dasha app is located in lines 21-88. The code for the external function which interests us is located in lines 19-32. 
+```javascript
+  app.setExternal("confirm", async(args, conv) => {
+      console.log("collected fruit is " + args.fruit);
+
+      const res = await axios.post( "http://ptsv2.com/t/dasha-test/post");
+      console.log(" JSON data from API ==>", res.data);
+
+      const receivedFruit = res.data.favoriteFruit;
+      console.log("fruit is  ==>", receivedFruit);
+
+    if (args.fruit == receivedFruit)
+      return true;
+    else 
+      return false; 
+  });
+ ```
+
+As you can see, the function receives arguments from __main.dsl__. Note, that the arguments are passed as an object. The `args` argument will contain fields with names as written in your __main.dsl__ function definition (`fruit`). Thus, to get to the value, we use `args.fruit`. 
+
+We are using Axios to make a POST request. I'm using [Henry's Post Test Server V2](http://ptsv2.com) as the endpoint. I've defined a post URL (http://ptsv2.com/t/dasha-test/post) and added some JSON to the body which is returned by the server. Here is the JSON I used: 
+
+```json
+  {
+    "_id": "616f8a50856c6dd7d85f2597",
+    "name": "Wile E. Coyote",
+    "company": "Chase Corp",
+    "email": "coyote@chasecorp.com",
+    "phone": "+1 (896) 421-3573",
+    "address": "367 Cooke Court, Dunbar, Palau, 5119",
+    "favoriteFruit": "road runner",
+    "status": "approved"
+  }
+```
+
+Once the value for `favoriteFruit`, as obtained from the API is compared to the value of `args.fruit`, as obtained from the user on the phone, the external function returns either `true` or `false`. 
+
+### Finishing up the Dasha app and testing 
+If the external function returns `true`, Dasha goes on to the next step which is to verify the user's `status`. If status is `approved`, she tells the user (Mr. Coyote), that he can stop by his local ACME store to pick up a many rockets as he likes. I'm not going over this code because it's right there in the repo and the definitions above are enough to figure it out. 
+
+Now, let's test the app. First, run:
+```bash 
+npm i 
+``` 
+
+and secondly, to launch the call: 
+```bash
+npm start 12223334455
+```
+Where `12223334455` is your phone number in international format.
+
+I hope this was helpful. Let us know in the [Dasha Community](https://community.dasha.ai) what you are building and how you are using external functions in your Dasha app! 

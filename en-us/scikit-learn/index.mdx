@@ -1,0 +1,84 @@
+---
+slug: "scikit-learn"
+title: "Scikit-Learn: Subtle Questions About Implementing Machine Learning Methods"
+author: "Alex Dyakonov, Chief Research Scientist"
+authorPhoto: https://cdn.dasha.ai/blog/scikit-learn/author.jpg
+category: "machine-learning"
+categoryName: Machine learning
+createdAt: "2021-05-14T18:19:52.631Z"
+updatedAt: "2025-06-06T04:47:18.200Z"
+readLength: "8 minute read"
+heroImage: https://cdn.dasha.ai/blog/scikit-learn/hero.jpg
+introduction: "Let's consider a few seemingly simple questions about machine learning algorithms and their implementation, which, however, only a few will be able to answer correctly (you can try it yourself - without reading the explanations. Note that additional questions in this post were intentionally left unanswered). Material in this post is for the intermediate level (those who already are familiar with machine learning (ML) and the [<u>scikit-learn</u>](https://scikit-learn.org/stable/) library)"
+seoTitle: "Scikit-Learn: Subtle Questions About Implementing Machine Learning Methods"
+seoDescription: "Scikit-Learn: Subtle Questions About Implementing Machine Learning Methods with Examples"
+seoKeywords: "Scikit-Learn, machine learning, machine learning methods Scikit Learn, Scikit Learn examples"
+---
+
+**Why SVM in sklearn gives incorrect probabilities? For example, an item may be classified in class 1, and the probability of belonging to this class may not be maximized.**
+
+You can conduct such an experiment: take a training sample of two objects belonging to different classes (0 and 1). We use the same sample as a test sample (see Fig 1). Objects are classified correctly, but their probabilities of belonging to the first class are 0.65 and 0.35. Firstly, these are very strange values, and secondly, an object from class 0 has a high probability of belonging to class 1 and vice versa. Is there really a mistake in sklearn (a library that has been actively used for so many years)?
+
+![fig 1](https://cdn.dasha.ai/blog/scikit-learn/image1.webp)
+
+Strictly speaking this is indeed a bug that has not yet been fixed. It has to do with how, in principle, the probabilities of belonging to classes are calculated in SVM. Take a look at the [<u>sklearn.svm.SVC</u>](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html) function:
+
+`class ``sklearn.svm.``SVC``(``*``, ``C=1.0``, ``kernel='rbf'``, ``degree=3``, ``gamma='scale'``, ``coef0=0.0``, ``shrinking=True``, ``probability=False``, ``tol=0.001``, ``cache_size=200``, ``class_weight=None``, ``verbose=False``, ``max_iter=- 1``, ``decision_function_shape='ovr'``, ``break_ties=False``, ``random_state=None``)`
+
+“probability” is a special parameter here that must be set to ‘True’ in order for the probabilities to be calculated. What is the reason for its presence as it is absent in other methods (random forests, logistic regression, boosting)? It is connected with the fact that the SVM method itself simply separates points by a hyperplane in some space. It does not receive any probabilities, for this an additional procedure is used - Platt's calibration (in fact, this is a logistic regression on one feature - the normal to the constructed hyperplane), to activate it and you need to specify "probability = True" (calibration takes time and is disabled by default ). The next most interesting thing is how exactly it is performed. Omitting the implementation details, we note that to perform the calibration, it’s necessary to split the sample into subsamples (the algorithm is built on one, the calibration is performed on the other). The principle is the same as in the CalibratedClassifierCV function, if we try to calibrate the SVM using it in this task, we’ll get an error:
+
+![fig 2](https://cdn.dasha.ai/blog/scikit-learn/image2.webp)
+
+The reason for the error is clear, by default CalibratedClassifierCV breaks down into 5 folds (by the way, in previous versions of the library, calibration was carried out by 3 folds), in this case there are simply not enough objects. If you simply duplicate the sample objects in the task, then the SVM will suddenly begin to correctly determine the probabilities (as it is illustrated below - we simply increased the sample by 10 times).
+
+![fig 3](https://cdn.dasha.ai/blog/scikit-learn/image3.webp)
+
+**Additional questions:** how is calibration done in SVM? And where exactly is it implemented, because sklearn here acts as a wrapper over [<u>libsvm</u>](https://www.csie.ntu.edu.tw/~cjlin/libsvm/) and [<u>liblinear</u>](https://www.csie.ntu.edu.tw/~cjlin/liblinear/)? And how are these methods different?
+
+**Why in different sklearn methods regularization is controlled by parameters that are different in meaning, for example, in the Ridge method it’s controlled by the coefficient of the regularization term, and in logistic regression by the inverse coefficient?**
+
+This can be confusing, since when increasing/decreasing the control parameter we get opposite effects for different methods. That being said, you can immediately tell where what kind of control is implemented without even looking into the code, since the parameters come from theoretical descriptions of the methods. Consider, for example, Ridge regression, in which the coefficients are determined by the following formula:
+
+![fig 4](https://cdn.dasha.ai/blog/scikit-learn/image4.webp)
+
+the **alpha** coefficient regulates the addition of a "ridge" to the XTX matrix, which allows you to combat its ill-conditioning, or (which is equivalent) adding a regularization term to the empirical risk. Therefore, this coefficient penetrated into the parameters of the method implemented in sklearn:
+
+![fig 5](https://cdn.dasha.ai/blog/scikit-learn/image5.webp)
+
+If we recall how the problem to be solved when applying the [<u>SVM</u>](https://en.wikipedia.org/wiki/Support-vector_machine) method, we will see that the function to be optimized consists of two terms:
+
+![fig 6](https://cdn.dasha.ai/blog/scikit-learn/image6.webp)
+
+The first historically appeared earlier and corresponds to maximizing the width of the band separating the classes, and the second appeared in the so-called. "Soft-Margin SVM" and controls the "entry of objects of foreign classes into the strip". This problem can be rewritten as following:
+
+![fig 7](https://cdn.dasha.ai/blog/scikit-learn/image7.webp)
+
+here we recognize the regularization term and the function, which in its meaning is an error function and is called [<u>Hinge Loss</u>](https://en.wikipedia.org/wiki/Hinge_loss). Now it is clear where the C parameter came from in the implementation of the method and how it relates to the above-mentioned alpha:
+
+![fig 8](https://cdn.dasha.ai/blog/scikit-learn/image8.webp)
+
+Now try to remember how regularization is controlled, for example, in [<u>sklearn.linear_model.SGDClassifier</u>](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.SGDClassifier.html) (hint: this classifier is studied in the section on linear algorithms with [<u>surrogate loss functions</u>](http://fa.bianp.net/blog/2014/surrogate-loss-functions-in-machine-learning/)).
+
+Additional questions: why is there a feature normalize parameter in Ridge regression, but not in logistic regression? Why is feature normalization disabled in regression without intercept (when fit_intercept = False)?
+
+**Is it true that with a large class imbalance in the binary classification problem, the use of stratified control guarantees that the control sample (fold) will always contain representatives of both classes?**
+
+No, there is no guarantee. An example of when this is violated in stratified control on folds is shown below (there are no Class 1 representatives in the last fold):
+
+![fig 10](https://cdn.dasha.ai/blog/scikit-learn/image9.webp)
+
+This can lead to an error when using [<u>AUC ROC</u>](https://dasha.ai/en-us/blog/auc-roc) for quality assessment, since this functionality is not defined for the case when the test sample contains only representatives of one class. To handle such cases, the [<u>cross_val_score</u>](https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.cross_val_score.html) function has the **error_score** parameter (by the way, by default, when the score function was calculated incorrectly, everything fell with an error, and in the latest versions of sklearn, the quality score is assumed to be np.nan).
+
+**Why is the cross-validation results and execution time different when using lgb.cv and when using the standard cross_val_score tool?**
+
+Indeed, a model from the [<u>LightGBM</u>](https://lightgbm.readthedocs.io/en/latest/) library, for example, on a 10-folds-cv-control can be checked in different ways, let’s take a look at the code:
+
+![fig 11](https://cdn.dasha.ai/blog/scikit-learn/image10.webp)
+
+The second is preferable, since cv_results contains an error with a different number of trees in the ensemble, which is very convenient for visualization. However, the results of the two tests are almost always different. The difference in the results can be explained by a slightly different division into folds (we achieved an identical division by specifying folds=cv in [<u>lgb.cv</u>](https://lightgbm.readthedocs.io/en/latest/pythonapi/lightgbm.cv.html)). The parameters of the tested algorithms are the same - everything is fair here. One of the main reasons for the difference in results is the organization of binning (this is the process of determining potential thresholds for splitting features when constructing trees). When using lgb.cv, binning is done once on the entire dataset, then it is split into folds (note that this is not fair!). When using cross_val_score, first there is a split into folds, and then binning is done on each fold. By the way, [<u>lgb.Datasets</u>](https://lightgbm.readthedocs.io/en/latest/pythonapi/lightgbm.Dataset.html) has a "reference" parameter that determines where to do the binning.
+
+
+**Additional questions**: are there any such surprises in xgb.cv? Will cross_val_score produce different results for different n_jobs values? Why will the given code fail with an error if folds = cv is replaced with nfold = 10?
+
+
+

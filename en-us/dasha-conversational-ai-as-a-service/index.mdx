@@ -1,0 +1,96 @@
+---
+slug: "dasha-conversational-ai-as-a-service"
+title: "Dasha conversational AI as a Service. What are the ML services giving your apps human-like magic?"
+author: "Artur Grishkevich, Head of Growth"
+authorPhoto: https://cdn.dasha.ai/blog/dasha-conversational-ai-as-a-service/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-06-17T16:18:24.931Z"
+updatedAt: "2021-06-18T09:14:43.045Z"
+readLength: "6 minute read"
+heroImage: https://cdn.dasha.ai/blog/dasha-conversational-ai-as-a-service/hero.webp
+heroImageTitle: A robot at a computer
+introduction: "AI and ML have historically had a high barrier to entry for businesses and developers alike. Dasha puts the power of artificial intelligence in the hands of any developer, and with time, in the hands of anyone who can use the technology to improve their business or life. Here are the technologies that make it possible. \n\nFor an intro to the topic, read the overview of AI vs AI as a product vs AI as a Service  platform [here](https://dasha.ai/en-us/blog/ai-as-a-service)."
+seoTitle: "Dasha conversational AI as a Service: ML services making the human-like apps possible"
+seoDescription: "Dasha puts the power of artificial intelligence in the hands of any developer, and with time, in the hands of anyone who can use the technology to improve their business or life. Here are the technologies that make it possible. "
+seoKeywords: "AI as a service, conversational AI app, ai as a service startups, Artificial intelligence as a service, ai as a service platform, artificial intelligence platform as a service, Dasha AI"
+---
+
+## Dasha voice Artificial Intelligence as a Service stack overview
+
+Take a look at the architecture map. The Voice Processing, NLP and Conversation Model areas in the application layer are what we will be talking about today. For the purpose of today’s discussion, we are talking about conversations executed with voice, not text, even though Dasha AI does text conversations as well. 
+
+![Platform architecture overview](https://cdn.dasha.ai/blog/dasha-conversational-ai-as-a-service/Platform_architecture_overview.webp)
+
+## Voice processing 
+
+![Platform architecture overview - voice processing](https://cdn.dasha.ai/blog/dasha-conversational-ai-as-a-service/Platform_architecture_overview_-_2.webp)
+
+Let’s start at the end, with **voice activity detection**. There is a good reason we’re starting with this configuration, as it detects speech activity on the user’s side. This is used to signal to Dasha application to listen or to check in if the user is still there.  I won’t talk about every property used in this config (you can find details in our [documentation](https://docs.dasha.ai/en-us/default/application/configuration?searchResult=p68-highlight-0#voice-activity-detection-configuration-voiceactivitydetectionconfig) but will mention __interlocutorPauseDelay__ because I think it’s a great tool. It lets you set how many seconds’ (to a decimal) pause should Dasha take before responding to a human’s reply. Just like in a conversation you may have with a live person, you don’t want to barge right in with a response but may want to let a person collect their thoughts and finish their statement. This makes for a more productive conversation and you can teach Dasha to behave in such a polite manner with a simple parameter. 
+
+On to __speech to text__ (STT) which is responsible for translating human speech into machine readable text. You can use the default speech recognition service, courtesy of Dasha Platform 
+
+__Text to speech__ (TTS) - this is where things get interesting. You can [connect your own](https://docs.dasha.ai/en-us/default/tutorials/custom-tts) third party TTS service. The vast majority (if not all) or our users use Dasha default TTS. Our synthetic speech is our pride and joy. Almost half of our machine learning engineers work on constantly improving our speech synthesis. We have a pretty simple goal - to run a conversational speech engine that passes the [Turing test](https://dasha.ai/en-us/blog/turing-shaped-ai) every time. 
+
+As it were now, we roll out updates once or twice a month and there are a number of [configuration properties](https://docs.dasha.ai/en-us/default/application/configuration?searchResult=p57-highlight-0#text-to-speech-configuration-texttospeechconfig) that you can use to modify the speaker’s voice for the purposes of your Dasha conversational AI application. 
+
+## NLP - natural language processing 
+
+__text classification__ and __named entity recognition__ are two key parts of Dasha’s natural language understanding engine. [NLU](https://docs.dasha.ai/en-us/default/natural-language-understanding) ensures that the neural brains understand the human’s speech with the meaning that the human has put into their words. 
+
+![Platform architecture overview - NLP](https://cdn.dasha.ai/blog/dasha-conversational-ai-as-a-service/Platform_architecture_overview_-_NLP.webp)
+
+Starting from the left - __text classification__ is often referred to as __intent classification__. There are neural networks operating here that extract specific meaning (__intent__) from the speaker’s words. This is an absolutely key functionality that you can control by modifying the *intents.json* file. In the nutshell - you provide a set of training data points (5-20 phrases) for a specific intent. The neural network then uses the data to train itself to fully recognize the intent in the scope of a conversation. Ilya (ML team lead) wrote a detailed [post](https://dasha.ai/en-us/blog/intent-classification) on how you can use intent classification for a robust conversational AI app. 
+
+__Named entity recognition__ (NER) is a super fun concept. Let’s say you want your AI app to take a food order. You need to let it know that at a specific point in the conversation the user will say a number of phrases which will signify a specific set of food items. You would use NER for that. By the same token, if you wanted to take the user’s name, you would use NER to teach the app at which point in the conversation to expect to hear the name. Here is Ilya again with a write up on how to use [Named Entity Recognition](https://dasha.ai/en-us/blog/named-entity-recognition) aspect of this AI as a Service startup to make your app communicable and personable. And for a tutorial using NER, check out [this one](https://dasha.ai/en-us/blog/conversational-ai-app-development-build) on building a food ordering app from yours truly. 
+
+__Sentiment analysis__ mentioned in the map refers to a feature that classifies the user’s sentiment as “positive” or “negative”. It was used to classify yes/no responses. This a feature is in need of an update, so I will suggest you not use it and instead create a custom intent for “yes”/”no”, as described in the tutorial above. 
+
+__Natural language generation__ refers to the ability of the speech synthesis (TTS) engine to generate human-like speech. Each Dasha project has a *phrasemap.json* file. In the file you can specify such parameters as variations in voice: 
+
+```json 
+voiceInfo: {
+    speaker: string
+    lang: string
+    emotion?: string
+    speed?: number
+    variation?: number
+  }
+```
+
+Or construct whole phrases with variables to be used in the course of the dialogue. (Pro tip: if you’re a pro, you may want to do this. But first, play around with using phrases directly in the DashaScript (__main.dsl__). The thing is, as you’re speaking to your buddy, he may ask you to repeat a phrase and you will paraphrase or shorten your speech. You can do the same with Dasha’s NLG service in the AI cloud platform: 
+
+```json
+interface IRandom<T> {
+  random: T[]
+}
+interface IRepeatable<T> {
+  first: T
+  repeat?: T
+  short?: T
+}
+```
+
+Personally, I love playing with the phrasemap. Here is a longer description in our [documentation](https://docs.dasha.ai/en-us/default/natural-language-generation). 
+
+## Conversation model
+
+Arguably, this is the part that makes conversational AI apps built with Dasha unique in their human-likeness. Here is a whole set of goodies that make the end user feel listened to and understood. 
+
+![Platform architecture overview - conversation model](https://cdn.dasha.ai/blog/dasha-conversational-ai-as-a-service/Platform_architecture_overview_-_conversation_model.webp)
+
+I’ve started at the end and in the beginning. Let’s go to the middle now and look at __digressions__. When talking to your mom about your latest pet project she may suddenly ask “say, remember that boy Jimmy you were friends with in seventh grade? I wonder what he’s been up to.” That, my friend, is a digression. A curveball flying out of the blue to catch you off guard. The thing is that you are a human and your brain is able to adjust, go off on the conversational tangent and then come back to the heart of the discussion you were having with mom. 
+
+Digressions let you prepare your Dasha conversational app for tangential conversations that people may throw at it. Digressions can be called up at any point in the conversation by the user. Now, the Jimmy question is truly a curve ball and it’s doubtful that you could have planned for it. However, you can expect mom to ask a variety of digressing questions such as, “how is the weather,” “have you seen the latest episode of x,” “are you eating veggies,” “have you been outside this week,” or “do you need help with laundry” and you can prepare for these questions by doing two things. A) create a corresponding intent in *intents.json* B) create a digression that is activated when the intent is recognized in your *main.dsl* DashaScript file.   
+
+[See here](https://dasha.ai/en-us/blog/using-digressions) for more on digressions. And no, I am by no means encouraging you to automate your conversation with mom. 
+
+[**Interruptions**](https://docs.dasha.ai/en-us/default/dasha-script-language/built-in-functions?searchResult=p61-highlight-0#saytext-blocking-call) are just that - a parameter that lets you define one of the AI’s phrases as either interruptible or not. 
+
+[__Common sense logic__](https://docs.dasha.ai/en-us/default/dasha-script-language/common-libraries?searchResult=p2-highlight-0#common-dialogue) comes as part of the common libraries with every Dasha app.
+
+__Turn taking, context reasoning, dictation mode__ are all implemented within DashaScript code. __Slot filling__ is solved by the NER engine. 
+
+And there you have it. Now you’ve got an overview of the AI as a Service capabilities served by Dasha Platform to make your AI apps more human-like and conversational than ever before.
+
+To get started building, join our [developer community](https://community.dasha.ai) and get your API key.

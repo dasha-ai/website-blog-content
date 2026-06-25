@@ -1,0 +1,301 @@
+---
+slug: "appointment-confirmation-ai-app"
+title: "No more no show patients! 4 strategies for reducing no show appointment  rates and a simple appointment confirmation conversational AI app to help with that"
+author: Anzhelika Minina
+authorPhoto: https://cdn.dasha.ai/blog/appointment-confirmation-ai-app/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-07-09T11:50:19.016Z"
+updatedAt: "2021-07-15T15:42:53.107Z"
+readLength: "11 minute read"
+heroImage: https://cdn.dasha.ai/blog/appointment-confirmation-ai-app/hero.webp
+introduction: "No shows appointments in the healthcare industry are a common occurrence. Depending on the type of healthcare institution, patient no show rate has been within a [12%-80% range](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7280239/). It’s been [calculated](https://pubmed.ncbi.nlm.nih.gov/23515215/) that the healthcare system loses about $7 million per 67,000 no shows.\n\nIn this post, we will discuss the implications of patient no shows and will take a look at strategies to reduce no show rates. Last but not least, we’ll explore how to build an appointment confirmation conversational AI app, which will reduce your no show rate drastically."
+seoTitle: "4 strategies for reducing no show appointment  rates and a simple appointment confirmation conversational AI app to help with that"
+seoDescription: "Discussing the implications of patient no shows and will take a look at strategies to reduce no show rates. Last but not least, we’ll explore how to build an appointment confirmation conversational AI app, which will reduce your no show rate drastically. "
+seoKeywords: "dasha AI, conversational AI, Dasha conversationa AI, conversational AI as a service, appointment confirmation app, no show appointment, no show patients, reducing no show appointments, patient no show rates, strategies to reduce no show rates"
+---
+
+## How do no show patients affect the healthcare industry?
+
+No show patients create a mishap in the healthcare system supply and demand. Those who either forget about their appointment, experience anxiety surrounding the appointment or have a schedule conflict and don’t notify their healthcare institution bring more chaos than they could ever think of. There are 3 areas no show patients affect the healthcare system.
+
+The first one, and I would say the most important one, is that no show patients delay their diagnosis and/or treatment, which affects their condition and prognosis of the disease.
+
+The second one is that they take up the slots that other patients could have filled, especially if those have an urgent medical condition. This not only impacts the health status of the other patients but also affects their satisfaction with the healthcare institution.
+
+The last one is probably the one you are most worried about. Missing appointments, especially without ample warning, makes hospitals and clinics incur losses. The losses are especially significant for expensive procedures such as CT scans or MRIs. The more no shows, the more lost revenue, the higher the costs, the lower the operational effectiveness. 
+
+It’s been [proven](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7280239/) that it’s possible to alleviate the negative consequences of no show rates by overbooking (scheduling two people for the same appointment time slot), however that becomes an ineffective practice if the institution doesn’t take into account the actual possibility of the particular double-booked patient not showing up. This leads to staff having to work overtime and to patients having to wait a long time in lines. 
+
+Let’s take a look at the strategies for reducing no show appointments.
+
+## How to reduce no show rate
+
+1. 
+__Have multiple ways of connecting with your patients__
+
+People have different preferences of communication: some prefer text, others prefer emails or calls. It’s best to remind patients of the upcoming appointment via multiple sources, however, it’s important not to overdo it. A great way of doing that would be reminding them about an appointment 4 days prior to the appointment via text or email with a request to confirm their attendance.  
+
+2.  
+__Employ AI to predict who’s most likely to be a no show patient__
+
+As we mentioned, it’s important to know which patients are more likely to miss their appointments. It’s speculated that those who have missed their appointment once are more likely to miss the next ones.
+
+3. 
+__Automated appointment reminders with conversational AI__
+
+A [study](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7280239/) concluded that automated phone call reminders reduced patient no show rate down to 5%. Another [study](https://www.medicaldevice-network.com/news/nhs-users-prefer-ai/) showed that over 75% of patients prefer getting appointment reminders by receiving a call from an AI assistant, compared to approximately 58%. 
+
+NHS users surveyed, 76% said they would be happy to receive an automated appointment reminder from a conversational AI assistant, but only 58% would be happy to be contacted by a human reminding them of their appointment. 
+
+Manual appointment reminders are widely used in small institutions, however, humans are bound to make mistakes. There are going to be busy days and times the waiting room patients need to be tended to, so leave the conversational AI doing what it does best - automating repetitive processes.
+
+4. 
+__Provide patients with rescheduling options in case of their calendar conflict__
+
+Once you call your patients to confirm they are coming to the scheduled appointment, make sure you ask them if they would like to reschedule in case they say they won’t make it. Be proactive and have your conversational AI call patients in advance so they have a better understanding of their upcoming schedule and can pick a time and date that work best for them.
+
+On that note, let’s take a look at how to create a simple appointment confirmation conversational AI app with Dasha AI.
+
+## How to reduce no show dental appointments? Try this conversational AI app
+
+We’ll be taking a look at an appointment confirmation conversational AI app for an imaginary dental clinic Daily Dental. The purpose here is to reduce the no show rate by reminding about the upcoming patient’s dental appointment and offering a rescheduling option in case the patient is unable to attend it on the given day. The [AI persona](https://dasha.ai/en-us/blog/conversational-design-2) here is accomodating, tactful, and approachable and the script is action-focused and easy to follow.
+
+While we have the necessary patient information in this demo, you could go a step further and build an app that would process new patient’s info and put it into your database. You can follow the steps listed in [this post](https://www.google.com/url?q=https://dasha.ai/en-us/blog/how-to-qualify-inbound-leads&sa=D&source=editors&ust=1625768168043000&usg=AOvVaw2HY-KjJ6yPkE_bB-7gTq2A) and create a personalized conversational AI app that serves your needs.
+
+In order to create a naturally flowing conversation, you’ll need to think of what action to perform (confirm the appointment or reschedule it, in this demo’s case) and build a [conversational script](https://dasha.ai/en-us/blog/build-conversational-AI-app-1) around it, followed by writing out the intents, [entities and the code itself](https://dasha.ai/en-us/blog/conversational-ai-app-development-build). 
+
+To get started, you need to download the [Appointment Confirmation demo from GitHub](https://github.com/dasha-samples/appointment-confirmation-demo) and open your Visual Studio. If you’re new to creating AI apps with Dasha, check out the [step-by-step guide](https://dasha.ai/en-us/blog/conversational-ai-app-creation-guide) on getting started.
+
+Let’s see what’s happening in the first few lines of the code.
+
+```dsl
+import "commonReactions/all.dsl";
+
+context
+{
+    input phone: string;
+    input day_of_week: string;
+    output day_recall: string="";
+    output new_day: string="";
+}
+
+external function check_availability(day: string): boolean;
+
+start node root
+{
+    do
+    {
+        #connectSafe($phone);
+        #waitForSpeech(1000);
+        #sayText("Hi, this is Dasha, I'm calling on behalf of Daily Dental. Is this a good time to talk?");
+        wait *;
+    }
+    transitions
+    {
+        will_call_back: goto will_call_back on #messageHasIntent("no");
+        appointment_confirmation: goto appointment_confirmation on #messageHasIntent("yes");
+    }
+}
+```
+
+Now,
+
+```dsl
+import "commonReactions/all.dsl";
+```
+
+shows that all the common reactions have been uploaded to your app. These common reactions exist to save you time on coding those yourself. For instance, if your user asks the AI if they’re talking with a robot, you don’t have to worry about whether it’ll respond and about what it’ll say:
+
+![common reactios](https://cdn.dasha.ai/blog/appointment-confirmation-ai-app/common_reactios.jpg)
+
+The underlined line 7 refers to the __phrasemap__ which can also be found in the tabs on the left side. For instance, when the AI recognizes the user asked if they’re talking to an AI, it will reply “Yes, I am a robot! Please do not tell anybody about this or I get fired".
+
+![phrasemap](https://cdn.dasha.ai/blog/appointment-confirmation-ai-app/phrasemap.jpg)
+
+Going back to main.dsl code lines above, lines 3-9 describe the context of the app. In this instance, we have the user’s phone number and day of the week as inputs (the information that the app already knows) and __`day_recall`__ and __`new_day`__ as outputs (the data the app will receive from the user and remember it).
+
+We’ll take a look at the line 11 (__`external function check_availability(day: string): boolean;`___) in a bit as it has to do with an external function we’ll set later.
+
+It’s now time to set the parameters for the conversation to start. We do that with __`start node root`__, followed by specifying what we need to happen in that node. The app will establish a safe connection with the user’s phone, wait for 1000ms (1 sec) and say the welcome message (__`"Hi, this is Dasha, I'm calling on behalf of Daily Dental. Is this a good time to talk?"`__)
+. Then it will wait for the user to reply and, based on the response, make a transition to one of 2 nodes. __`messageHasIntent`__ will assist with the app understanding if the user is free to talk or not, which is reflected in __`#messageHasIntent("no");`__ and __`#messageHasIntent("yes");`__. 
+
+The intents are written out in the “data.json” tab on the left. We’ve written out the “yes”, “no”, “cancel_appt”, and “new_appt” [intents](https://dasha.ai/en-us/blog/intent-classification). Note that the “no” intent has also context-specific negative intents such as “I want to reschedule”:
+
+![intents](https://cdn.dasha.ai/blog/appointment-confirmation-ai-app/intents.jpg)
+
+If the user is busy (and we get negative intent), we shouldn’t push and continue the conversation, but rather ask when it’s the best time to call back and hang up. We can see how that works in lines 29-50:
+
+```dsl
+node will_call_back
+{
+    do
+    {
+        #sayText("No worries, when may we call you back?");
+        wait *;
+    }
+    transitions
+    {
+        call_bye: goto call_bye on #messageHasData("day_of_week");
+    }
+}
+
+node call_bye
+{
+    do
+    {
+        set $day_recall =  #messageGetData("day_of_week")[0]?.value??"";
+        #sayText("Got it, I'll call you back then on " + $day_recall + ". Have a nice day!");
+        exit;
+    }
+}
+```
+
+In case the user agrees to continue the conversation, we move on to confirm the user will attend the appointment:
+
+```dsl
+node appointment_confirmation
+{
+    do
+    {
+        #sayText("Great! I see you have an appointment scheduled for " + $day_of_week + ". Will you still be able to come in?");
+        wait *;
+    }
+    transitions
+    {
+        see_you_then: goto see_you_then on #messageHasIntent("yes");
+        new_appt: goto new_appt on #messageHasIntent("new_appt") or #messageHasIntent("no");
+    }
+}
+```
+
+The part __`#sayText("Great! I see you have an appointment scheduled for " + $day_of_week + ". Will you still be able to come in?");`__ tells us that the app will take the day of the week the user’s appointment is scheduled for from the __`input day_of_week: string;`__ that we’ve specified in the context. For the purpose of this demo we’ve programmed the day of the week to be random. You can see that in the index.js tab on the left:
+
+![index.js](https://cdn.dasha.ai/blog/appointment-confirmation-ai-app/index.js.jpg)
+
+If the user’s plans haven’t changed and they’re still able to come to the appointment, their response will trigger positive intent and the conversation will move to the __`node see_you_then`__ and end the conversation.
+
+Otherwise, it will transition to asking whether the user would like to reschedule the appointment. Shall the user not want to reschedule, it’ll transfer to the __`node bye`__ and end the call:
+
+```dsl
+node new_appt
+{
+    do
+    {
+        #sayText("Got that, would you like to reschedule for another day?");
+        wait *;
+    }
+    transitions
+    {
+        bye: goto bye on #messageHasIntent("no");
+        change_appointment: goto change_appointment on #messageHasIntent("yes");
+        day_check: goto day_check on #messageHasData("day_of_week");
+    }
+}
+
+node bye
+{
+    do
+    {
+        #sayText("Alright, I just canceled your appointment. If you decide to reschedule, please give us a call and we'll set a new appointment for you. Have a nice day!");
+        exit;
+    }
+}
+```
+
+Now, if the user decided to reschedule their appointment, the app will move to this node:
+
+```dsl
+node change_appointment
+{
+    do
+    {
+        #sayText("What day would you like to reschedule your appointment for?");
+        wait *;
+    }
+    transitions
+    {
+        day_check: goto day_check on #messageHasData("day_of_week");
+    }
+}
+
+node day_check
+{
+    do
+    {
+        set $new_day = #messageGetData("day_of_week")[0]?.value??"";
+        var is_available = external check_availability($new_day);
+        if (is_available)
+        {
+            set $day_of_week = $new_day;
+            #sayText("Alright, seems like this day is available.");
+            goto final_confirm;
+        }
+        else
+        {
+            #sayText("It seems like there is no time available this day. Could you choose another day, please?");
+            goto change_appointment;
+        }
+    }
+    transitions
+    {
+        final_confirm: goto final_confirm;
+        change_appointment: goto change_appointment;
+    }
+}
+```
+
+At first, the conversational AI app will ask the user to select a day for the new appointment. 
+
+__Note:__ the app could go further and ask not only for the day of the week, but also for a specific day and time, yet we haven’t elaborated this particular demo to such an extent.
+
+Once we have the new day of the week, it’s only natural to verify if that day is available for new appointments. We’ve programmed the app to pick random availability for any given day (which can also be seen in the index.js part above and that’s where the external function comes into play (__`var is_available = external check_availability($new_day);`__)).    
+
+If the newly picked day is available, the conversation moves to the __`node final_confirm`__ where we provide feedback to the user (which is one of the parts that constitutes to great conversational design) by letting them know we’ve got all the information correct:
+
+```dsl
+node final_confirm
+{
+    do
+    {
+        #sayText("Now, let me just make sure I got it all right. You want to come in for your appointment on " + $day_of_week + " is that right?");
+        wait *;
+    }
+    transitions
+    {
+        see_you_then: goto see_you_then on #messageHasIntent("yes");
+        sorry_repeat: goto sorry_repeat on #messageHasIntent("no");
+    }
+}
+```
+
+It sometimes happens that the information either wasn’t heard by the conversational AI or was heard wrong. In this case, we should repeat the process of asking when the user would like to reschedule the appointment for, previously letting them know that the process needs to be initiated again:
+
+```dsl
+node sorry_repeat
+{
+    do
+    {
+        #sayText("Alright, let's try this again");
+        goto change_appointment;
+    }
+    transitions
+    {
+        change_appointment: goto change_appointment;
+    }
+}
+```
+
+After the app transitions to the __`node change_appointment`__, the conversation will follow the same path as we’ve mentioned above. It will check the availability of the picked day and check if it got the correct information from the user, followed by __`node bye`__ and ending the phone call.
+
+## Fun part
+
+Now that you’ve seen how Dasha conversational AI app works, why not try your skills out? Try improving this app by building something of your own on top of it.
+
+Let me throw some ideas at you:
+
+- this app only uses the day of the week as input and output variables. You could go a step further and program it to fetch dates and times, and then schedule it in a calendar for you,
+- the availability of the days is being randomly selected in this demo. It’d be a great practice for you to connect your external function to a database with calendar availability,
+- the app doesn’t refer to the hypothetical patient with their name, but having it there would add a level of personalization.
+
+If you’re new and not sure where to start, I suggest you this [getting started guide](https://dasha.ai/en-us/blog/conversational-ai-app-creation-guide) that will be your first step towards creating a truly human-like conversational AI application.

@@ -1,0 +1,166 @@
+---
+slug: "chatbots-versus-ai"
+title: "That’s conversational AI to you! The differences between AI and chatbots."
+author: "Artur Grishkevich, Head of Growth"
+authorPhoto: https://cdn.dasha.ai/blog/chatbots-versus-ai/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-06-23T16:09:33.239Z"
+updatedAt: "2025-06-06T04:29:37.049Z"
+readLength: "6 minute read"
+heroImage: https://cdn.dasha.ai/blog/chatbots-versus-ai/hero.webp
+introduction: "In my sales role (I wear a few hats) here at Dasha, I spoke with many a customer. And everytime something inside me died when our product was referred to as a chatbot. It got so bad that I would refer to Dasha AI as “not your grandma’s chatbot.” It got so gnarly that I decided to write this post right here to clear the difference up once and for all."
+seoTitle: "Chatbot vs Conversational AI: Make the Technology Work for You"
+seoDescription: We look at the differences between chatbots vs conversational AI and how you can make the superior technology work for you.
+seoKeywords: "how do chatbots work, What is conversational ai, chatbot vs conversational ai, Conversational AI app, conversational ai vs chatbot, Ai as a service, Dasha AI"
+---
+
+## What is conversational AI 
+
+The term conversational AI refers to a set of technologies that enable a machine to deeply understand human speech, evaluate intent and respond in an appropriate manner. Some of the technologies common to conversational AI are natural language processing (NLP) or natural language understanding (NLU), speech to text (STT), text to speech (TTS). These are powered by neural networks and machine learning algorithms. 
+
+Speech to text does exactly what it sounds like - it converts human speech into machine-readable text. The same but in reverse applies to TTS. TTS is interesting because this is where you get all sorts of distinctions between the various types of conversational tech. TTS can (rarely) be human-like or (more commonly) robot-like. If you, oh reader, just happen to be a data scientist, don’t pass a chance to acquaint yourself with Dmitry’s thoughts on the [use of transformers in next generation speech recognition](https://dasha.ai/en-us/blog/transformer-stt)
+
+NLP is the engine responsible for extracting meaning from the phrases of the human with which the AI is conversing. 
+
+I’m making these things sound super simple which they hardly are. You can read a more deep breakdown of how these technologies are used to serve up Dasha’s brand of conversational AI as a Service [here](https://dasha.ai/en-us/blog/dasha-conversational-ai-as-a-service)
+
+Dasha lets you create human-like conversational apps using the simple DashaScript programming language. Your apps are executed in the Dasha Cloud which is where the AI as a Service functionality is provided. For example, in the course of building your app you may want to train custom intents to derive specific meaning from the user’s phrases. You would only need to provide the data to train the neural network with. The actual training will happen by our self-teaching networks in the background, in the cloud, once you launch the conversation. 
+
+## What is a chatbot? 
+
+A chatbot is operated by a set of linear command-response rule modules. Most chatbots are designed to handle under 3 steps in a single user conversation session with a majority of interactions designed as simple command-responses. For example, when you land on a SaaS company’s website and are greeted by Drift - that’s a chatbot. The annoying thing that answers your requests in your bank’s chat support, always misinterprets what you are asking of it, tries to reply with template responses and eventually (with ample prodding) transfers you over to an agent - that’s how a chatbot works. 
+
+The cool thing about chatbots is that they are cheap and quick to implement and in some cases (e.g. Drift) they straight up rock. 
+
+The lame thing about chatbots is that they give conversational technologies a bad name. 
+
+Now, not all chatbots are born the same. Some may rely on conversational AI technologies functioning in the background to make them work. This would be a minority. 
+
+Generally, all chatbots share following characteristics: 
+- One or two trick pony 
+- Linear 
+- Unable to derive deep meaning from user responses 
+
+So, in terms of conversational AI vs chatbots, it’s clear that chatbots are great for transactional applications. On the other hand, conversational AI apps are ideal for more robust applications such as virtual call centre agents, as they can simulate human-like text or voice conversations. They can self-teach, which allows them to become better at their assigned tasks. Let’s examine specific examples to illustrate the differences between the two technologies:
+
+## Chatbot vs. conversational AI — Key differences illustrated with examples 
+
+Let’s look at some examples of how conversational apps powered with AI might behave versus how a chatbot might behave. 
+
+In the course of conversation with an automated system an e-commerce store a user might say: 
+
+“I’d like you to cancel my order please” 
+“I’ve been waiting for my baba ganoush maker kit for a week, did you cancel my order?”
+“I’m livid, I can’t believe you cancelled my order!” 
+
+From all three of these phrases, we get the difference between chatbots vs conversational AI. That’s because a chatbot would extract the meaning of “cancel order”. Yet you, as a human, would be able to extract the real meaning from each of these phrases. 1) cancel order 2) where is my order 3) unhappy customer, talk them down.
+
+In the same way that you are able to classify intent from these phrases, you can train your conversational AI app to classify intent from these phrases. Here is how you might do it with Dasha. You would open up your __*intents.json*__ file which is the list of training data that you use to train a neural network to recognize your users’ custom intents, and you would add a few custom intents. Your intents might look like this: 
+
+```json
+  "intents": 
+  {
+    "cancel order": 
+    {
+      "includes": [
+        "I want to cancel my order",
+        "I no longer want the kit",
+        "Can I still cancel?",
+        "cancel",
+        "I have a horrible case of buyer's remorse"
+      ],
+      "excludes": [
+        "Did you cancel my order?",
+        "I can't believe you cancelled my order!",
+        "You cancelled my order!",
+      ]
+      },
+    "where is order": {
+      "includes": [
+        "Did you cancel my order?",
+        "Where is my order?",
+        "I've been waiting for a week!"
+      ],
+      "excludes": [
+        "I want to cancel my order",
+        "I no longer want the kit",
+        "Can I still cancel?",
+        "cancel it",
+        "I can't believe you cancelled my order!",
+        "You cancelled my order!"
+      ]
+    },
+    "angry customer": {
+      "includes": [
+        "I can't believe you cancelled my order!",
+        "You cancelled my order!",
+        "I'm livid!",
+        "I'm so angry!"
+      ],
+      "excludes": [
+        "I want to cancel my order",
+        "I no longer want the kit",
+        "Can I still cancel?",
+        "cancel it",
+        "Did you cancel my order?"
+      ]
+    },
+```
+
+With this simple set of data that took me all of five minutes to write, you can train a neural network to properly recognize the customer’s intent in the example above. Pretty cool, huh? If you want to learn a bit more about the underlying tech and how to use it, take a look at ML team lead Ilya’s [notes on intent classification and its use within Dasha platform](https://dasha.ai/en-us/blog/intent-classification).
+
+Let’s look at another example showcasing conversational AI vs chatbot. Say you are going through the motions with an airline chatbot, you are at step two of a ticket booking process, when you suddenly say, “hold on, what are my food options?” A chatbot will simply progress down the designed pathway. But if you were talking to a person who suddenly changed the topic of the conversation, you would be able to address new input and then come back to the body of the discussion. We call these tangents __digressions__. Digressions are activate by __intents__ which we have already discussed. 
+
+Let’s assume you have created a few intents to address customers’ potential tangents. Here is what a digression would look like that would address the question above. 
+
+```json
+digression food_options
+{
+    conditions {on #messageHasIntent("food options");}
+    do 
+    {
+        #sayText("You can get regular, vegan, gluten-free, lactose-free, halal or kosher meals. Which food option would you like to go with for your flight?");
+        wait *;
+    }
+    transitions 
+    {
+       food_choice_confirm: goto food_choice_confirm on #messageHasData("food");
+    }
+    onexit
+    {
+        food_choice_confirm: do {
+               set $food =  #messageGetData("food", { value: true });
+       }
+    }
+}
+```
+
+Using this digression, you have taught your AI app to respond to a question of “what are my food options” by upselling a meal option. 
+
+By the same token, were the customer to inquire about leg room, a digression to address that question might look like this. 
+
+```dsl
+digression leg_room
+{
+    conditions {on #messageHasIntent("leg room");}
+    do 
+    {
+        #sayText("For your flight most seats have 31 inches of leg room. You can upgrade to comfort+ seats with 35 inches of leg room for only 85 dollars extra. Would you like to keto go for the upgrade?");
+        wait *;
+    }
+     transitions 
+    {
+        leg_room_confirm: goto leg_room_confirm on #messageHasIntent("yes");
+        order_continue_1: goto order_continue1 on #messageHasIntent("no");
+    }
+}
+```
+
+Bear in mind, you would need to create intents for each of these digressions to be functional. If you do want to try creating your own conversational AI app, we’re an open platform. Head over to our [developer community](https://community.dasha.ai) to get your API key and take a look at these two posts to get started on your first app. [How to design](https://dasha.ai/en-us/blog/build-conversational-AI-app-1) your first app and [how to build your first app](https://dasha.ai/en-us/blog/conversational-ai-app-development-build). 
+
+## Conclusion 
+
+To summarize, the difference between chatbot vs conversational AI-powered apps is that a user feels and knows that they are talking to a program when talking to a bot, while they feel like they are talking to a more or less equal intelligence when speaking with a well-made conversational AI app.
+
+Which is right for your use case only you can decide. 

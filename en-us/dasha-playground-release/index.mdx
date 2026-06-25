@@ -1,0 +1,59 @@
+---
+slug: "dasha-playground-release"
+title: "We are thrilled to release Dasha conversational AI Playground! Celebrate with us!"
+author: "Arthur Grishkevich, Developer Advocate "
+authorPhoto: https://cdn.dasha.ai/blog/dasha-playground-release/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-12-13T02:35:48.209Z"
+updatedAt: "2021-12-14T08:38:06.900Z"
+readLength: "3 minutes "
+heroImage: https://cdn.dasha.ai/blog/dasha-playground-release/hero.webp
+heroImageTitle: "Dasha playground "
+introduction: "We are happy to announce the release of Dasha Playground today. With Playground you can build and test human-like conversational AI apps right in your favorite browser."
+seoTitle: "Dasha releases in-browser Playground - a way to build human-like AI apps in your browser | Dasha.AI "
+seoDescription: "Learn how to use the new Dasha Playground to build human-like conversational voice AI applications right in your browser. "
+---
+
+# Dasha Playground release
+
+You can check the Dasha Playground out at [playground.dasha.ai](https://playground.dasha.ai/).
+
+Here is what you will see when you visit the page:
+
+On the left you can select from one of the pre-loaded conversational AI applications. On the right you can click to talk to Dasha directly in your browser, to chat with Dasha or to get a call on your phone from Dasha. 
+
+Just hit the big purple “Talk to Dasha” button to… well, talk to Dasha (right in your browser).
+
+Before you begin modifying the apps, it's good practice to log into your existing Dasha account or to register for one. 
+
+The middle of the screen is your work area. Here you can do almsot everything that you can do with a Dasha app in VSCode. You have access to the following files: 
+
+* __app.dashaapp__ 
+The quintessential Dasha file. It is the config for the Dasha Cloud Platform. In it, you specify the file name for the conversation script, the file name for the NLU training data, the file name for the phrasemap and the application name. The application name is important because once you sign up for an account or login, your apps will be stored under your user name in the Dasha Cloud. 
+
+![dashaapp file ](https://cdn.dasha.ai/blog/dasha-playground-release/Screen_Shot_2021-12-13_at_09.32.58.webp)
+
+* __data.json__
+The second file is data.json. This is where you provide the training data to train the neural networks to recognize your users’ intents and the data they share as named entities. 
+
+![data.json](https://cdn.dasha.ai/blog/dasha-playground-release/Screen_Shot_2021-12-13_at_09.33.07.webp)
+
+* __phrasemap.json__
+The phrasemap is where you specify natural language generation parameters - speaker, speaking speed. Also, using the #say() function in main.dsl, you can map to phrases in the phrasemap. 
+
+![phrasemap.json](https://cdn.dasha.ai/blog/dasha-playground-release/Screen_Shot_2021-12-13_at_09.33.07.webp)
+
+* __main.dsl__
+This is the DashaScript file. DSL is a domain specific language designed to let you build human-like conversational AI apps quickly and painlessly. Here you can control the entire flow of the dialogue between user and AI. 
+
+![main.dsl](https://cdn.dasha.ai/blog/dasha-playground-release/Screen_Shot_2021-12-13_at_09.33.24.webp)
+
+* __index.js__
+Is a server-side JavaScript file. If you have used Dasha in VSCode, you know that this is where you use the Dasha SDK to connect your AI app to the Dasha Cloud Platform. In the Playground that connection establishes directly, the SDK is not used in the index.js file. Still the same, you can use __index.js__ to create external functions that your AI app can use to communicate with external APIs or anything else you can think of. 
+
+![index.js](https://cdn.dasha.ai/blog/dasha-playground-release/Screen_Shot_2021-12-13_at_09.33.39.webp)
+
+Now that you have an overview of the Playground, why not build something? 
+
+Join our [community](https://community.dasha.ai) and tell us what you built! 

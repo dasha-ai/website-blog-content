@@ -1,0 +1,159 @@
+---
+slug: "using-digressions"
+title: "Dasha AI digressions: a nonnegotiable for a human-like conversational AI app"
+author: "Artur Grishkevich, Head of Growth"
+authorPhoto: https://cdn.dasha.ai/blog/using-digressions/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-06-07T18:06:19.534Z"
+updatedAt: "2022-03-15T14:00:07.614Z"
+readLength: "6 minute read"
+heroImage: https://cdn.dasha.ai/blog/using-digressions/hero.jpg
+heroImageTitle: "People talking "
+introduction: "A few years ago mentioning conversational UX raised eyebrows. Today, it is par for the course. We can talk for ages about using conversational AI design to create amazing user experiences (and will soon). Instead, today, I want to tell you how you can use a key feature of the Dasha AI Platform - digressions to give your users the human-like experience."
+seoTitle: "Digressions within an AI app is a way to human-like conversational design | Dasha.AI"
+seoDescription: "Digressions are a native feature of human communication. With Dasha Scripting Language you can use digressions as part of your conversational design to replicate this behavior. "
+seoKeywords: "digression meaning, what does digression mean, digression define, what does digression, what is a digression, meaning of digression"
+---
+
+## The importance of digressions for human conversation (and by extension for AI conversational interfaces) 
+
+### What is a digression?
+
+So what does a digression mean? 
+
+To define digressions is to say that they get a bad rep. To tell you why, I’ll have to rewind the time back to March 2005, when the U.S. version of a popular British sitcom launched. That fine Spring day I was relaxing by the pool after a particularly taxing early exam, when a friend came in. “Have you seen the Office,” he yelled? “It is hilarious! And you wouldn’t believe what happened, I was driving to work, when…” 
+
+Okay, maybe I went a little too meta in my digressions definition. The Oxford Dictionary defines digression as “an act of talking about something that is not connected with the main point of what you are saying.” 
+
+Yet tangents aren’t all bad. In the best of cases a digression gives meaning to the conversation. In a healthy human to human conversation, digressions enable us to breach a wide variety of subjects and to expand upon the topic being discussed. 
+
+### No digressions?!
+
+Imagine a world where humans are incapable of conversing with digressions. We would have to define the topic of each conversation and not start a new one until the old topic has run its course. 
+
+Sounds like the last chatbot you built? AI conversational interfaces have gone a long way since then. Read on for a better way.
+
+## How to use the digression function in Dasha Studio 
+
+Note: in this section of the post we will be talking about code examples from [this app](https://github.com/dasha-samples/dasha-smb-receptionist-demo).
+
+What is digression in the context of a Dasha application? What does a digression mean for your conversational app? In Dasha, we use DashaScript to describe an automated conversation between a human and an AI app. DashaScript is a domain specific language with the sole purpose of creating human-like conversational apps. A DashaScript file is a series of nodes. At each node, a human and AI either exchange phrases or a calculation is performed. Each node connects to additional nodes and has a node leading into it. That is, each node which is not a digression. __Within Dasha, a digression is defined as a conversational node which can be called up at any point in the conversation when a corresponding user intent is identified.__ See now why we called them digressions?  
+
+### What does the digression functionality do for your conversational AI app? 
+
+A conversation designer or developer uses digressions in Dasha Studio to create a human-like experience. It is a way to tell the AI engine, processing your conversations, to stop, take pause, listen and address whatever request comes its way from the user conversing with the app. 
+
+Additionally, conversation designer may use digressions to construct a voice menu. For example an AI customer service agent picks up the phone and asks “how may I help you today?” There are two dozen ways in which the customer may ask for help and for each a digression is defined by the conversation developer. 
+
+### Digression examples
+
+Some digression examples you may want to implement in your AI apps to make your users’/customers’ lives easier: 
+
+* Cancelling an appointment at any point in a virtual receptionist/AI answering service app 
+
+* Confirming what the flight number or delivery tracking number is at any point
+
+* Telling the user/customer what this call is about again and who is calling at any point in an outbound call 
+
+* Asking the user “how can I help you today” 
+
+To recap: within DashaScript, the language powering Dasha AI apps, each conversational node is labeled as a… node. At its core a digression is also a node in that it allows the conversation to branch out in various directions or be cut short, depending on the logic. The only difference between the two is that a node must have another node or digression leading into it, while a digression can be called upon at any point in the conversation. 
+
+Let’s look at some examples. You can clone or download the code in question from this [repository](https://github.com/dasha-samples/dasha-smb-receptionist-demo). 
+
+In the conversational structure you can see digressions highlighted on the left and right side of the map. You can tell them from the nodes by the fact that they have nothing leading into them. They are free agents, callable at any point in the conversation. 
+
+### Conversational structure
+
+![conversational structure](https://cdn.dasha.ai/blog/using-digressions/conversational_structure.webp)
+
+*__root__* is not considered a digression, because it is the starting node. It is the way the conversation gets kicked off. 
+
+*__schedule_haircut__* lets the user schedule a haircut at any point in the conversation.
+
+*__schedule_weekday__*  lets us quickly schedule a specific day for the user to come in and is activated by user mentioning a day. 
+
+*__cancel_appt__* is a way for the user to quickly cancel the appointment at any point in the conversation 
+
+*__bye__* is a way for the user to end the conversation on a whim.
+
+Let’s look at one of the digressions closer. 
+
+```dsl
+digression schedule_haircut {
+   conditions {on #messageHasIntent("schedule_haircut");}
+   do {
+       #sayText("You want to get a haircut, did I hear you correctly?");
+       wait *;
+   }
+   transitions {
+       schedule_haircut_day: goto schedule_haircut_day on #messageHasSentiment("positive");
+       this_is_barbershop: goto can_help_then on #messageHasSentiment("negative");
+   }
+}
+```
+
+` 
+conditions {on #messageHasIntent("schedule_haircut");}
+` 
+
+tells Dasha Cloud Platform to launch into the digression when it identifies that the user has the intention of scheduling a haircut in mind, providing a seamless conversational UX. Interestingly, the *__intent__* is probably the single most important part of a digression. 
+
+Intents are contained in the *__intents.json__* file. Let’s look at the schedule_haircut intent. 
+
+```json
+   "schedule_haircut": [
+     "I would like to schedule an appointment to get a haircut",
+     "can I have a haircut",
+     "i need a haircut",
+     "schedule an appointment",
+     "haircut",
+     "I want to get a haircut",
+     "can I get a haircut",
+     "i want a haircut "
+   ],
+```
+
+Super simple. You name your intent and then you provide the neural intent classification engine a data set of intent-carrying phrases to train the conversational AI. In cases of potential false identification, you can use an *__"excludes"__*: modifier to specify phrases which should not be interpreted by the engine, as carrying the intent. For more information on using intents please refer to the [relevant section](https://docs.dasha.ai/en-us/default/natural-language-understanding/custom-intents) of our docs. 
+
+Getting back to the digression function breakdown. 
+
+We’ve learned that 
+
+` 
+conditions {on #messageHasIntent("schedule_haircut");}
+`
+
+tells Dasha to launch into the digression.
+
+```dsl
+do {
+       #sayText("You want to get a haircut, did I hear you correctly?");
+       wait *;
+   }
+```
+
+The next four lines tell the conversational AI what function to perform. In this case - say a text outloud and wait for the user’s response. Now we transition into… transitions. 
+
+```dsl
+   transitions {
+       schedule_haircut_day: goto schedule_haircut_day on #messageHasSentiment("positive");
+       this_is_barbershop: goto can_help_then on #messageHasSentiment("negative");
+   }
+}
+```
+
+Transitions is a section describing to which nodes the user’s conversation will be routed based on which actions of the user. In this case, we use the native 
+
+`
+#messageHasSentiment("sentiment");
+` 
+
+function to identify whether the user has replied in the positive or negative and route the conversation based on the responses. You can refer back to the workflow map to track how the conversation is routed. 
+
+## In conclusion 
+
+That’s it in a nutshell. The meaning of a digression in DashaScript is to enable you to give your users a human-like experience as a part of your conversational AI design. 
+
+If you want to get into the nitty gritty, take a look at the section of our documentation whiсh deals with digressions.  

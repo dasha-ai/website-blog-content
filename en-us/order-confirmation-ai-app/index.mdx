@@ -1,0 +1,514 @@
+---
+slug: "order-confirmation-ai-app"
+title: Take order confirmation to a new level with conversational AI
+author: "Anzhelika Minina, Citizen Developer"
+authorPhoto: https://cdn.dasha.ai/blog/order-confirmation-ai-app/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-08-31T10:27:05.443Z"
+updatedAt: "2025-06-06T04:29:24.744Z"
+readLength: "11 minute read"
+heroImage: https://cdn.dasha.ai/blog/order-confirmation-ai-app/hero.webp
+introduction: "Today we’ll be taking a look at how to create a conversational AI app that automates order confirmation. While this app will be targeted towards confirming a food delivery order, yet the logic of this app can apply to create virtually any order confirmation app. Let’s get started!"
+seoTitle: Take order confirmation to a new level with conversational AI
+seoDescription: "After reading this post you'll be able to create your own order confirmation conversational AI app"
+seoKeywords: "food delivery, food delivery app, order confirmation, ai food delivery, food order, conversational AI, conversational AI app"
+---
+
+## Prep steps to create conversational AI apps with Dasha
+
+In order to get access to the community of like-minded developers, have all your questions answered, and get help with app development the moment you need it, join [Dasha Developer Community](https://community.dasha.ai/).
+
+Once done, you’ll need to download the latest versions of:
+
+- **[NodeJS](https://nodejs.dev/)**
+
+- **[VSCode](https://code.visualstudio.com/Download)**
+
+- **[NPM](https://www.npmjs.com)**
+
+Open VSCode, go to extensions and download the [Dasha Studio](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio&ssr=false) extension. You use the studio to create your conversational script, it gives you syntax analysis and highlights the code. There's also a visual graph editor and it has a GUI tool for debugging.
+
+All done with the downloads!
+
+Now you can go ahead and download **[Dasha Blank Slate app](https://github.com/dasha-samples/blank-slate-app)** source code and use it as a base to write your code. You can also refer to the **source code** of this order confirmation conversational AI app* that you can download [here](https://github.com/dasha-samples/food-order-confirmation).
+
+You would want to install the latest version of Dasha CLI. Do that by opening the Terminal in VSCode and running this command:
+
+`npm i -g "@dasha.ai/cli"`
+`npm i`
+
+You could also run a live chat at any moment of time with the following command:
+
+`npm start chat` (text chat)
+`npm start your_phone_number` (voice chat. Instead of “your_phone_number” type the number of your phone)
+
+With these commands, you’ll be able to converse with the AI in text form. This will not only help you test the conversational flow but also gauge whether there are any errors in the code.
+
+## Get to know the files you’ll use to create human-like conversational AI apps
+
+There are 3 main files you need to know about and use:
+
+- **main.dsl** -- here you’ll write DashaScript Language code to create the workflow of your conversational AI app. 
+
+- **data.json** -- you will set the [intents](https://dasha.ai/en-us/blog/intent-classification) and [entities](https://dasha.ai/en-us/blog/named-entity-recognition) (/NER/Named Entity Recognition) in this file. The neural network will use intents and entities you’ll create to learn.
+
+- **index.js** -- a NodeJS file that launches the Dasha SDK. You’ll be adding any external functions you deem necessary once adapting the code to your company’s needs. External functions are needed to process data in JavaScript or to get or push data from external APIs. For example, you may need to process data, get access to databases or APIs or use it for any other purposes.
+
+## Create your order confirmation conversational AI app!
+
+Take a look at how the conversation would go once you create the order confirmation app: 
+
+<a href="https://youtu.be/J4JuK6ds8PE" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://youtu.be/J4JuK6ds8PE</a>
+
+And now, off to creating your 2-in-1 ai food delivery and order confirmation app!
+
+Start with importing the common library. It provides all the pre-programmed replies to common digressions such as “wait”, “are you a robot?”, etc.
+
+```dsl
+// Import the commonReactions library so that you don't have to worry about coding the pre-programmed replies
+import "commonReactions/all.dsl";
+```
+
+Now you want to establish the context. Here you’ll write the variables, both input (the ones available at the start of the conversation) and output (the variables AI will receive, store and use throughout the conversation). 
+
+```dsl
+context
+{
+// Declare the input variable - phone. It's your hotel room phone number and it will be used at the start of the conversation.  
+    input phone: string;
+// Storage variables. You'll be referring to them across the code. 
+    appetizers: string="";
+    drinks: string="";
+    new_burger: string="";
+    street: string="";
+    house_num: string="";
+}
+```
+Once you’ve set the variables, write out the start node named root. In it, under the `do` command, you’ll let the AI know that it needs to connect to the user’s phone, wait for 1 second, and then say some kind of a welcome message and wait for the reply (`wait *;`).
+
+Once the user says something, the AI will go to the next node. Under `transitions` you can either write directions to the specified nodes, or leave it blank in case you want the transitions to be not to any of the nodes, but to one of the digressions. In this case, we have `next: goto order_confirmation_start on true;` -- this means that the transition will happen despite what the user says.
+
+```dsl
+// A start node that always has to be written out. Here we declare actions to be performed in the node. 
+start node root
+{
+    do
+    {
+        #connectSafe($phone); // Establishing a safe connection to the user's phone.
+        #waitForSpeech(1000); // Waiting for 1 second to say the welcome message or to let the user say something
+        #sayText("Hi, this is Dasha, I'm calling to verify some informaton regarding your order with ABC Burgers."); // Welcome message
+        wait *; // Wating for the user to reply
+    }
+    transitions // Here you give directions to which nodes the conversation will go
+    {
+        next: goto order_confirmation_start on true;
+    }
+}
+```
+
+As we programmed the AI to go to node `order_confirmation_start`, let’s write it out:
+
+```dsl
+node order_confirmation_start
+{
+    do 
+    {   
+        #sayText("Yeah, hi, so I see that you've ordered a cheeseburger to be delivered to 78 Washington Road. Do you want to change anything about your order?"); 
+        wait*;
+    }
+    transitions
+    {
+        payment_method: goto payment_method on #messageHasIntent("no");
+        edit_new_order: goto edit_new_order on #messageHasIntent("yes");
+    }
+}
+```
+
+Note that after `#sayText` we wrote a random order to a random address. However, you should create an external function (you’ll be doing that in index.js file as we’ve discussed above) and connect it to your internal ordering system, that will pull the information on the order and the delivery address of the user.
+
+Considering that the user knows the menu and wants to change the burger they are ordering, let’s write out the corresponding node and [digression](https://dasha.ai/en-us/blog/using-digressions). The reason we should write out both is that we’ll be referring to this node in another node’s transition, and the digression will be there to get triggered at any point of the conversation should there be a need for it.
+
+```dsl
+digression change_order_burger
+{
+    conditions {on #messageHasData("burger_kind");}
+    do 
+    {   
+        set $new_burger = #messageGetData("burger_kind")[0]?.value??"";
+        #sayText("Perfect. I've added " + $new_burger + " to your order. Would you like anything else?"); 
+        wait *;
+    }
+    transitions
+    {
+        edit_new_order: goto edit_new_order on #messageHasIntent("yes") or #messageHasIntent("order_sth_else");
+    }
+}
+
+node change_order_burger
+{
+    do 
+    {   
+        set $new_burger = #messageGetData("burger_kind")[0]?.value??"";
+        #sayText("Perfect. I've added " + $new_burger + " to your order. Would you like anything else?"); 
+        wait *;
+    }
+    transitions
+    {
+        edit_new_order: goto edit_new_order on #messageHasIntent("yes") or #messageHasIntent("order_sth_else");
+    }
+}
+```
+
+At this point, let’s write the node we mention in the transition (+ a corresponding digression):
+
+```dsl
+digression edit_new_order
+{
+    conditions {on #messageHasIntent("order_sth_else");}
+    do
+    {
+        #sayText("What can I get for you?"); 
+        wait *; 
+    }
+}
+
+node edit_new_order
+{
+    do
+    {
+        #sayText("What can I get for you?"); 
+        wait *; 
+    }
+    transitions
+    {
+
+    }
+}
+```
+
+This is a simple, yet multifunctional node in a way since we’ll be transferring to it in multiple nodes.
+
+Another similar digression and node are the following:
+
+```dsl
+node nvm
+{
+        do
+    {
+        #sayText("Is there anything else I can help you with?"); 
+        wait *;
+    }
+    transitions
+    {
+        payment_method: goto payment_method on #messageHasIntent("no");
+        edit_new_order: goto edit_new_order on #messageHasIntent("yes");
+    }
+}
+
+digression nvm
+{
+    conditions {on #messageHasIntent("nvm");}
+    do
+    {
+        #sayText("Okay! How may I help you?"); 
+        wait *; 
+    }
+}
+```
+We’ll also have a chance to refer to them in other nodes.
+
+Let’s write a digression for a case when a person asks about the burger menu after deciding to change the order:
+
+```dsl
+digression burgers_available
+{
+    conditions {on #messageHasIntent("burgers_available");}
+    do 
+    {
+        #sayText("We've got cheeseburger, hawaiian burger, buffalo chicken burger, creamy mushroom burger, beef burger and barbeque burger. Which one would you like?"); 
+        wait*;
+    }
+    transitions
+    {
+        change_order_burger: goto change_order_burger on #messageHasData("burger_kind");
+    }
+}
+```
+
+Pretty simple!
+
+Now, what if the user wants to change the delivery address? Let’s program the conversational AI app to be able to deal with this case scenario.
+
+There could be 4 different paths here. Either the user states they want to change the address without specifying it, or they name the new street, or the new building number, or the full address. We should write down a digression for each of these scenarios as they can pop up at any moment during the conversation:
+
+```dsl
+digression different_address
+{
+    conditions {on #messageHasIntent("different_address");}
+    do
+    {
+        #sayText("Sounds good, could you tell me the building number and the street name, please?"); 
+        wait *; 
+    }
+}
+
+digression change_street
+{
+    conditions {on #messageHasIntent("change_street");}
+    do 
+    {
+        set $street = #messageGetData("street")[0]?.value??"";
+        #sayText("Okay, I changed the street to " + $street + " . Is there anything else you'd like to change?"); 
+        wait *;
+    }
+    transitions
+    {
+        edit_new_order: goto edit_new_order on #messageHasIntent("yes") or #messageHasIntent("order_sth_else");
+        review_full_order: goto review_full_order on #messageHasIntent("no");
+    }
+}
+
+digression change_house_num
+{
+    conditions {on #messageHasIntent("change_house_num");}
+    do 
+    {
+        set $house_num = #messageGetData("house_num")[0]?.value??"";
+        #sayText("Gotcha, I changed the building number to " + $house_num + " . Is there anything else you'd like to change?"); 
+        wait *;
+    }
+    transitions
+    {
+        edit_new_order: goto edit_new_order on #messageHasIntent("yes") or #messageHasIntent("order_sth_else");
+        review_full_order: goto review_full_order on #messageHasIntent("no");
+    }
+}
+
+digression change_address
+{
+    conditions {on #messageHasData("house_num") and #messageHasData("street");}
+    do 
+    {
+        set $street = #messageGetData("street")[0]?.value??"";
+        set $house_num = #messageGetData("house_num")[0]?.value??"";
+        #sayText("Okay, changed the delivery address to " + $house_num + " " + $street + ". Is there anything else you'd like to change?"); 
+        wait *;
+    }
+    transitions
+    {
+        edit_new_order: goto edit_new_order on #messageHasIntent("yes") or #messageHasIntent("order_sth_else");
+        review_full_order: goto review_full_order on #messageHasIntent("no");
+    }
+}
+```
+
+Take a look at the digression `change_street` the line under the `do` command: `set $street = #messageGetData("street")[0]?.value??"";`. You might recognize `$street` from the content that we’ve established right off the bat. This line lets the AI store the variable `$street` and use it throughout the chat.
+
+Note that we can store multiple variables under the `do` section as seen under `change_address`.
+
+We’ll use the stored variables right in the digressions to provide feedback to the user, letting them know we’ve understood them correctly and make some changes if we didn’t.
+
+Now, let’s consider the case when the user decides to edit their order by ordering something extra that’s on our menu. Appetizers, for instance. Remember that the user might know the menu and say exactly what they want to order, or they might ask what you have on the menu appetizers-wise:
+
+```dsl
+digression appetizers
+{
+    conditions {on #messageHasIntent("appetizers");}
+    do 
+    {
+        #sayText("We've got fried calamari, french fries, spring salad, and a soup of the day. What of these would you like to order?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_appetizers: goto confirm_appetizers on #messageHasData("appetizers");
+    }
+     onexit
+    {
+        confirm_appetizers: do {
+        set $appetizers =  #messageGetData("appetizers", { value: true });
+       }
+    }
+}
+node confirm_appetizers
+{
+    do
+    {
+        var sentence = "Perfect. I've added ";
+        set $appetizers = #messageGetData("appetizers");
+        for (var item in $appetizers) {
+            set sentence = sentence + (item.value ?? " and ");
+        }
+        set sentence = sentence + " to your order. Is there anything else you'd like?";
+        #sayText(sentence); 
+        wait *;
+    }
+     transitions 
+    {
+        edit_new_order: goto edit_new_order on #messageHasIntent("yes") or #messageHasIntent("drinks");
+        confirm_drinks: goto confirm_drinks on #messageHasData("drinks");
+        review_full_order: goto review_full_order on #messageHasIntent("no");
+    }
+}
+```
+
+The same thing goes for the drinks menu:
+
+```dsl
+digression drinks
+{   
+    conditions {on #messageHasIntent("drinks");}
+    do 
+    {
+        #sayText("We have orange juice, Sprite, and vanilla milkshakes. What would you like to get?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_drinks: goto confirm_drinks on #messageHasData("drinks");
+    }
+    onexit
+    {
+        confirm_drinks: do {
+        set $drinks = #messageGetData("drinks", { value: true });
+       }
+    }
+}
+
+node confirm_drinks
+{
+    do
+    {
+        var sentence = "Noted, I added ";
+        set $drinks = #messageGetData("drinks");
+        for (var item in $drinks) {
+            set sentence = sentence + (item.value ?? " and "); // In case the guest desides to order multiple items of food
+        }
+        set sentence = sentence + " to your order. Anything else you'd like to order?";
+        #sayText(sentence); 
+        wait *;
+    }
+     transitions 
+    {
+        edit_new_order: goto edit_new_order on #messageHasIntent("yes") or #messageHasIntent("appetizers");
+        confirm_appetizers: goto confirm_appetizers on #messageHasData("appetizers");
+        review_full_order: goto review_full_order on #messageHasIntent("no");
+    }
+}
+```
+
+Now that we’re done changing the order, we should provide the user with the final confirmation:
+
+```dsl
+node review_full_order
+{
+    do
+    {
+        var sentence = "To review your order, you want to get ";
+        for (var item in $new_burger) {
+            set sentence = sentence + (item.value ?? "") + (", ");
+        }
+        for (var item in $appetizers) {
+            set sentence = sentence + (item.value ?? "") + (", and ");
+        }
+        for (var item in $drinks) {
+            set sentence = sentence + (item.value ?? "");
+        }
+        set sentence = sentence + ". Would you like anything else?"; 
+        #sayText(sentence); 
+        wait *;
+    }
+     transitions 
+    {
+        payment_method: goto payment_method on #messageHasIntent("no");
+        edit_new_order: goto edit_new_order on #messageHasIntent("yes");
+    }
+}
+```
+
+Here we write out the **for** statements to account for multiple food/drink items (for example, if the user says they want both calamari and fries). The `+ (", ");` and `+ (", and ");` so that the multiple variables are separated when the text is spoken (fries, Hawaiian burger, and Sprite vs friedHawaiian burgerSprite). 
+
+Now, a couple of simple nodes will let the AI know it needs to ask about the payment method:
+
+```dsl
+node payment_method
+{
+    do
+    {
+        #sayText("Gotcha. Now, would you be paying with cash or by card?");
+        wait *;
+    }
+     transitions 
+    {
+        with_cash: goto with_cash on #messageHasIntent("cash");
+        by_card: goto by_card on #messageHasIntent("card");
+    }
+}
+
+node with_cash
+{
+    do
+    {
+        #sayText("Sounds good, with cash it is. Your order will be ready in 15 minutes. Thank you for your order! Bye bye!");
+        exit;
+    }
+}
+
+node by_card
+{
+    do
+    {
+        #sayText("Sounds good, by card it is. Your order will be ready in 15 minutes. Thank you for your order! Bye bye!");
+        exit;
+    }
+}
+```
+
+It goes without saying that we need to account for the case scenario when the user wants to cancel the order altogether:
+
+```dsl
+digression cancel_order
+{   
+    conditions {on #messageHasIntent("cancel_order");}
+    do 
+    {
+        #sayText("Okay, just cancelled your order. Is there anything else I can help you with?");
+        wait *;
+    }
+    transitions 
+    {
+        edit_new_order: goto edit_new_order on #messageHasIntent("yes");
+        bye: goto bye on #messageHasIntent("no");
+    }
+}
+```
+
+And the final touch is our `bye` node and digression. We don’t ever want the user to not have an option to end the conversation:
+
+```dsl
+digression bye 
+{
+    conditions { on #messageHasIntent("bye"); }
+    do 
+    {
+        #sayText("Thanks for your time. Have a great day. Bye!");
+        #disconnect();
+        exit;
+    }
+}
+
+node bye 
+{
+    do 
+    {
+        #sayText("Thanks for your time. Have a great day. Bye!");
+        #disconnect();
+        exit;
+    }
+}
+```
+
+## Create your own conversational AI app! It’s easy :)
+
+Try creating an order confirmation app that fits your business’ needs. Think of the questions your users could ask, plot them and write out corresponding nodes and digressions. Or improve the app and share the results in [Dasha Developer Community](https://community.dasha.ai/) :) 

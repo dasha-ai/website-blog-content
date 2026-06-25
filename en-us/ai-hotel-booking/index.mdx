@@ -1,0 +1,579 @@
+---
+slug: "ai-hotel-booking"
+title: "Hotel booking with conversational AI: create an unforgettable user experience in less than 2 hours"
+author: "Anzhelika Minina, Citizen Developer"
+authorPhoto: https://cdn.dasha.ai/blog/ai-hotel-booking/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-08-22"
+updatedAt: "2021-09-06T16:31:02.828Z"
+readLength: "13 minute read"
+heroImage: https://cdn.dasha.ai/blog/ai-hotel-booking/hero.webp
+introduction: "This post will focus on creating a conversational AI app that serves as an all-encompassing hotel booking system. It will gather such information from your customers as the destination, check-in and check-out dates,  hotel stars, and so much more."
+seoTitle: "Hotel booking with conversational AI: create an unforgettable user experience in less than 2 hours"
+seoDescription: "This post will focus on creating a conversational AI app that serves as an all-encompassing hotel booking system."
+seoKeywords: "conversational AI app, conversational AI, booking hotel, best hotel booking app, hotel reservation, hotel booking AI"
+---
+
+# Steps to start developing conversational AI apps
+
+Before delving into the nitty-gritty, let me show you how the conversation between the AI and the person would sound like once you've created this app:
+
+<a href="https://youtu.be/hUkM9JoVO-I" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://youtu.be/hUkM9JoVO-I</a>
+
+As your first step, join [Dasha Developer Community](https://community.dasha.ai/). It’s free and will serve you as the go-to place to get your questions answered and get help with conversational AI apps creation. It’s also a great place to connect with fellow developers who have the same goal as you.
+
+After joining the community, you’ll receive your API key and be able to use Dasha to develop apps.
+
+If you don’t yet have these on your computer, download the latest versions of VSCode and Node.js. In VSCode download the [Dasha Studio](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio&ssr=false) extension. You use the studio to create your conversational script, it gives you syntax analysis and highlight. There's also a visual graph editor and it has GUI tool for debugging.
+Great job so far!
+
+The next thing to do is open the Terminal in VSCode and type these commands:
+
+`npm i -g "@dasha.ai/cli"` - this will install Dasha CLI ([command line interface](https://dasha.ai/en-us/blog/dasha-cli))
+
+Download [Dasha Blank Slate app](https://github.com/dasha-samples/blank-slate-app) source code and use it as a base to write your code.
+
+You can also download the source code of this hotel booking AI app here.
+Now you can launch a test call by running:
+
+`npm i`
+
+`npm start chat` is a powerful command to keep a note of. With it, you’ll be able to converse with the AI in text form. This will not only help you test the conversational flow but also gauge whether there are any errors in the code.
+
+Now you’re pretty much ready to start developing your hotel booking conversational AI app! Yet beforehand, let’s get acquainted with the files you’ll be using. You can find them on your left-hand side in VSCode.
+
+You need to know these 4 files to be most efficient in the coding process:
+
+**main.dsl** -- here you’ll write DashaScript Language code to create the workflow of your conversational AI app. 
+
+**data.json** -- you will set the [intents](https://dasha.ai/en-us/blog/intent-classification) and [entities](https://dasha.ai/en-us/blog/named-entity-recognition) (/NER/Named Entity Recognition) in this file. The neural network will use intents and entities you’ll create to learn.
+
+Additionally, you will want to use the index.js file to write out external functions. External functions are needed to process data in JavaScript or to get or push data from external APIs. For example, you may need to process data, get access to databases or APIs or use it for any other purposes.
+
+**index.js** -- a NodeJS file that launches the Dasha SDK. You’ll be adding any external functions you deem necessary once adapting the code to your company’s needs. You’d want to add hotel availabilities, for instance, as one of the external functions.
+
+## Make conversational AI app your hotel automation technology
+You want to start with importing the common library. It will ease your job as it provides all the pre-programmed replies to common digressions such as “wait”, “are you a robot?”, etc.
+
+```dsl
+// Import the commonReactions library so that you don't have to worry about coding the pre-programmed replies
+import "commonReactions/all.dsl";
+```
+
+Now, you want to establish the context. Here you’ll write the variables, both input (the ones available at the start of the conversation) and output (the variables AI will receive, store and use throughout the conversation).
+
+```dsl
+context
+{
+// Declare the input variable - phone. It's your hotel room phone number and it will be used at the start of the conversation.  
+    input phone: string;
+    output new_time: string="";
+    output new_day: string="";
+    output number_of_people: string="";
+    output hotel_stars: string="";
+    output check_in_date: string="";
+    output check_in_month: string="";
+    output check_out_date: string="";
+    output check_out_month: string="";
+    output city: string="";
+    output state: string="";
+    output free: string="";
+    output proximity: string="";  
+// Storage variables. You'll be referring to them across the code. 
+    date: string="";
+    month: string="";
+    number_value: string="";
+}
+```
+
+There are a lot of variables to declare since we’ll need a lot of qualifying information to help the user find the right hotel.
+When done, the next step is writing out the start node root, where the app will establish a connection with the user’s phone, say the welcome message, and store the first variables to move along the conversation from there.
+
+```dsl
+// A start node that always has to be written out. Here we declare actions to be performed in the node. 
+start node root
+{
+    do
+    {
+        #connectSafe($phone); // Establishing a safe connection to the user's phone.
+        #waitForSpeech(1000); // Waiting for 1 second to say the welcome message or to let the user say something
+        #sayText("Hi, my name is Dasha, I'm here to assist you with finding and booking a hotel room. First, could you tell me which city and state you're traveling to, please?"); // Welcome message
+        wait *; // Wating for the user to reply
+    }
+    transitions // Here you give directions to which nodes the conversation will go
+    {
+        hotel_stars: goto hotel_stars on #messageHasData("city") and #messageHasData("state"); // Get transferred to this node if the user mentions both city and state
+        which_city: goto which_city on #messageHasData("state"); // Get transferred to this node if the user only mentions the state
+        which_state: goto which_state on #messageHasData("city"); // Get transferred to this node if the user only mentions the city
+    }
+     onexit
+    {
+        hotel_stars: do {
+        set $city = #messageGetData("city")[0]?.value??""; // Store city and state variables to use them later in the conversation
+        set $state = #messageGetData("state")[0]?.value??"";
+        }
+        which_city: do {
+        set $state = #messageGetData("state")[0]?.value??"";
+        }
+        which_state: do {
+        set $city = #messageGetData("city")[0]?.value??"";
+        }
+    }
+}
+```
+
+You’ll be using `transitions` and `onexit` in nearly all the nodes while creating this hotel booking AI app.
+[`Transitions`](https://docs.dasha.ai/en-us/default/dasha-script-language/program-structure#transitions) describe the conditions of choosing the next node. 
+The [`onexit`](https://docs.dasha.ai/en-us/default/dasha-script-language/control-flow?searchResult=p23-highlight-0#executable-section) node section is defined right after the transitions section and allows to specify actions to perform before exiting the node.
+Take a close look at the transitions section. There are 3 different transitions. While the AI asks a question that suggests the need to provide information on both the city and the state the user is traveling to, they might only say only the either. We need to account for to create the most natural, human-like conversational experience.
+The user might have a preference for the number of stars they want the hotel to have. Let’s write a node that considers that.
+
+```dsl
+node hotel_stars
+{
+    do
+    {
+        #sayText("That's nice! " + $city + " is a grate place to visit! Ummm... How many stars would you want the hotel to have?");
+        wait *;
+    }
+    transitions
+    {
+        how_many_people: goto how_many_people on #messageHasData("number_value", {tag: "stars"}) or #messageHasData("number_value");
+    }
+    onexit
+    {
+        how_many_people: do {
+        set $hotel_stars = #messageGetData("number_value", {tag: "stars"})[0]?.value??"";
+        }
+    }
+}
+```
+
+Now we might want to know how many people will be checking in to the hotel and what the check-in and check-out dates are. Let’s program the first question out:
+
+```dsl
+node how_many_people
+{
+   do
+    {
+        #sayText("Fantastic, I got that! " + $hotel_stars + " it is! Now, could you tell me how many people you said should the hotel room accommodate?");
+        wait *;
+    }
+    transitions
+    {
+        confirm_guests: goto confirm_guests on #messageHasData("number_value", {tag: "people"}) or #messageHasData("number_value"); 
+    }
+    onexit
+    {
+        confirm_guests: do {
+        set $number_of_people = #messageGetData("number_value", {tag: "people"})[0]?.value??"";
+        }
+    }
+}
+
+node confirm_guests
+{
+    do 
+    { 
+        #sayText("You said " + $number_of_people + ", is that right?");
+        wait *;
+    }
+    transitions
+    {
+        check_in_date: goto check_in_date on #messageHasIntent("yes");
+        repeat_guests: goto repeat_guests on #messageHasIntent("no");
+    }
+}
+
+node repeat_guests
+{
+    do 
+    {
+        #sayText("Let's do it one more time. How many people you said should the hotel room accommodate?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_guests: goto confirm_guests on #messageHasData("number_value", {tag: "date"});
+    }
+    onexit
+    {
+        confirm_guests: do {
+        set $number_of_people = #messageGetData("number_value", {tag: "people"})[0]?.value??"";
+        }
+    }
+}
+```
+
+It’s always best to give feedback to the user regarding the information they give. It provides you with an opportunity to fix the errors the moment they occur and is also a part of [great conversational design](https://dasha.ai/en-us/blog/conversational-design). That’s the reason for the existence of `node confirm_guests` and `node repeat_guests`. 
+
+As mentioned above, here we use onexit to remember and store information about user’s preferences and requirements to later find the right hotel.
+Moving on to getting information regarding the preferred check-in and check-out dates. 
+
+For this part, let’s take a look at the **data.json** file to find the entities that will be used for the upcoming nodes. We’ll need to know both the month and the day, so:
+
+```json
+  "entities": 
+  {
+    "month":
+    {
+      "open_set": false,
+      "values": [
+        {
+          "value": "January"
+        },
+        {
+          "value": "February"
+        },
+        {
+          "value": "March"
+        },
+        {
+          "value": "April"
+        },
+        {
+          "value": "May"
+        },
+        {
+          "value": "June"
+        },
+        {
+          "value": "July"
+        },
+        {
+          "value": "August"
+        },
+        {
+          "value": "September"
+        },
+        {
+          "value": "October"
+        },
+        {
+          "value": "November"
+        },
+        {
+          "value": "December"
+        }
+      ]
+    },
+```
+
+```json
+"number_value": 
+    {
+      "open_set": true,
+      "values": [
+         {
+          "value": "1",
+          "synonyms": ["first", "1st", "the first", "the 1st", "one"]
+         },
+         {
+          "value": "2",
+          "synonyms": ["second", "2nd", "the second", "the 2nd", "two"]
+         },
+         {
+          "value": "3",
+          "synonyms": ["third", "3rd", "the third", "the 3rd", "three"]
+         },
+        {
+          "value": "4",
+          "synonyms": ["fourth", "4th", "the fourth", "the 4th", "four"]
+        },
+        {
+          "value": "5",
+          "synonyms": ["fifth", "5th", "the fifth", "the 5th", "five"]
+        },
+        {
+          "value": "6",
+          "synonyms": ["sixth", "6th", "the sixth", "the 6th", "six"]
+        }
+      ],
+      "includes": [
+        "There's going to be (four)[number_value:people] people with me",
+        "just (one)[number_value:people] person",
+        "(two)[number_value:people] people",
+        "(four)[number_value:stars] stars",
+        "I want the hotel to have (five)[number_value:stars] stars",
+        "hotel to have (four)[number_value:stars] stars at least",
+        "There's going to be (two)[number_value:people] people traveling",
+        "I want the check in date to be (July)[month] (fifth)[number_value:date]",
+        "I want the check-in date to be (January)[month] (the third)[number_value:date]",
+        "I want the check out date to be (March)[month] (first)[number_value:date]",
+        "I want the check out date to be on (the fourth)[number_value:date] of (May)[month]",
+        "I want to check in to the hotel on (the 5th)[number_value:date] of (February)[month]",
+        "There's going to be just (3)[number_value:people] people traveling in total",
+        "(May)[month] (fifth)[number_value:date]",
+        "(the first)[number_value:date] of (February)[month]",
+        "I want the hotel to have (4)[number_value:stars] stars",
+        "The hotel needs to have at least (4)[number_value:stars] stars"
+      ]
+    }
+```
+
+Take a note at the `number_value` section. It’s supposed to represent all the dates in a month, but we only have 6. That doesn’t mean that if the user says, for example, “July 12th” the AI won’t understand them. On the contrary, the algorithms take place here in understanding the dates that aren’t specified in the dataset. 
+
+The `includes` section is also worth taking a closer look at. Since we specified the numerical values, they can be used to describe various things like the number of hotel stars, number of people, and dates. To accomplish this goal we use the so-called [entity tags](https://docs.dasha.ai/en-us/default/natural-language-understanding/custom-entities?searchResult=p27-highlight-0#entity-tags), which help to specify the additional meaning of the extracted entity.
+
+In your dataset, you’ll at times need to be using `includes` and `excludes`.
+
+`Includes`: there are cases when you need to recognize entities from a phrase that isn’t related to any intent. The `includes` section is used for such phrases.
+
+`Excludes`: in this section, you can specify phrase or word examples to be excluded from recognition of this entity.
+
+Now, back to the **main.dsl** file nodes that get all the check-in/check-out information.
+
+```dsl
+node check_in_date
+{
+    do
+    {
+        #sayText("Just a couple more questions so I could ensure I pick the best place for you so please bear with me. Could you give me a date of your check in?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_check_in: goto confirm_check_in on #messageHasData("number_value", {tag: "date"}) and #messageHasData("month");
+    }
+    onexit
+    {
+        confirm_check_in: do {
+        set $check_in_date = #messageGetData("number_value", {tag: "date"})[0]?.value??"";
+        set $check_in_month  = #messageGetData("month")[0]?.value??"";
+        }
+    }
+}
+
+node confirm_check_in
+{
+    do 
+    { 
+        #sayText("Alrighty, I'm setting the check in date to " + $check_in_month + " " + $check_in_date + " , did I get that rigth?");
+        wait *;
+    }
+    transitions
+    {
+        check_out_date: goto check_out_date on #messageHasIntent("yes");
+        repeat_check_in: goto repeat_check_in on #messageHasIntent("no");
+    }
+}
+
+node repeat_check_in
+{
+    do 
+    {
+        #sayText("Let's try again. When would you like to check in to the hotel?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_check_in: goto confirm_check_in on #messageHasData("number_value", {tag: "date"}) and #messageHasData("month");
+    }
+    onexit
+    {
+        confirm_check_in: do {
+        set $check_in_date = #messageGetData("number_value", {tag: "date"})[0]?.value??"";
+        set $check_in_month = #messageGetData("month")[0]?.value??"";
+        }
+    }
+}
+
+node check_out_date
+{
+    do
+    {
+        #sayText("Now, could you tell me when the check out date should be?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_check_out: goto confirm_check_out on #messageHasData("number_value", {tag: "date"}) and #messageHasData("month");
+    }
+    onexit
+    {
+        confirm_check_out: do {
+        set $check_out_date = #messageGetData("number_value", {tag: "date"})[0]?.value??"";
+        set $check_out_month  = #messageGetData("month")[0]?.value??"";
+        }
+    }
+}
+
+node confirm_check_out
+{
+    do 
+    { 
+        #sayText("Awesome, so just to make sure, the check out date is " + $check_out_month + " " + $check_out_date + " , am I rigth?");
+        wait *;
+    }
+    transitions
+    {
+        proximity: goto proximity on #messageHasIntent("yes");
+        repeat_check_out: goto repeat_check_out on #messageHasIntent("no");
+    }
+}
+
+node repeat_check_out
+{
+    do 
+    {
+        #sayText("Let's do this again. When should I set the check out date to?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_check_out: goto confirm_check_out on #messageHasData("number_value", {tag: "date"}) and #messageHasData("month");
+    }
+    onexit
+    {
+        confirm_check_out: do {
+        set $check_out_date = #messageGetData("number_value", {tag: "date"})[0]?.value??"";
+        set $check_out_month = #messageGetData("month")[0]?.value??"";
+        }
+    }
+}
+```
+
+Let’s now ask the user how close to the center they want their hotel to be as it can be a deal-breaker to some:
+
+```dsl
+node proximity_confirm
+{
+    do 
+    {   
+        if ($proximity == "close to the center"){
+            #sayText("Close to the center, got that. That's probably the nicest area to be in! Now, would you require free parkign or free Wi-Fi to be present at the hotel?");
+        }
+        else {
+            #sayText("Farther from the center, got that. I've heard the nature in the outskirts of " + $city + " is fascinating! Now, would you require free parkign or free Wi-Fi to be present at the hotel?");
+        }
+        wait *;
+    }
+    transitions 
+    {
+       free_confirm: goto free_confirm on #messageHasData("free");
+    }
+    onexit
+    {
+       free_confirm: do {
+       set $free = #messageGetData("free")[0]?.value??""; 
+       }
+    }
+}
+```
+
+By the same token, let’s program the conversational AI to ask the user if they want the hotel to have free parking, free Wi-Fi, or both:
+
+```dsl
+node free_confirm
+{
+    do 
+    {   
+        if ($free == "free parking"){
+            #sayText("Sounds like a plan, I'll look for a hotel that has free parking. Let's figure out the pricing you're comfortable with. Would you like the hotel to be in the low, below 50 dollars, medium, that's between 50 and 150 dollars, or high price range, which is above 150 dollars?");
+        }
+        else if ($free == "free parking and wi-fi"){
+            #sayText("Sounds like a plan, I'll look for a hotel that has both free Wi-Fi and parking. Let's figure out the pricing you're comfortable with. Would you like the hotel to be in the low, below 50 dollars, medium, that's between 50 and 150 dollars, or high price range, which is above 150 dollars?");
+        }
+        else {
+            #sayText("Sounds like a plan, I'll look for a hotel that has free Wi-Fi. Let's figure out the pricing you're comfortable with. Would you like the hotel to be in the low, below 50 dollars, medium, that's between 50 and 150 dollars, or high price range, which is above 150 dollars?");
+        }
+        wait *;
+    }
+    transitions 
+    {
+        hotel_low_price: goto hotel_low_price on #messageHasIntent("hotel_low_price");
+        hotel_high_price: goto hotel_high_price on #messageHasIntent("hotel_high_price");
+        hotel_medium_price: goto hotel_medium_price on #messageHasIntent("hotel_medium_price");
+        cost_doesnt_matter: goto cost_doesnt_matter on #messageHasIntent("cost_doesnt_matter");
+    }
+}
+```
+
+Look at the previous node. In order to keep the code clean, instead of writing out 3 different nodes with the same transitions, you can write out just one node. You do that by adding the if/else statements under the `do`. 
+
+The information used in the statements will be taken from your entities in the **data.json** file. 
+
+The nodes that follow are the same with the only difference being in the #sayText and transitions. If you want to take a look at all of the 4 nodes, you can refer to the source code.
+
+In these nodes, we want to review the information we’ve received before proceeding to the hotel search.
+
+```dsl
+node hotel_low_price
+{
+    do 
+    {
+        #sayText("To review your requirements, you want to find a low price range hotel in " + $city + " , the room would be for " + $number_of_people + ", the hotel will have " + $hotel_stars + " stars, the check-in date would be " + $check_in_month + " " + $check_in_date + ", and the check-out date would be" + $check_out_month + " " + $check_out_date + ". Is that right?");
+        wait *;
+    }
+    transitions 
+    {
+        search_low_price: goto search_low_price on #messageHasIntent("yes");
+    }
+}
+```
+
+Once that’s done, you can move on to providing the user with suitable hotel options based on the requirements the conversational AI has collected:
+
+```dsl
+node search_low_price
+{
+    do 
+    {
+        #sayText("Awesome, I found two hotels that perfectly match your requirements. The first one is Butterfly Resort Hotel and the second one is Great Valley Inn. Which one would you like more about?");
+        wait *;
+    }
+    transitions 
+    {
+        butterfly: goto butterfly on #messageHasIntent("butterfly");
+        valley: goto valley on #messageHasIntent("valley");
+    }
+}
+
+node butterfly
+{
+    do 
+    {
+        #sayText("This hotel costs 25 dollars per night. Would you like to book this one or hear more about the Great Valley Inn?");
+        wait *;
+    }
+    transitions 
+    {
+        book: goto book on #messageHasIntent("book");
+        valley: goto valley on #messageHasIntent("valley");
+    }
+}
+
+node valley
+{
+    do 
+    {
+        #sayText("This hotel costs 30 dollars per night and it serves free continental breakfasts. Would you like to book this one or hear more about the Butterfly Resort Hotel?");
+        wait *;
+    }
+    transitions 
+    {
+        butterfly: goto butterfly on #messageHasIntent("butterfly");
+        book: goto book on #messageHasIntent("book");
+    }
+}
+```
+
+It goes without saying that there would be more than just 2 hotel options available. You will need to ask the user more qualifying questions to get down to just a few most perfect hotel booking options. 
+Once that’s been settled and the user has made their choice, the conversational AI will book the hotel and send the hotel booking information straight to the user’s phone. Optionally, you could program the AI to ask the user their email address to send the information there. 
+
+```dsl
+node book
+{
+    do 
+    {
+        #sayText("Perfect, the room at the hotel has been booked! It was a pleasure helping you find the right hotel. I'll send the booking confirmation and other information in a text message. Have a fantastic rest of the day. Bye!");
+        exit;
+    }
+}
+```
+
+## Create your own conversational AI hotel booking app. It’s simple!
+
+And done! Now you have a happy user who just had the most unforgettable experience with hotel booking through a conversational AI app.
+There are a lot of things that can be added to this code so I encourage you to do just that. Improve this app and send us the results so we can celebrate your success together! Do that by joining [Dasha Developer Community](https://community.dasha.ai/), we’re always happy to see a new face there :)

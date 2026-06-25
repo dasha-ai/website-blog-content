@@ -1,0 +1,125 @@
+---
+slug: "conversational-ai-app-creation-guide"
+title: "How to create your first conversational AI app with Dasha "
+author: "Anzhelika Minina, Growth Marketer"
+authorPhoto: https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-06-25T15:40:56.002Z"
+updatedAt: "2022-01-13T20:20:25.461Z"
+readLength: "4 minute read"
+heroImage: https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/hero.webp
+introduction: "First things first, congratulations on deciding to build your first human-like conversational AI app with Dasha AI!\n\nWhether you are an experienced developer or are a [<u>citizen developer</u>](https://dasha.ai/en-us/blog/citizen-development) (someone who uses   low-code/no-code development environments to create apps that help to solve for business needs, without the help of a professional software developer) this guide will help you to get started with using Dasha Studio. Even if you already know what you want to do, we highly recommend you go through this step-by-step guide in order to get the most out of Dasha Studio."
+seoTitle: Guide on how to create your first conversational AI app with Dasha AI
+seoDescription: "This step-by-step guide will take you through the process of getting started with your conversational AI app creation. "
+seoKeywords: "conversational AI, dasha ai, conversational AI app, dasha platform, conversational AI as a service, conversational AI api"
+---
+
+## Getting started
+
+The first and most important step is to join the __Dasha developer community__. 
+
+Go to [http://community.dasha.ai/](http://community.dasha.ai/) and create an account. Once you do, one of Dasha’s team members will contact you and instruct you on how to get started with Dasha Studio as well as issue you an __API key__. We have a friendly and eager to help community of engineers, if you have any questions at any moment of time, you can feel free to reach out to any of the customer success engineering team.
+
+Once you become a member of the community, go to [Node.js](https://nodejs.org/en/download/) and download the latest version if you don’t have it installed. Node.js is one of the world’s most common JavaScript frameworks. 
+
+![node.js](https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/node.js.jpg)
+
+You only need to download it to your computer, there are no additional steps required. You need it as it will help you run code in Dasha Studio. 
+
+Next, download [Visual Studio Code](https://code.visualstudio.com/). Dasha Studio is an extension to Visual Studio Code. 
+
+![visual studio](https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/visual_studio.jpg)
+
+As you open Visual Studio, go to Extensions and install Dasha Studio.
+
+![Install Dasha Studio extension in Visual Studio Code ](https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/Screenshot_at_Jul_29_11-00-39.webp)
+
+Now, you need to install the Dasha Command Line interface. Open your terminal and run __`npm i -g @dasha.ai/cli`__ to install the Dasha CLI. Here is a [post](https://dasha.ai/en-us/blog/dasha-cli) for more on what you can do with our CLI. 
+
+These next few instructions you may already have gotten from one of our Dasha Community members. Run `dasha account login` This command opens a browser where you need to log in to your Dasha.ai account or register a new one. If able, use your corporate email address. `dasha account use <your-account-name>` command will set your account as current. Or you can create a new account:
+
+```bash
+dasha account add <your_desired_account_name> --api-key <your_dasha_apikey> 
+dasha account use <your_desired_account_name>
+```
+
+If you need to get your API key(s), use these commands: 
+* `dasha account list` 
+* `dasha account info`
+
+You are all set. Great job so far! 
+
+Now you will want to download a sample Dasha application to run and test [Dasha Samples on github](https://github.com/dasha-samples). As you open the page and scroll down, you’ll notice there are code samples that can be used to get familiar with the demos and use them as a base to program a conversational AI app that will solve your business needs. You can clone them directly from your terminal or download the archives.
+
+![dasha samples](https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/dasha_samples.jpg)
+
+Let’s say you work at a financial institution and want to automate the way your clients transfer money (note: to access the full step-by-step guide on how the money transfer demo works, you can click [this link](https://dasha.ai/en-us/blog/money-transfer-automation)). In this case, download the code, unzip the file, and go straight to Visual Studio that you’ve just downloaded to your PC. 
+
+![open code sample folder](https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/open_code_sample_folder.jpg)
+
+Now you are able to access the code and access all the tabs on your left hand side that will be extremely useful while working on your app:
+
+![tabs](https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/tabs.jpg)
+
+First thing we recommend to look at after uploading the code sample is looking at the full picture of what’s happening in the code without actually distracting yourself with the code lines themselves, check out the Graph Editor. It will show you the pathways conversation might take place. The Graph Editor essentially shows you all the high-level nodes. (P.S. a node describes the system's actions in the current state and the conditions for transitioning to other nodes. For more information on DashaScript language structure (dsl), check out the [Documentation](https://docs.dasha.ai/en-us/default/dasha-script-language/) link.
+
+![Graph Editor](https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/Graph_Editor.jpg)
+
+Note: if you can’t see the pathways, just zoom out. It should look like this:
+
+![Graph Editor - zoom out](https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/Graph_Editor_-_zoom_out.jpg)
+
+At this point, zoom in a bit. What you are seeing are digressions. Nodes that have no other nodes leading into them. A user can call a digression up at any point in the conversation. This functionality emulates the way in which humans communicate with each other. For more info on digressions, take a look at this post.
+
+![Graph Editor - zoom in](https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/Graph_Editor_-_zoom_in.jpg)
+
+Before moving on, you should go to the Terminal.
+
+![terminal](https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/terminal.jpg)
+
+Click on “New Terminal” and type the command __npm i -g "@dasha.ai/cli"__ in order to install command-line interface (Dasha CLI). The Terminal (sometimes referred to as the command line or console), lets you run tasks and commands without using a graphical user interface (GUI). You will use your terminal to test Dasha apps. 
+
+If you are on MacOS, you may need to preface the command with __sudo__ - this will let your machine know to run the command, as top-level administrator user with full access rights. The full command will be __sudo npm i -g "@dasha.ai/cli"__ and once you run it, will ask for your password. This is the password you use to log into your machine.
+
+Now, let’s get to the most interesting part. Open file __main.dsl__.
+
+![Main.dsl](https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/Main.dsl.jpg)
+
+__Main.dsl__ file shows the code of the sample you have downloaded. In case you decide to add extra steps to the conversation, you can start doing it right there. 
+
+In order to add intents (more on those [here](https://dasha.ai/en-us/blog/intent-classification)), go to data.json. 
+
+For this particular code sample, there is a __users_db.json__ tab, where you can take a look at what user information this demo uses. 
+
+It’s also recommended to take a look  __README__ tab as it provides instructions on how to log on to your account and start a demo call.
+
+![readme](https://cdn.dasha.ai/blog/conversational-ai-app-creation-guide/readme.jpg)
+
+Once again, if at any point you find yourself confused, feel free to look for assistance at Dasha community, someone will be on their way to help you out.
+
+And... done! 
+
+## Building your first conversational AI app
+
+As you already know, you don’t have to have any coding experience whatsoever to be able to use Dasha AI Platform to create your first conversational AI app. 
+
+Arthur wrote an extensive step-by-step guide (which is super easy to understand and follow) that describes all the preparatory work, which is analyzing your proposed conversation, tailoring a conversational script, preparing and implementing it as a voice app. You can find the first part [here](https://dasha.ai/en-us/blog/build-conversational-AI-app-1).
+
+Once you’ve followed the steps and have your conversation spreadsheet ready, you can move on to finally bringing your app to life, and you can access the guide by clicking [this link](https://dasha.ai/en-us/blog/conversational-ai-app-development-build).
+
+## Links
+
+Here are some links you might want to check out.
+
+- [Documentation](https://docs.dasha.ai/en-us/default)
+- What [Citizen Development](https://dasha.ai/en-us/blog/citizen-development) is and what being a citizen developer means
+- All about [Named Entity Recognition](https://dasha.ai/en-us/blog/named-entity-recognition) with Dasha AI Platform 
+- [Intent classification](https://dasha.ai/en-us/blog/intent-classification)
+- Information about [Digressions](https://dasha.ai/en-us/blog/using-digressions) (and why they make your conversational AI app more human-like)
+- Dasha’s [new SDK](https://dasha.ai/en-us/blog/dasha-sdk-new-release-2021) (software development kit)
+
+And a couple of guides to start off with the demos we’ve prepared for you:
+
+- [Virtual receptionist software](https://dasha.ai/en-us/blog/virtual-receptionist-software)
+- [Money transfer app](https://dasha.ai/en-us/blog/money-transfer-automation)

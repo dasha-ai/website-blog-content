@@ -1,0 +1,291 @@
+---
+slug: "ai-candidate-screening-app"
+title: Take your candidate screening to the next level with this conversational AI app
+author: "Anzhelika Minina, Citizen Developer"
+authorPhoto: https://cdn.dasha.ai/blog/ai-candidate-screening-app/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-08-16T12:14:27.347Z"
+updatedAt: "2021-10-21T19:37:06.492Z"
+readLength: "11 minute read"
+heroImage: https://cdn.dasha.ai/blog/ai-candidate-screening-app/hero.webp
+introduction: "This post will focus on creating a conversational AI app that automates HR candidate screening. Automating candidate screening allows companies to hire better candidates, reduce the backlog of interviewees, save time and money."
+seoTitle: Take your candidate screening to the next level with this conversational AI app
+seoDescription: "This post will focus on creating a conversational AI app that automates HR candidate screening. Automating candidate screening allows companies to hire better candidates, reduce the backlog of interviewees, save time and money. "
+seoKeywords: "ai in hr, candidate screening, conversational AI, conversational AI app, pre screening questions to ask candidates"
+---
+
+## Getting started with Dasha conversational AI 
+
+As the first step, join [Dasha Developer Community](https://community.dasha.ai/). It will give you access to all the help you may need be it answering your questions or supporting you with conversational AI app creation. 
+
+This is also where you’ll get your API key to use Dasha.
+
+Now, you need to download the latest versions of VSCode and Node.js. Once done, launch VSCode and download the [Dasha Studio](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio&ssr=false) extension, it enables syntax highlight for DSL and has GUI tool for debugging.
+
+At this point, open the Terminal in VSCode and type the following commands:
+
+- `npm i -g "@dasha.ai/cli"` - this will install Dasha CLI ([command line interface](https://dasha.ai/en-us/blog/dasha-cli))
+- `npm i`
+
+I recorded a demo that showcases how the conversation goes once you launch the conversational AI app. You can take a look at it below or test it yourself by typing `npm start 1987654321` (your phone number with the country code) into the Terminal. 
+
+Note that you can always test your conversational AI app by typing npm start chat and converse with the AI in a text form. This will not only help you test the conversational flow but also gauge whether there are any errors in the code.
+
+<a href="https://youtu.be/nIUkUiGDPsY" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://youtu.be/nIUkUiGDPsY</a>
+
+Now that you’ve checked out the conversation, it’s time to get to know the files you’ll be using to create your candidate screening conversational AI app.
+We recommend downloading [Dasha Blank Slate app](https://github.com/dasha-samples/blank-slate-app) source code and use it as a base to write your code. For that, you’ll have to open **main.dsl** and **data.json** files and delete everything you see there. This way you’ll be able to start writing your code from scratch while having all the other essential files (for instance, the commonReactions library that has pre-programmed replies so you don’t have to worry about coding those).
+
+You can also download the source code of this particular candidate screening app [here](https://github.com/dasha-samples/hr-candidate-screening).
+
+As mentioned above, you’ll be primarily using 2 files to create your conversational AI app:
+
+**main.dsl** -- this is where you’ll write your DashaScript Language code to create the workflow of your conversational AI app. With Dasha Studio extension on and with the directions in this [post](https://dasha.ai/en-us/blog/conversational-ai-app-creation-guide), it’ll be an easy job for you. 
+
+**data.json** -- you will set the [intents](https://dasha.ai/en-us/blog/intent-classification) and [entities](https://dasha.ai/en-us/blog/named-entity-recognition) (AKA NER, AKA Named Entity Recognition) in this file. The neural network will use intents and entities you’ll create to learn.
+
+Additionally, you will want to use the **index.js** file to write out external functions. External functions are needed to process data with the SDK. For example, you may need to process data, get access to databases or APIs or use it for any other purposes. 
+
+**index.js** -- it’s a NodeJS file that launches the Dasha SDK. Here you’ll be adding any external functions you deem necessary once adapting the code to your company’s needs. One of your candidate screening app’s external functions would be the applicant’s phone number. 
+
+Now that you’re familiar with the files you’ll be using you can get coding!
+
+## AI in HR: creating your own candidate screening app
+
+Note that while this code is just an example, you can use it as a base, improve it, rewrite the lines, etc. In other words, adapt it to your company’s and job posting’s requirements.
+
+First, open the main.dsl file and start off by importing the common library:
+
+```dsl
+// Import the commonReactions library so that you don't have to worry about coding the pre-programmed replies
+import "commonReactions/all.dsl";
+```
+
+This common library has a variety of [digressions](https://dasha.ai/en-us/blog/using-digressions) that become handy when it comes to the candidate going off on a tangent. For instance, it’s not uncommon for a person to ask to give him a moment, either to take some time to think or to attend to something that’s happening. Such digressions are essential and make the app more human-like.
+
+```dsl
+library
+
+digression @wait
+{
+    conditions { on #messageHasAnyIntent(digression.@wait.triggers)  priority 900; }
+    var triggers = ["wait", "wait_for_another_person"];
+    var responses: Phrases[] = ["i_will_wait"];
+    do
+    {
+        for (var item in digression.@wait.responses)
+        {
+            #say(item, repeatMode: "ignore");
+        }
+        #waitingMode(duration: 60000);
+        return;
+    }
+    transitions
+    {
+    }
+}
+```
+At this point I’d like to point your attention to the `var responses: Phrases[] = ["i_will_wait"];`. Once a person asks the AI to wait, it’ll respond with one of the phrases that are stored in the **phrasemap.json** file. This file is useful when it comes to having diversity in AI’s responses. Here’s an example:
+
+```json
+      "i_will_wait": {
+        "random": [
+          [{ "text": "Okay, I'll wait" }],
+          [{ "text": "Sure, I'll wait" }],
+          [{ "text": "Okay, no problem!" }]
+        ]
+      },
+```
+
+The phrases that come after `#sayText(“` are static. If you need variety in responses, go ahead and use the phrasemap.json file. Here’s more on [how to use this file](https://docs.dasha.ai/en-us/default/natural-language-generation/#phrasemap).
+
+At this point you’d want to move forward and declare the input and output variables in the context:
+
+```dsl
+context
+{
+// Declare the input variable - phone. It's your candidate's phone number and it will be used at the start of the conversation.  
+    input phone: string;
+    output new_time: string="";
+    output new_day: string="";
+}
+```
+Throughout the conversation (depending on which course the conversation takes) we’ll be getting information about the time and day from the candidate, which is why we put these as an `output`.
+
+For the purposes of this demo, I’ve decided the open position to be for a sales representative at an imaginary JJC Group. 
+
+To start writing your candidate screening conversational AI app for this position, you’ll need to write a `start node` named `root`. In it, we’ll program the conversational AI app to connect to the candidate’s phone number, make the AI wait for 1 second before saying the welcome message, and write out the welcome message itself. 
+
+In this node, we want to ask the candidate if they have some time to talk to us and move forward based on their availability.
+
+```dsl
+start node root
+{
+    do
+    {
+        #connectSafe($phone); // Establishing a safe connection to the candidate's phone
+        #waitForSpeech(1000); // Waiting for 1 second to say the welcome message or to let the candidate say something
+        #sayText("Hi, my name is Dasha, I'm calling in regard to your application for the sales representative position at JJC Group. I'd like to ask you some questions. Is it a good time to talk?"); // Welcome message
+        wait *; // Wating for the hotel guest to reply
+    }
+    transitions // Here you give directions to which nodes the conversation will go
+    {
+        will_call_back: goto will_call_back on #messageHasIntent("no");
+        education: goto education on #messageHasIntent("yes");
+    }
+}
+```
+
+After we get a reply from the candidate, the conversation will either transition to the `will_call_back` or the `education` node. Let’s take a look at each:
+
+```dsl
+node will_call_back
+{
+    do
+    {
+        #sayText("No worries, when may we call you back?");
+        wait *;
+    }
+    transitions
+    {
+        call_bye: goto call_bye on #messageHasData("time");
+    }
+}
+
+node call_bye
+{
+    do
+    {
+        set $new_time =  #messageGetData("time")[0]?.value??""; // remembers and stores the time to call the candidate back
+        #sayText("Got it, I'll call you back on " + $new_time + ". Looking forward to speaking to you soon. Have a nice day!"); 
+        exit;
+    }
+}
+```
+In these two nodes, we get information about the time the candidate is available for the call. We store it and will use it to make a call back at the specified time.
+
+Given the candidate has some time to talk, we go on to ask our first question. In this case, we need to know if the candidate has an education level higher than high school. 
+
+```dsl
+node education
+{
+    do 
+    {
+        #sayText("Alright, so, let's begin. Could you first tell me what is the highest level of education you have obtained to date?"); //call on phrase "question_1" from the phrasemap
+        wait *;
+    }
+    transitions 
+    {
+        disqualified: goto disqualified on #messageHasIntent("high_school"); 
+        experience_years: goto experience_years on #messageHasIntent("college"); 
+    }
+}
+```
+
+We follow the same logic to ask the candidate additional qualification questions. For the purpose of this demo, we have the following pre screening questions to ask candidates:
+- how many years of experience the candidate has,
+- if they have over 2 years of experience with cold calling,
+- how they’d rate their own cold calling skills,
+- if they are okay with spending hours on the road,
+- if they mind frequent business trips,
+- if they’ve consistently achieved their sales goals,
+- if extra work hours is something they are okay with,
+- and if the compensation level we provide is acceptable for them.
+
+Since writing these (or any other similar questions) will be an easy task for you, I won’t write the code here. You can always open the [repository](https://github.com/dasha-samples/hr-candidate-screening) to see the full code.
+
+In `node education`, we wrote 2 transitions out. Based on the received intents, the conversation would either go to the next question (`experience_years`) or trigger candidate disqualification and take the conversation to `node disqualified`. Let’s take a look at the latter:
+
+```dsl
+node disqualified
+{
+    do
+    {
+        #sayText("Thank you so much for letting me know! It saddens me to say that it doesn't match out basic qualification requirements. That being said, we will keep your CV on file and contact you once a matching position appears. Thank you for your time and have a wonderful day! Bye!");
+        exit;
+    }
+}
+```
+
+Note that the candidate can be disqualified at any moment of the pre-screening interview if one of the minimum qualifications isn’t met. 
+
+In the best-case scenario, we get a candidate who is a fit for the position and meets all the requirements for it. Should that happen, the conversational AI app will arrange an in-person interview:
+
+```dsl
+node interview_day
+{
+    do
+    {
+        #sayText("Thank you very much for your replies. At this point I would like to invite you to an in-person interview. What day would work best for you?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_day: goto confirm_day on #messageHasData("day_of_week");
+    }
+    onexit
+    {
+        confirm_day: do 
+        {
+        set $new_day = #messageGetData("day_of_week")[0]?.value??""; // remembers and stores the preferred day to schedule the interview
+        }
+    }
+}
+
+node confirm_day
+{ 
+    do 
+    { 
+        #sayText($new_day + ", you say?");
+        wait *;
+    }
+        transitions
+    {
+        interview_time: goto interview_time on #messageHasIntent("yes");
+        repeat_day: goto repeat_day on #messageHasIntent("no");
+    }
+}
+
+node repeat_day
+{
+    do 
+    {
+        #sayText("Sorry about that, what day would you be able to come for the interview?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_day: goto confirm_day on #messageHasData("day_of_week");
+    }
+    onexit
+    {
+        confirm_day: do {
+        set $new_day = #messageGetData("day_of_week")[0]?.value??"";
+       }
+    }
+}
+```
+
+Notice that we’ve already seen a similar type of node layout when we programmed the conversational AI app to register the time to call the candidate back. Also, note that it’s always best to give feedback to the human in form of repeating the data we’ve got from them. That helps fix the errors the moment they occur and fix them right off the bat in a human-like manner. You can see that done under `node confirm_day { do #sayText($new_day + ", you say?");`.
+
+After we scheduled the interview day and time, we end the conversation with node end_interview:
+
+```dsl
+node end_interview 
+{
+    do
+    {
+        #sayText("Wonderful! Um... This concludes our call, I will relay your replies to the hiring manager. Looking forward to seeing you at the interview. Have a fantastic rest of the day. Bye!");
+        exit;
+    }
+}
+```
+
+## Create a candidate screening app that matches the position you’re hiring for
+
+Your company could be looking for a candidate for a position other than a sales representative. However, this app would serve you as a great starting base. 
+
+Start off by getting a list of pre screening questions to ask candidates from the HR department and get the AI to do the work. Such an app would save your company time and money, and let your HR professionals focus on more meaningful tasks.
+
+This app took me less than 2 hours to create, so try writing one yourself and let the [Dasha Community](https://community.dasha.ai/) know what you’ve created. We can’t wait to celebrate your success with you!

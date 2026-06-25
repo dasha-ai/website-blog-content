@@ -1,0 +1,269 @@
+---
+slug: "beginners-guide-js-operators-part-1"
+title: "Beginner's Guide to JavaScript Operators - Part One"
+author: "Sumudu Siriwardana, Developer Advocate"
+authorPhoto: https://cdn.dasha.ai/blog/beginners-guide-js-operators-part-1/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-10-26"
+updatedAt: "2021-10-26T14:24:18.980Z"
+readLength: "10 min"
+heroImage: https://cdn.dasha.ai/blog/beginners-guide-js-operators-part-1/hero.webp
+heroImageTitle: "Beginner's Guide to JavaScript Operators - Part One"
+introduction: "Have you thought about how we can tell our program to do a specific task? For example, how do we add two numbers together or compare two values?"
+seoTitle: "Beginner's Guide to JavaScript Operators - Part One"
+seoDescription: "In this JavaScript operators series, we will explore some of the basic operators in JavaScript."
+seoKeywords: "js operator, javascript operators"
+---
+
+If you remember your arithmetic lessons, we use the `+` sign to add two numbers. We use this same sign in JavaScript for additions, and we call them operators.
+
+In this first article of the beginner's guide to JavaScript operators series, we will explore some of the basic operators in JavaScript! 😊
+
+Are you ready? 😉
+
+![Are you ready?](https://cdn.dasha.ai/blog/beginners-guide-js-operators-part-1/are-you-ready.gif)
+
+## What are operators and operands? 
+
+> 
+An operator performs some operation on single or multiple operands (data values) and produces a result.
+
+What does this mean? 
+
+Let's look at the below example:
+
+`2 + 3 = 5`
+
+Here, we have to add `2` and `3` to get the final value. So we are using `+` to add these two values. And the final value is `5`. 
+
+In the above example, the `+` sign performs an arithmetic operation to add these two values. So this `+` sign is the **operator** here. In modern programming languages, we use this `+` sign to add two values. 
+
+An operand is a data value that the operator will carry out the actions. It is the values on which we operate. So, in the above example, `2` and `3` are **operands**.
+
+![Addition](https://cdn.dasha.ai/blog/beginners-guide-js-operators-part-1/addition.gif)
+
+There are *binary* operators, *unary* operators, and a *ternary* operator in JavaScript. 
+
+*Binary* operators have two values or operands, that one value comes before the operator, and one comes after the operator. For example, `1 + 2` is a binary operator. So `1` and `2` are the operands, and `+` is the operator here. 
+
+There is only one operand in *unary* operators. We place the operand before or after the operator.  `x++` is an example of the unary operator. We can see only one operand here, which comes before the operator. Don't worry if you don't understand this syntax. Let's come back to this in a later section in this post. 
+
+The *ternary* operator has three operands. It is also known as a "conditional" operator.  An example of a ternary operator is `age >= 18 ? "can drive" : "can't drive";`. We will dive into ternary operators later in this post.  
+
+Alright! I hope now you understand what's an operator and what's an operand. You are going to hear these two names many times in this post 😄
+
+JavaScript supports various operators, and we will be exploring six types of operators, which are:
+
+- Arithmetic Operators
+- Assignment Operators
+- Comparison Operators
+- Logical Operators
+- Ternary Operators
+- `typeof` Operator
+
+In this article, we will learn about Arithmetic and assignment operators, and we will go through the rest in the second part of this series. 
+
+## Arithmetic Operators
+
+We use arithmetic operators to do mathematical operations like addition, subtraction, multiplication, division, etc. It simply takes numerical values as the operands, performs an arithmetic operation, and returns a numerical value. 
+
+Let's look at some of the arithmetic operators in javaScript in the below list. 
+
+| Operator Name | Operator symbol | Description | Example |
+| ---------------- | ----------------- | ------------ | -------- |
+| `let x = 10, y = 5` |
+| Addition | `+` | Adds two numeric operands. | `x + y = 15` |
+| Subtraction | `-` | Subtract right operand from left operand. | `x - y = 5` |
+| Multiplication | `*` | Multiply two numeric operands. | `x * y = 50` |
+| Division | `/` | Divide left operand by right operand. | `x / y = 2` |
+| Remainder | `%` | Returns remainder of two operands. | `x % y = 0` |
+| Increment | `++` | Increase operand value by one. | `++x = 11`|
+| Decrement | `--` | Decrease value by one. | `y-- = 5`|
+| Exponentiation | `**` | Raise one operand to the power of the other operand. | `x ** y = 100000`|
+
+<br />
+
+Now let's see some examples of the above operators. 
+
+```js
+let x = 10;
+let y = 5;
+let z = 3;
+
+console.log(x + y);   // 10 + 5 --> 15
+console.log(x - y);   // 10 - 5 --> 5
+console.log(x * y);   // 10 * 5 --> 50
+console.log(x / y);   // 10 / 5 --> 2
+console.log(x % z);   // 10 % 3 --> 1
+console.log(x++);     // 10
+console.log(--y);     // 4
+console.log(y ** y);  // 5 * 5 * 5 --> 125 
+
+``` 
+
+Have you noticed that we used two different styles to write increment and decrement operators? Sometimes we used the operator after the operand `x++`, sometimes before the operand `--y`. 
+
+For example, we used `x++` in the example above, and the output result was `10`. So what happens if we write it as `++x`? Then the output result would be `11`. Are you confused? Let's find out why this is happening. 
+
+### JavaScript prefix and postfix
+
+We can assign the JavaScript increment and decrement operators either before the operand or after the operand. If we assign `++` or `--` before the operand `(++x)`, then we call it "prefix". If we assign it after the operand `(x++)`, we call it "postfix". 
+
+**Using ++/-- After the Operand**
+
+When we use the increment/decrement operator after the operand, the operator returns the variable value first, and then only the value will be incremented/decremented by `1`.
+
+Let's look at the below example to understand this better. 
+
+```js
+// Increment
+let x = 2;
+console.log(x++);    // 2
+console.log(x);      // 3
+
+// Decrement
+let y = 5;
+console.log(y--);    // 5
+console.log(y);      // 4
+``` 
+
+In the above example, the first values for `x` and `y` have the same original value. That's because the original value of the operand is returned before the operand is changed. If you checked the second console log results, which we use the variable the next time, you could see that we get the result including the `+1` and `-1` values. 
+
+**Using ++/-- Before the Operand**
+
+When we use the increment/decrement operator before the operand, It will increment the value of the operand even before returning its value. 
+
+Let's look at the below example to understand this better. 
+
+```js
+// Increment
+let x = 2;
+console.log(++x);    // 3
+console.log(x);      // 3
+
+// Decrement
+let y = 5;
+console.log(--y);    // 4
+console.log(y);      // 4
+``` 
+
+As you can see in the above example, the operation executes the addition and subtraction before returning the value. So you cannot see any difference in each log. This way, it helps us to check the resulting value of an operand instantly. 
+
+Well, now you know how the increment and decrement actually work! 
+
+Before moving into assignment operators, I would like to mention one more use case for the `+` operator. 
+
+### Using the `+` operator to concatenate strings  
+
+You can use the `+` operator to combine two or more JavaScript strings into one. The process of combining strings is called JavaScript string concatenation.
+
+Here is the syntax for the concatenation operator:
+
+` 'string1' + 'string2' `
+
+Now let's see how this is useful. Let's say that you have two names that you want to combine. One is the first name, and the other is the last name.  Let’s combine these two strings using the `+` operator:
+
+```js
+const firstName = 'John';
+const lastName = 'Smith';
+console.log(firstName + lastName);  // JohnSmith
+``` 
+
+In the above example, we created two variables for the first and the last name, and we combined the two names with the `+` operator to print the full name. 
+
+If you try this code, you will notice that there is no space between the two names. This is because these names are not automatically separated by a space. So if we want to keep a space between, we have to specify it by adding either a space after the first name, or space before the last name, or adding an empty string in between. Check the below example to understand this. 
+
+```js
+//Space after the first name
+const firstName = 'John ';
+const lastName = 'Smith';
+console.log(firstName + lastName);  // John Smith
+
+//Space before the last name
+const firstName = 'John';
+const lastName = ' Smith';
+console.log(firstName + lastName);  // John Smith
+
+//Add empty string in between variables
+const firstName = 'John';
+const lastName = 'Smith';
+console.log(firstName + ' ' + lastName);  // John Smith
+``` 
+
+![JavaScript](https://cdn.dasha.ai/blog/beginners-guide-js-operators-part-1/javascript.jpeg)
+
+I hope that is clear! Let's move on to assignment operators 😊
+
+## Assignment Operators
+
+An assignment operator assigns a value to the left operand based on the value of the right operand. Let's say that we want to assign the value `10` to the variable `x`. So we use the equal `(=)` sign to assign this value, ` x = 10 `. 
+
+Here's a list of assignment operators in JavaScript:
+
+| Operator Name | Symbol | Description | Longform version | Example |
+| ---------------- | ----------------- | ------------ | ----------------- | --------- |
+| `let x = 5, />y = 10` |
+| Assignment | x = y | Assigns right operand value to the left operand. |  | ` x = 10;`  |
+| Addition  | x += y | Sums up left and right operand values and assigns the result to the left operand. | x = x + y | `x += 10;` |
+| Subtraction  | x -= y | Subtract right operand value from the left operand value and assigns the result to the left operand. | x = x - y | `x -= 10;` |
+| Multiplication  | x *= y | Multiply left and right operand values and assigns the result to the left operand. | x = x * y | `x *= 10;` |
+| Division  | x /= y | Divide left operand value by right operand value and assign the result to the left operand. | x = x / y | `x /= 10;` |
+| Remainder | x %= y | Get the remainder of left operand divide by right operand and assign resulted remainder to the left operand. | x = x % y  | `x %= 10;` |
+
+<br />
+
+In the above list, you have seen that we have combined the assignment operator with arithmetic operators, for example, ` x += 10`. We call these *compound assignment operators*. This is a shorthand version to its long-form version, which is ` x = x + 10`. 
+
+It's better to get familiar with these compound assignment operators because you will be using them a lot in the future! 😊
+
+Now you must be wondering how these expressions should be evaluated when there are multiple operators in the same expression. 
+
+For example, let's look at the below expression. 
+
+`(2 + 3) * 5 = ?`
+
+Let's see how JavaScript understands which part of this mathematical expression should be evaluated first. 
+
+## Operator Precedence 
+
+If you remember your arithmetic lessons, you might remember the acronym P.E.M.D.A.S (Please Excuse My Dear Aunt Sally). This acronym PEMDAS helps us to remember which part of our mathematical expression should be evaluated first.
+
+First, we work with what is inside the parenthesis, next exponents, then multiplication, then division, after that addition, and the last subtraction.
+
+So if we take the example, `(2 + 3) * 5 = ?`, since the `2 + 3` is within parenthesis, we add these two numbers together, which gives us `5`. Then we take that result of `5` and multiply it by `5`. So the final result is `25`.
+
+So in JavaScript, we have the same way of evaluating expressions with well-defined operator precedence. 
+
+You can use the  [MDN document](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Operator_Precedence) to check the operator precedence table. The MDN document has listed down all the operators with their precedence and associativity.
+
+If you wonder what the meaning of associativity is, it tells us the direction of evaluating the expression. For example, if you look at the table on the MDN document, you can see that under the associativity column, it tells us the direction ( ‘left to right’ ) for some operators. This is very helpful when two operators have the same level of precedence.
+
+We have `+` and `-` in the same expression, then the expression is evaluated left to right. Let's check the below examples.
+
+```js
+console.log(5 + 3 - 2);  // 6
+console.log(5 - 4 + 3);  // 4
+``` 
+
+In the above example, the first expression first calculates the `5 + 3`, and then `2` is subtracted from that result. So it does the calculation from left to right. The second expression evaluates in the same way. 
+
+You don't have to remember each and every operator's precedence by heart, but having a strong understanding of how the precedence works is crucial for your programming journey. 
+
+---
+
+Alright, that's it for the day! 🤗
+
+I hope now you have a good understanding of Arithmetic operators, assignment operators, and operator precedence.
+
+In the second part of this two-part series, we will be going over the following operators:
+- Comparison Operators
+- Logical Operators
+- Ternary Operators
+- `typeof` Operator
+
+Until that, you can check out this JavaScript operators cheatsheet 😊
+
+![JavaScript Operators Cheatsheet](https://cdn.dasha.ai/blog/beginners-guide-js-operators-part-1/vE9vrNwmf.webp)
+
+![See you later](https://cdn.dasha.ai/blog/beginners-guide-js-operators-part-1/see-ya.gif)

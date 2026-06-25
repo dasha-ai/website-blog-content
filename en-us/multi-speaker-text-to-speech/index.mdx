@@ -1,0 +1,91 @@
+---
+slug: "multi-speaker-text-to-speech"
+title: "Multi-speaker Text To Speech "
+author: "Dmitry Obukhov, ML Researcher"
+authorPhoto: https://cdn.dasha.ai/blog/multi-speaker-text-to-speech/author.webp
+category: "machine-learning"
+categoryName: Machine learning
+createdAt: "2021-10-07T09:20:21.132Z"
+updatedAt: "2022-03-15T13:44:04.535Z"
+readLength: "8 minute read"
+heroImage: https://cdn.dasha.ai/blog/multi-speaker-text-to-speech/hero.webp
+introduction: "**Speech synthesis (Text-to-speech, TTS)** is the formation of a speech signal from printed text. In a way, it is the opposite of speech recognition. Speech synthesis is used in medicine, dialogue systems, voice assistants, and many other business tasks. As long as we have one speaker, the task of speech synthesis at first glance looks quite clear. When several speakers come into play, the situation becomes somewhat complicated and other tasks come into play; for example, voice cloning and voice conversion, this will be discussed further in the text. \n\nThis article aims to distinguish in simple terms between these concepts which may seem similar at first glance. I think this write up can serve as a bridge between experts in the field and the people who interact with them."
+seoTitle: "Multi-Speaker Neural Text-to-Speech"
+seoDescription: "Speech synthesis is straightforward when only one speaker is involved. It becomes complicated when multiple speakers come into play. This article clears the air regarding what multi-speaker TTS is and how it is used "
+seoKeywords: "tts, text to speech, machine learning, multi speaker text to speech, neural network, AI, multi speaker tts"
+---
+
+## Current Text to Speech Landscape
+
+So, we’ve covered the meaning of TTS, text-to-speech: a means of creating spoken versions of written text from an electronic document. Text to speech (TTS) is one of the most exciting applications of AI and ML because it’s quite useful in multiple applications and user cases.
+
+Virtual assistants, for instance, offer support with various tasks and to function, they need to hear sound waves and process the human speech to derive meaning, before giving synthetic responses made unique by the use of AI. 
+
+Text to speech generators have found increasing usage in the content production world to generate recordings that are becoming hard to distinguish from human voices. Utilizing ML in TTS technology allows the models to train on different ways to say the same word, add pauses, intonations, emotions, and variations in the pronunciation to produce more natural sounding text to speech voices.
+
+At a higher level, text to speech (TTS) enables AI to have conversations with humans. A clear example is the use of conversational AI assistants that employ different technologies, including Automatic Speech Recognition (listening), Natural Language Processing (comprehending), Dialog Management (responding) and Natural-language Generation (NLG), which may involve returning a written text or speech synthesis (text to speech) to offer the response in a spoken voice. 
+
+## **What you came here for**
+
+In the scheme considered in Figure 1, the speech synthesis model generates a voice recording of one given speaker. This is the speaker on which the model was previously trained.
+
+![image](https://cdn.dasha.ai/blog/multi-speaker-text-to-speech/image1.webp)
+
+If you want to diversify the synthesis with different voices, then you can train several models on the desired voices - but this approach does not scale well, because each model takes tens of hours of pure speech for training. Therefore, it will not be considered.
+
+## Text to speech: Tasks involved in synthesizing multiple voices
+
+So, which tasks or approaches can you take to synthesize multiple voices instead of having one TTS speaker? Here are some of the processes you must think about:
+
+### Speech Embedding 
+
+Consider a situation in which we want to train AI to speak in the voices of multiple speakers. In a situation where we have several speakers, it is important to take into account the characteristics of each speaker in order to be able to replicate their voice through speech synthesis. To do this, we need to extract voice features in the form of some kind of representation that would be convenient to store and process in a computer - we call this **speaker embedding**.
+
+### Speaker Identifier 
+
+It is important to note that the characteristics of the speaker do not depend on time, in contrast to the text or audio signal. This is usually a fixed-size vector.
+
+In a perfect world, a single speaker’s embeddings, obtained from different audio samples, will be the same, but for different speakers, they will be different. Since it is extremely difficult to achieve such perfection in an imperfect world, as a rule, in speech synthesis the speaker embedding is set in the form of a trainable embedding that depends only on the **speaker identifier**.
+
+### Encoder and decoder
+
+To understand how and where exactly the information about the speaker is taken into account, you need to look a little into the black box of the speech synthesis model.
+
+The best modern synthesis systems use neural network architectures, in which two main components can be distinguished: an encoder and a decoder. In a super simplified scheme, the encoder builds a latent representation based on linguistic features. And the decoder translates this latent representation into acoustic features.
+
+So, in such approaches, the speaker embedding is usually added to the latent representation, and thus the decoder generates features based on the text and the speaker.
+
+### Voice cloning
+
+Now that the information about the speaker has been taken into account, you can build a **multi speaker TTS** model that will speak in several desired voices at once.
+
+![image](https://cdn.dasha.ai/blog/multi-speaker-text-to-speech/image2.webp)
+
+Okay, our TTS speaks with different voices. Cool, but that's not all!
+
+Speech synthesis is impossible with voices that are absent from the data on which the model is trained. In other words, the model can only speak in voices that it has heard (been trained on).
+
+Generally speaking, having a model speak in an arbitrary voice, according to a given pattern, is a more difficult and less accomplished task at the moment, and is called **Voice Cloning**. In some scenarios, voice cloning implies the ability to use a small limited amount of the target voice - a few minutes or even only several recorded samples (few-shot voice cloning) to train or fine-tune a model to synthesize a voice indistinguishable from these recordings. In other scenarios, it is assumed that the model sees only one recording with the target voice (one-shot voice cloning). Here, speaker adaptation is a straightforward solution that transfers an average voice model to the target voice using the samples of the target speaker while the average voice model is usually built on speech from multiple speakers.
+
+### Voice conversion
+
+If we require that the text be specified not in print, but in audio format, then in fact we only need to change the voice in the original audio signal, while preserving the original linguistic content. This task is called **Voice Conversion**.
+
+![3](https://cdn.dasha.ai/blog/multi-speaker-text-to-speech/image3.webp)
+
+One approach to solve for voice conversion is to recognize the linguistic component of the original audio recording and reproduce it in a given voice. For this reason, such approaches are called ASR + TTS. However, complete recognition of the text usually does not occur; instead, synthesis takes some intermediate representation as input. Also, generative adversarial networks (GAN) and variational autoencoders (VAE) have found wide application in the Voice Conversion task.
+
+### Prosody Transfer
+
+Until now, we have talked about only two components of speech audio - text, i.e. linguistic information, and speaker information.
+
+Another important characteristic of a speech signal, from the point of view of human perception, is information about the style of pronunciation - emotions, intonation, prosody. It is not at all trivial to understand from the side of the machine what exactly is responsible for the style in the audio signal. Nevertheless, the task of achieving the intonation given in the example in the synthesis is being studied, and is called **Prosody Transfer**.
+
+A similar problem can arise in terms of Voice Conversion, when it is required to transfer not a unique reference audio voice, but a style from a given audio. The class of these tasks is called **Emotional Voice Conversion**.
+
+## **Conclusion**
+
+I gave a description of the tasks that I consider to be the main ones in the field of multi speaker speech synthesis.
+
+Of course, this is far from the entire list of approaches, and each of these is subdivided, and more than once, into smaller ones. Such classifications can be based on specific goals, methods of solution, and possible limitations. I deliberately omit such classifications in order to simplify the presentation.
+

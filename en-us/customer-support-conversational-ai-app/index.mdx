@@ -1,0 +1,482 @@
+---
+slug: "customer-support-conversational-ai-app"
+title: "Call center automation: how I created a conversational AI app version of my own Apple customer support call in just 2 hours."
+author: "Anzhelika Minina, Citizen Developer"
+authorPhoto: https://cdn.dasha.ai/blog/customer-support-conversational-ai-app/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-10-20T19:12:01.309Z"
+updatedAt: "2021-10-26T08:59:16.054Z"
+readLength: "8 minute read"
+heroImage: https://cdn.dasha.ai/blog/customer-support-conversational-ai-app/hero.webp
+introduction: "This post is a bit different from what I’ve created before. This time, I’ve recreated an Apple Support operator-to-customer phone call in a form of an automated conversational AI app."
+seoTitle: "Call center automation: how I created a conversational AI app version of my own Apple customer support call in just 2 hours."
+seoDescription: " I’ve recreated an Apple Support operator-to-customer phone call in a form of an automated conversational AI app."
+seoKeywords: "apple customer support, call center operator, call center, call center automation, conversational AI, conversational AI app"
+---
+
+Let me give you the reason why I’ve decided to create this Apple customer support conversational AI app. My conversational with the human operator took about 7 minutes in total. That’s 7 minutes of someone’s time to answer 2 questions and 7 minutes of my time to ask them. I believe that artificial intelligence can be used to automate this type of customer support conversation, therefore saving operators time to focus on the most complex issues that require human creativity.
+
+Take a look at the demo call to have a quick look at how the app works:
+
+<a href="https://youtu.be/5S9OMcbSSuo" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://youtu.be/5S9OMcbSSuo</a>
+
+This app can serve you as a base to create your own customer support conversational AI apps and use it for call center automation.
+
+Here are the steps we will take to create this app: 
+
+## Getting started with Dasha conversational AI
+
+If you have never used Dasha before, you need to activate your API key. The API key lets you load your conversational application to the Dasha Cloud Platform, where it is executed. If you have your Dasha API key, ignore this part.  
+
+Download the latest versions of Microsoft VSCode, Node.js and NPM installed. Dasha Studio is implemented as an extension to VSCode for your convenience. Open Visual Studio Code and install the [Dasha Studio extension](https://marketplace.visualstudio.com/items?itemName=dasha-ai.dashastudio) and Dasha Command Line Interface. 
+
+```bash
+code --install-extension dasha-ai.dashastudio && 
+npm i -g "@dasha.ai/cli@latest"
+```
+
+Now, run a command to register your Dasha API key. A browser window will pop up and you will need to sign up for an account. 
+
+```bash 
+dasha account login
+```
+
+Afterwards, run to check your API key. 
+```bash 
+dasha account info
+``` 
+
+Now let’s get to know the files you’ll be using to create your conversational AI app. We recommend downloading [Dasha Blank Slate app](https://github.com/dasha-samples/blank-slate-app) source code and use it as a base to write your code. 
+
+For that, you’ll have to open **main.dsl** and **data.json** files and delete everything you see there. This way, you’ll be able to start writing your code from scratch while having all the other essential files (for instance, the `commonReactions` library that has pre-programmed replies so you don’t have to worry about coding those).
+
+You can also download the source code of this conversational AI app [here](https://github.com/dasha-samples/apple-customer-support-app).
+
+You’ll mainly be using 2 files to create your conversational AI app:
+
+* main.dsl -- this is where you’ll write your DashaScript Language code to create the workflow of your conversational AI app. With Dasha Studio extension on and with the directions in this post, it’ll be an easy job for you. You can read more about it in our [documentation](http://docs.dasha.AI). 
+
+* data.json -- is the data set you provide to train the Dasha Cloud neural networks to recognize user [intents](https://dasha.ai/en-us/blog/intent-classification) and identify [named entities](https://dasha.ai/en-us/blog/named-entity-recognition). 
+
+Additionally, you will want to use the index.js file to write out external functions. External functions are needed to process data with the SDK. For example, you may need to process data, get access to databases or APIs or use it for any other purposes.
+
+* index.js --  is the server-side JavaScript file to which the Dasha SDK is imported and which launches the contents of the __/app__ folder to the Dasha Cloud to be executed.  Here you’ll be adding any external functions you deem necessary once adapting the code to your company’s needs. 
+
+Familiarizing yourself with the files is important, but now let’s get to the fun part - programming the recreated Apple customer support conversational AI app!
+
+## Purpose of the conversation
+
+The conversation I had with the call center representative was quite short, though informative. My purpose was to ask 2 main questions:
+
+* What can I do to get my mom’s iPhone broken screen fixed.
+
+* How can I trade in my own phone and get a discount for a newer model.
+
+Throughout the code you’ll see what kind of questions I asked and the way they were answered. 
+
+## Start with the basics
+
+First of all, download the [source code of this conversational AI app](https://github.com/dasha-samples/apple-customer-support-app) to be a form of a guide to you.
+
+Now, the basics here are 2 things: 
+
+* importing common library
+
+```dsl
+import "commonReactions/all.dsl";```
+
+* writing our the context for the app
+
+```dsl
+context 
+{
+    // declare input variables phone and name  - these variables are passed at the outset of the conversation. In this case, the phone number and customer’s name 
+    input phone: string;
+
+    // declare storage variables 
+    output first_name: string = "";
+    output last_name: string = "";
+    output phone_model: string = "";
+    output owner_phone_model: string = "";
+
+}
+```
+
+The next step is writing your first node called root. Take a look at how it’s written out:
+
+```dsl
+start node root 
+{
+    do 
+    {
+        #connectSafe($phone);
+        #waitForSpeech(1000);
+        #sayText("Hi, thanks for calling Apple Support. My name is Dasha. Can I get your name, please?");
+        wait *;
+    }   
+    transitions 
+    {
+
+    }
+}
+```
+
+We’re achieving multiple things here. In the `do` section we establish a connection to the user’s phone, wait for 1 second to speak (or give the user 1 second to say something), and then say our welcome message. 
+
+Since we need to know the user’s name, we should write where the conversation should go after we get that information in the `transitions` section. We make a transition to the node that follows once a particular intent gets triggered (`#messageHasData("first_name");`).
+
+Let’s take a dive into the data.json file and take a look at how entities work there:
+
+```json
+  "entities": {
+    "first_name": 
+    {
+      "open_set": true,
+      "values": 
+      [
+        {
+          "value": "John"
+        },
+        {
+          "value": "Bridgette"
+        },
+        {
+          "value": "James"
+        },
+        {
+          "value": "Sarah"
+        },
+        {
+          "value": "Jermaine"
+        },
+        {
+          "value": "Roseanne"
+        },
+        {
+          "value": "Ahmed"
+        },
+        {
+          "value": "Tony"
+        },
+        {
+          "value": "Jon"
+        }
+      ],
+      "includes": 
+      [
+        "(Oscar)[first_name]",
+        "(Danielle)[first_name]",
+        "My name is (Sophie)[first_name]",
+        "My name is (Sarah)[first_name]",
+        "My name is (Cameron)[first_name]",
+        "My name is (Steven)[first_name]",
+        "My name is (Jessica)[first_name]",
+        "My name is (Jon)[first_name]",
+        "My name is (Ahmed)[first_name]",
+        "My first name is (Lisa)[first_name]"
+      ]
+    },
+```
+
+The `includes` section is very helpful. It provides you with an opportunity to have your model trained better as you feed it more examples. 
+
+`Onexit`section lets the conversational AI app store, remember, and later use the variables we feed it. In this case, we assume the user might say their last name, first name, or both. And we got to store that information for later use. Note that this information will be used in the node you specify right after `onexit`.
+
+Moving on to the next nodes. 
+
+In the following digression, our purpose is to program the conversational AI app to ask the user about their concern or problem and then transition to the corresponding nodes (or digressions). 
+
+```dsl
+digression how_may_i_help
+{
+    conditions {on #messageHasData("first_name");} 
+    do 
+    {
+        set $first_name =  #messageGetData("first_name")[0]?.value??"";
+        set $last_name =  #messageGetData("last_name")[0]?.value??"";
+        #sayText("Hi," + $first_name + " how may I help you out today?");
+        wait *;
+    }
+}
+```
+
+Note that in the `onexit` section, what comes after `set` goes to our context up above. 
+
+On the phone call, I mentioned my problem: a broken phone screen. But I haven’t mentioned the model of my iPhone. Naturally, the operator asked me that question and our app shall do the same:
+
+```dsl
+node what_phone_model
+{
+    do
+    {
+        #sayText("Could you tell me the model of the phone, please?");
+        wait *;
+    }   
+    transitions
+    {
+
+        broken_phone_screen: goto broken_phone_screen on #messageHasData("phone_model");
+    }
+    onexit
+    {
+        broken_phone_screen : do {
+        set $phone_model =  #messageGetData("phone_model")[0]?.value??"";}
+    }
+}
+```
+
+Next, we need to ask qualifying questions to make the final answer to the first question as accurate as possible. 
+
+```dsl
+node broken_phone_screen
+{
+    do 
+    {     
+        #sayText("Gotcha, we're more than happy to help you with getting the phone screen fixed. I'm gonna need one moment."); 
+        // a pause in between sentenses for more human-like interaction
+        #waitForSpeech(1000);
+        #sayText("Okay," + $phone_model + " , let me see. Alright. Do you know if you've got Apple Care coverage on you?");
+        wait*;
+    }
+    transitions
+    {
+        no_apple_care_explain: goto no_apple_care_explain on #messageHasIntent("no") or #messageHasIntent("no_apple_care") or #messageHasIntent("how_much_for_repair_with_no_apple_care");
+    }
+}
+```
+Here (in the `transitions` section and following nodes) I didn’t program the app to have an answer to a “yes, I do have Apple Care coverage” as I wanted to stick to the original conversation as closely as possible for it to be more realistic.
+
+We got information that the user has no Care coverage. I’m glad I wasn’t asked to buy Apple Care on the spot.
+
+Pro note: upselling is nice, but always remember that the rule of the thumb and the main purpose of a conversational AI app is to solve the user’s problem as fast and as efficiently as possible. 
+
+```dsl
+node no_apple_care_explain
+{
+    do 
+    {
+        #sayText("Alright. So, when it comes to getting Apple Care, it can actually only be purchased within 60 days of originally purchasing the device... Other than that once there's actual damage to the phone, you're actually not allowed to purchase Apple care.");
+        wait *;
+    }   
+    transitions 
+    {
+        confirm_phone_model: goto confirm_phone_model on #messageHasIntent("broken_phone_screen_replace_cost") or #messageHasIntent("how_much_for_repair_with_no_apple_care");
+    }
+}
+```
+
+In the `do` section we don’t pose any questions. This means the conversation doesn’t have to necessarily go the direction we program it to go in the `transitions` section. It can go to one of the digressions instead, depending on what the user is thinking. 
+
+In my case, I asked the call center operator how much I’d have to pay to repair the phone screen without having Apple Care on me. And that’s what I wrote in the `intents` section in the data.json file for that:
+
+```json
+{
+  "version": "v2",
+  "intents": 
+  {
+    "how_much_for_repair_with_no_apple_care": {
+      "includes": [
+        "how much does it cost to repair without apple care",
+        "how much will it cost to repair without apple care",
+        "how much would it cost to repair without apple care",
+        "Without apple care how much does it cost ",
+        "what's the price to repair the phone with no apple care",
+        "what's the price for reparing phone without apple care",
+        "cost without apple care",
+        "if I don't have apple care, how much would it cost me to repare",
+        "without having apple care how much the repair",
+        "no apple care, how much would it cost to repair the screen",
+        "reparing the screen without apple care"
+      ]
+    },
+    "broken_phone_screen_repair_cost": {
+      "includes": [
+        "how much does it cost to repair a broken screen",
+        "how much does it cost to repair a cracked screen",
+        "how much would it cost to repair a cracked phone screen?",
+        "what's the price to repair a cracked screen",
+        "what's the price to repair the broken screen",
+        "how much does it cost to fix a broken phone screen",
+        "cost of broken phone screen",
+        "price to fix a cracked screen on the phone"
+      ]
+    },
+```
+
+Under `includes` you write words or phrases that you know your user would say in a particular instant. There can be as many variations as you like.
+
+Next node is all about confirming the phone model the user has already mentioned before. It’s only natural for a human to ask such a confirmation question and by the same token makes the conversational AI sound more natural. And that’s besides providing feedback to the user that we got all the information right.
+
+```dsl
+node confirm_phone_model
+{
+    do 
+    {     
+        #sayText("Yes, I'm pulling that up now..."); 
+        #waitForSpeech(1000);
+        #sayText(" " + $phone_model + " Is it Pro or Pro Max, you said?");
+        wait*;
+    }
+    transitions
+    {
+        screen_repair_price: goto screen_repair_price on #messageHasIntent("no") or #messageHasData("phone_model") or #messageHasIntent("not_pro_pro_max") or #messageHasIntent("phone_just_as_i_said");
+    }
+}
+```
+
+Next up I have 2 identical phrases mapped in 2 different ways: digression and node.
+
+Nodes are stable. They let the conversation move from one point to another in a linear way. Digressions, on the other hand, are like conversational zigzags, the conversation could jump from one digression to another and then back (if needed).
+
+In this particular case, I wrote both because I used the following node in my previous node’s transitions section.
+
+```dsl
+node screen_repair_price
+{
+    do 
+    {     
+        #sayText("Okay gotcha, so that pricing is showing one ninety-nine and that of course plus tax most likely."); 
+        wait*;
+    }
+    transitions
+    {
+
+    }
+}
+
+digression screen_repair_price
+{
+    conditions {on #messageHasIntent("pnot_pro_pro_max") or #messageHasIntent("phone_just_as_i_said") and #messageHasData("phone_model");} 
+    do 
+    {     
+        #sayText("Okay gotcha, so that pricing is showing one ninety-nine and that of course plus tax most likely."); 
+        wait*;
+    }
+}
+```
+
+The `transitions` here are empty. That means the conversation can go to one of the digressions based on the intents triggered.
+
+Here’s a very simple digression that a customer support representative provides the user with the information on the timing of the repair.
+
+```dsl
+digression time_no_parts_available
+{
+    conditions {on #messageHasIntent("time_no_parts_available");} 
+    do 
+    {     
+        #sayText("It depends, but the average time is about three to five business days. And that's for mailing in the phone instead of going to the store. That being said, I've never heard of the screen repair taking longer than this time frame."); 
+        wait*;
+    }
+}
+```
+
+And yet another simple digression that will get triggered shall a user ask what the mailing/shipping options are.
+
+```dsl
+digression mailing_option_pricing
+{
+    conditions {on #messageHasIntent("mailing_option") or #messageHasIntent("mailing_option_pricing");} 
+    do 
+    {     
+        #sayText("Alright, so with shipping, we only ship with UPS or FedEx. That typically costs about 5 to 6 dollars. Could be a bit more expensive, though."); 
+        wait*;
+    }
+}
+```
+
+In my real-life conversation with the Apple support representative, I got all the information I required. So it was time for me to move on to my next question about trading in my phone to get a newer version. 
+
+Note that it’s a digression since the question I asked popped out of the blue.
+
+This digression structure follows the same logic as the digressions above, so should be easy breezy for you.
+
+```dsl
+digression trade_in_update
+{
+    conditions {on #messageHasIntent("upgrade_phone") or #messageHasIntent("trade_in_phone");} 
+    do
+    {
+        #sayText("Could you tell me the model of the phone, please?");
+        wait *;
+    }   
+    transitions
+    {
+        trade_in_cost: goto trade_in_cost on #messageHasData("phone_model");
+    }
+    onexit
+    {
+        trade_in_cost : do {
+        set $owner_phone_model =  #messageGetData("phone_model")[0]?.value??"";}
+    }
+}
+```
+
+Next up is a very simple node that we program to let the user know how much money that would have as a trade-in credit for the purchase of the new iPhone:
+
+```dsl
+node trade_in_cost
+{
+    do 
+    {   
+        #sayText("So with the " + $owner_phone_model + " in prestine condition you can get up to 500 dollars in trade-in credit. That's for the next generation phone."); 
+        wait*;
+    }
+    transitions
+    {
+
+    }
+}
+```
+
+Similarly, here we let the user know how much the final cost of the phone be after the credits are applied:
+
+```dsl
+digression new_phone_price_after_discound
+{
+    conditions {on #messageHasIntent("new_phone_price_after_discount");} 
+    do 
+    {     
+        #sayText("The best thing to do is to go to apple dot com because there are different variations to the phone. But the bottom level model with no Apple Care is showing to be 599 dollars after trade it for 128 gigabyte phone. This is a subtotal without tax."); 
+        wait*;
+    }
+}
+```
+
+At this point I got both of my questions answered and my conversation with the Apple Support operator ended.
+
+```dsl
+digression thats_it_bye
+{
+    conditions {on #messageHasIntent("thank_you") or #messageHasIntent("that_would_be_it");} 
+    do 
+    {     
+        #sayText("No problem, happy to help. I hope you have a great rest of your day. Bye!"); 
+        #disconnect();
+        exit;
+    }
+}
+```
+
+And that’s it. End of the conversation with all issues tackled the easiest way possible.
+
+Despite this being my whole conversation, I’ve written out more digressions that solve some of the most common user’s problems:
+
+* Frozen screen
+* Phone doesn’t get charged
+* Accidental purchase on Apple Store, iTunes, etc
+* User forgot their iPhone password
+* iPhone got water damage
+
+On the Apple website, all the abovementioned solutions don’t provide an immediate answer. Instead, the users are prompted to contact chat- or voice-based support. These use cases and so many more can be automated by creating one simple conversational AI app that will tackle all the FAQs in the operator’s stead, saving the company money and time of the operators.
+
+## Final note
+
+Naturally, this is just a demo and is a mirror-like reflection of my own conversation with the Apple Support operator. However, the good news is that this could serve as a solid base for your own customer support conversational AI apps. Or for automating your call center, for example. 
+
+The best thing to do now (and a great opportunity to learn by practicing) is opening the [source code](https://github.com/dasha-samples/apple-customer-support-app) and adjusting it to make it fit your criteria. 
+
+And the number one best thing to do is to join [Dasha Developer Community](https://community.dasha.ai) where you’ll meet welcoming like-minded developers who share ideas, questions, and get all the help they need (for free, of course). 
+
+I’m looking forward to seeing your success story in Dasha Developer Community! :) See you there soon! 

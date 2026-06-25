@@ -1,0 +1,280 @@
+---
+slug: "conversational-design-2"
+title: "I can’t believe it’s not human! 6 features of conversational design to build a human-like voice AI app"
+author: Anzhelika Minina
+authorPhoto: https://cdn.dasha.ai/blog/conversational-design-2/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-07-06T13:57:22.935Z"
+updatedAt: "2025-06-06T04:25:02.086Z"
+readLength: "11 minute read"
+heroImage: https://cdn.dasha.ai/blog/conversational-design-2/hero.webp
+introduction: "When building a conversational AI app an understanding of great conversational design is a must. In our [<u>previous post</u>](https://dasha.ai/en-us/blog/conversational-design), we covered the basics of conversational design, looked at what conversational principles are, and explored their importance and use. \n\nThis time we’ll dig deeper into 6 fundamental features of conversational design that would help you build truly natural-sounding conversational AI applications."
+seoTitle: "6 features of conversational design to build a human-like voice AI app"
+seoDescription: "You'll find out about 6 fundamental features of conversational design that would help you build truly natural-sounding conversational AI applications."
+seoKeywords: "AI persona, Dasha conversational AI, conversational AI as a service, conversational AI app, conversational design, dasha AI, conversational ai design,"
+---
+
+## What are the pillars of great conversational AI design?
+
+This is going to sound redundant but first and foremost your conversational design should focus on  the user experience. . In order to do that you should think of:
+
+the use cases your app would to solve for, 
+your customer’s profile
+your AI’s [persona](https://dasha.ai/en-us/blog/conversational-design)
+
+Let’s take a look at each of the above.
+
+### Build your conversational AI app around the use case
+
+You might want to create a conversational design that would account for just one elaborate or multiple use cases.
+
+Regardless of how many use cases you want to build your conversational AI app around, you need to put most of your efforts into the key use cases. Your customers will follow particular conversational paths to solve their issues, which is why those paths and your conversational design as a whole should be well thought out. In this case, your customers will have a fantastic experience with both your business and your conversational AI application.
+
+The primary reason your users connect with your conversational AI is for help or assistance. Therefore, it would be counterproductive to make your conversational design, well, too conversational, as it would mean a waste of users’ time. At the same time, some chit-chat is fine, as it conveys an easy atmosphere that is human-like. Rule of thumb is - use chit-chat sparingly, never make it a priority.
+
+It’s a delicate balance. On the one hand, you want to convey a human-like experience. On the other hand, you want to provide a great design. Great design is laconic. A key way in which conversational apps can be better experienced than conversations with call center agents is through reducing the amount of time the user spends on the phone, not only through cutting out wait times but also by careful design of the conversation. 
+
+### Customer profile
+
+Let’s showcase an example that illustrates the importance of knowing your customer.
+
+A hypothetical bank knows its customer’s profile: it knows their background demographics (female, 30-37 years old), socioeconomic status ($80,000 salary, Bachelor of Arts), psychographics (habits, interests, values), and geographic information (U.S., NY, New Jersey). It knows the way its customers spend and transfer money and so on.
+
+When creating a conversational design, a developer at this bank considers what kind of vocabulary the customers use and incorporates it into the design. 
+
+Pro tip: create multiple conversational designs of the same conversation to cater to specific customer profiles. They will thank you for the delightful experience.
+
+This developer knows that the customers use financial terminology and are expecting the customer service assistants to use it as well. Knowing the psychographic attributes of the customers, it’s possible to predict the type of conversational AI demeanor they would feel comfortable interacting with. Geographic information helps with localization - AI would chat in Spanish with customers whose first or preferred language is Spanish starting with the first voice line of the conversation.
+
+### What’s your AI’s persona like?
+
+In short, a persona is a made-up character who takes on the characteristics of your businesses’ top customer support representative (or tech support rep, or an assistant at your clinic - it all depends on your industry).
+
+Having a distinct persona helps with building trust with your customers, allows your customers to have a great experience, and creates a stronger relationship between your company and the customer. You can read a more detailed description and use of conversational AI personas [here](https://dasha.ai/en-us/blog/conversational-design). 
+
+## Test the way your conversational design works, then iterate
+
+While writing the code you should be testing how well the app recognizes what you say to it; test how well it understands sentiments and intents, and how natural the prompts sound based on the wording you chose.
+
+It’s easy to test and iterate in Dasha Studio. You can initiate a chat every step of the way and make changes accordingly. All you have to do is open the Terminal in your Visual Studio (if you are new to Dasha Studio, check out [this guide](https://dasha.ai/en-us/blog/conversational-ai-app-creation-guide)) and type __’npm start chat’__:
+
+![start chat](https://cdn.dasha.ai/blog/conversational-design-2/start_chat.jpg)
+
+Once you notice any errors, it’s best to fix them immediately and then run the app again. 
+
+You could also notice something off in the second sentence above. The AI gives a command “turn on the lights”, which isn’t good conversational design. Let’s get into why that is so.
+
+### Your wish is my command
+
+Conversing in command-response mode is bad UX. This type of conversational interface is exactly why we are still using our fingers to interact with machines. From a user’s  perspective, command-response interactions will never make them feel like they are talking to an actual human, as they speak to an AI. 
+
+How can you make your conversations more human-like? 
+
+Let’s go back to the snow mode example above.The best way would be to just wait for the user to answer “yes” or “no” to “would you like to turn the snow mode on?” (you can find the in-car assistant demo [here](https://dasha.ai/en-us/blog/voice-assistant-for-cars). As with any user interface, if you have to teach it, it’s no good. 
+Your conversational AI app should make it possible for the user to reply the way they want to. As we discussed above, your conversational design should revolve around use cases and actions, and so should your intuitive commands. For instance, in case you have multiple actions to offer to users, focus on the action words like ‘connect’, ‘schedule’, ‘check’, etc.
+
+ A great conversational menu would not sound like  this “would you like to connect with 24/7 help line, schedule an appointment with your GP, or check if other doctors are available for an appointment?”. Instead, it would sound like this “how can I help you?” 
+
+### Confirmed!
+
+Confirming that the user’s request has been understood and processed sends feedback to the user and lets them correct the action if a mistake has been made. Also, it is a behavior that user’s are familiar with from speaking with human call center agents. 
+
+Let’s take a look at a sample code.  user, The AI repeats information back to the user from the customer and if it’s correct (__’positive: goto process_transfer on #messageHasIntent("agreement", "positive");’__ ), proceeds to money transfer. If it got something wrong (__’negative: goto transfer_money on #messageHasIntent("agreement", "negative");’__ ), it will ask again for the needed information.
+
+```dsl
+node transfer_confirmation
+{
+    do
+    {
+        #say("ask_transfer_confirmation",
+        {
+            amount: $amount,
+            source_name: $source_account?.name,
+            source_num: $source_account?.num,
+            target_name: $target_account?.name,
+            target_num: $target_account?.num
+        }
+        );
+        wait *;
+    }
+    transitions
+    {
+        positive: goto process_transfer on #messageHasIntent("agreement", "positive");
+        negative: goto transfer_money on #messageHasIntent("agreement", "negative");
+    }
+    onexit 
+    {
+        negative: do {
+            set $amount = "";
+            set $source_account = null;
+            set $target_account = null;
+            set digression.transfer_data.amount = "";
+            set digression.transfer_data.source_account = "";
+            set digression.transfer_data.target_account = "";
+            set digression.transfer_data.account = "";
+        }
+    }
+}
+```
+
+Confirmations are crucial as, besides establishing understanding, they help to maintain the context of the conversation. You can design your AI to ask for a confirmation rigth away, or ask for the confirmation at the end of the full request. For instance, if your conversational AI app helps your customers schedule an appointment with a doctor, the conversational path could be as follows:
+
+1.
+
+AI: Hi Rita, how can I help you? 
+
+Human: I’d like to make an appointment with Dr. Jimenez
+
+AI: Got it! Now, what day would you like to schedule it for?
+
+Human: Let’s do Monday the 16th at 8am
+
+AI: Perfect. You want to  schedule an appointment with Dr. Jimenez for Monday the 16th at 8am. Did I get that right?
+
+Human: Yes, thank you!
+
+AI: You’re welcome! We’ll see you then. Have a nice day!
+
+Or
+
+2.
+
+AI: Would you like to schedule an appointment, reschedule an appointment, cancel an appointment or speak to a human?
+
+Human: Schedule an appointment.
+
+AI: What doctor would you like to make an appointment with?
+
+Human: I’d like to make an appointment with Dr. Jimenez for Monday the 16th at 8am
+
+AI: Alright, got that. scheduling an appointment with Dr. Jimenez for Monday the 16th at 8am. Did I get that right?
+
+Human: Yes you did, thank you for your help.
+
+AI: No problem! We’ll see you then, bye!
+
+Or
+
+3.
+
+AI: What doctor would you like to make an appointment with?
+
+Human: Dr. Jimenez
+
+AI: You said Dr. Jimenez, correct?
+
+Human: That’s right
+
+AI: Got that! Now, what day would you like to schedule it for?
+
+Human: Let’s do Monday the 16th at 8am
+
+AI: You want to schedule it for Monday, right?
+
+Human: Correct, Monday at 8am.
+
+AI: 8am, right?
+
+Human: Right
+
+AI: Perfect, scheduling an appointment with Dr. Jimenez for Monday the 16th at 8am. Did I get that right?
+
+Human: Yes, thank you!
+
+AI: You’re welcome! We’ll see you then. Have a nice day!
+
+Which of the three examples is the most user-friendly? The first one because it may as well had been conducted by a human. 
+If the user notices a mistake, they can correct the AI, and once they do, it should give feedback to the user by asking to confirm the newly received information. Now, let’s explore how error handling affects conversational design.
+
+### Oops, I’m so sorry, it seems like I didn’t understand your question
+
+It’s natural for your conversational AI as a service to make mistakes or not understand the user’s words. That can happen if the AI didn’t recognize that was said because your AI isn’t programmed to perform a specific action (error in the system), if the user says something that you haven’t programmed it to understand in terms or the context (no match), or if the user didn’t say anything (no input). The way you design your conversational AI handle errors will decide what kind of customer experience your users are bound to have.
+
+Let’s take a look at some examples.
+
+__No match__
+
+AI: Which doctor would you like to schedule an appointment with?
+
+Human: The doctor I always go to
+
+AI: Could you say the name of the doctor, please?
+
+Human: Dr Jimenez
+
+AI: Got it  When will you like to come in?
+
+Here the AI doesn’t have the “doctor I always go to” in the context and doesn’t know what that might mean. In order to resolve such error, you could program your conversational AI to ask for exact information in the next question. A better design would be to have the AI app interface to your CRM and to look up the most common practitioner for the patient. Here is what that might sound like: 
+
+AI: Which doctor would you like to schedule an appointment with?
+
+Human: The doctor I always go to
+
+AI: That seems to be… Dr. Jimenez. Correct?
+
+Human: That’s right.
+
+AI: Great. When will you like to come in? 
+
+Human: Hey, could you call Chris?
+
+AI: Which Chris?
+
+Human: My friend Chris
+
+AI: There seem to be two people whose name is “Chris”. Chris Smith and Chris Jones. Which one would you like me to call?
+
+Human: Chris Smith, please
+
+AI: Got that, dialing Chris Smith now
+
+In case the information the user gives is incomplete, it’s best to, once again, ask a clarifying question. Make sure you do that without overapologizing, as that takes you further from acting on the request.
+
+__No input__
+
+AI: Which doctor would you like to schedule an appointment with?
+
+Human: …(silence)
+
+AI: Hello? 
+
+Human: Ah, sorry. I’m here.
+
+AI: Awesome! So, which doctor would you like to schedule an appointment with?
+
+Or
+
+AI: Which doctor would you like to schedule an appointment with?
+
+Human: …
+
+AI: Sorry, it seems like I can’t hear you. Could you tell me which doctor you want to schedule an appointment with?
+
+Human: I want to see Dr. Jimenez
+
+In these cases, you need to have your conversational AI app go back to the question, though it needs to rephrase it if you want it to sound more human (which is a part of great conversational design).
+
+AI: Welcome to Sarah’s Restaurant! What would you like to order?
+
+Human: (silence)
+
+AI: We have main dishes, desserts, appetizers, and drinks. Would you like something from any of these categories?
+
+Human: Ah, yes, I’d like a dessert. What do you have?
+
+When a user doesn’t respond, one of the reasons could be confusion or they could be taking their time to think. In this case you could provide them with a wider range of options to choose from.
+
+__Error in the system__
+
+AI: Welcome to Icy Icecream! What would you like to order?
+Human: Hi, may I order a Pepperoni?
+AI: It’s not something we have on the menu. However, we have all kinds of ice cream! Which ice cream would you like to order?
+
+Sometimes people make errors too, in this particular case the person, perhaps, called the wrong restaurant or decided to be funny. In any case, your conversational AI should provide the reason for not understanding your request and provide a solution. However, remember that you shouldn’t give too much detail neither when explaining why your AI can’t perform your action nor giving too many options (too much information on the choices: “[...] Which ice cream would you like to order? We have strawberry, dark chocolate, white chocolate, vanilla, mango,..”).
+
+## Moving forward
+
+Now you’re nearly an expert in conversational AI and can build truly natural, human-like conversational AI apps. One final thing, which should be always on your mind, is the [cooperative principles](https://dasha.ai/en-us/blog/conversational-design). Remember that your app’s main job is to solve user’s issues and be cooperative as to get that job done.
+
+Now that you know conversational design principles, build your conversational AI app with Dasha AI!

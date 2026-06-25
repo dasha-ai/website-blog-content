@@ -1,0 +1,491 @@
+---
+slug: "ai-pizza-ordering"
+title: "Best restaurant online ordering system? Conversational AI! Or how to make pizza ordering easy with AI"
+author: Anzhelika Minina
+authorPhoto: https://cdn.dasha.ai/blog/ai-pizza-ordering/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-07-17T11:02:47.038Z"
+updatedAt: "2021-08-10T19:06:48.642Z"
+readLength: "12 minute read"
+heroImage: https://cdn.dasha.ai/blog/ai-pizza-ordering/hero.webp
+introduction: "According to [Morgan Stanley’s research](https://www.morganstanley.com/ideas/online-food-delivery-market-expands), 47% of restaurant customers prefer to call the restaurant directly to make an order. Phone ordering isn’t declining at the expected rate and phone call automation is one of the biggest reasons why.\n\nVoice ordering for restaurants is on the rise. Food chains are adopting artificial intelligence as means to cut operational costs, free their staff, and boost customer experience rates. Pizza restaurants are no exception. Domino’s was the first large pizza chain to take advantage of AI and automated telephone order taking for pizza.\n\nIn this post, we will take a look at why restaurants use AI to automate delivery and takeout orders. We will also go through a tutorial on creating your own conversational AI pizza ordering app."
+seoTitle: "Best restaurant online ordering system? Conversational AI! Or how to make pizza ordening easy with AI"
+seoDescription: Take a look at why restaurants use AI to automate delivery and takeout orders. We will also go through a tutorial on creating your own conversational AI pizza ordering app.
+seoKeywords: "restaurant online ordering system, restaurant ordering system, automated food delivery, automated food ordering,conversational AI app, conversational AI api, delivery bot, voice ordering for restaurants, dasha conversational AI"
+---
+
+## Why you should use an automated restaurant ordering system
+
+Automation redefines customer experience, decreases costs, and increases efficiency. Some restaurants use delivery bots, others use restaurant online ordering systems (app, website). Others use a combination for the best CX. Taking orders is a fraction of restaurant operations. Yet when you take into account that without automating this part you would have to hire someone to be by the phone to take orders and incur costs. Making your existing staff take phone orders prevents them from giving undivided attention to the customers. It also distracts them from other essential tasks. 
+
+A restaurant might decide to resort to third-party food ordering services. Yet statistics show that the preferred method is having your own automated phone ordering system. Why? The answer is quite simple. The survey conducted by Preoday showed that 68% of food and drink professionals pay commission to their restaurant ordering system supplier. Most customers who want to support a restaurant itself rather than a tech supplier order food directly from the restaurant.
+
+Nowadays, people prefer to order food delivery versus dining in a restaurant. Even more so during the pandemic. Let’s look at some numbers that show how customers think when it comes to ordering food.
+
+70% of customers call the restaurant directly when making an order, rather than use third-party platforms, as per [Hospitality Technology](https://hospitalitytech.com/70-consumers-prefer-order-direct-restaurants-not-third-party-services), since “consumers want restaurants to take their money, not technology suppliers”,
+
+as per [Upserve](https://upserve.com/restaurant-insider/online-ordering-statistics/), once a week 60% of customers order delivery or takeout,
+
+20% of the customers say they spend more money when ordering delivery, as per [Restaurant Business Online](https://www.restaurantbusinessonline.com/consumer-trends/stats-are-consumers-are-upping-restaurant-delivery).
+
+Since dining in is the least preferred option, Domino’s decided to use AI to automate the restaurant ordering system. The pizza chain created a virtual assistant that incorporates voice recognition. It integrates with nearly every platform available, be it Google Home, Amazon Alexa, smartwatches, and even Ford Sync! Domino’s customers can now literally ask their car to order pizza for them just by giving a simple voice command. 
+
+Now, if Domino’s can create a voice AI pizza ordering assistant, why can’t you? It’s time to create a simple pizza ordering app with Dasha conversational AI as a Service. 
+
+## Building a pizza ordering conversational AI app with Dasha AI
+
+Before you start you can check out this video that shows how exactly the conversation will flow once you're done writing the code: 
+
+<a href="https://youtu.be/fRDlbrMUPyY" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://youtu.be/fRDlbrMUPyY</a>
+
+Now off to the app making process.
+
+First things first, you should open your “playground”, AKA Visual Studio Code  where the magic will happen. Then, go to Github and download [Dasha First App](https://github.com/dasha-samples/dasha-first-app) (it’ll serve you as a base to create your pizza ordering AI app). If you don’t know what’s going on and are new to this, I recommend this [starting guide](https://dasha.ai/en-us/blog/conversational-ai-app-creation-guide). When done setting everything up, just get back to this post.
+
+Now you should have your VS Code open with Dasha First App in it. 
+
+Go to __main.dsl__ and delete everything you see there, as it needs to be empty for you to write your code. Next, go __intents.json__ and change the name to data.json (that will let you have both [entities and intents). If you get confused at any moment, you can go back to Github and download the [pizza ordering app](https://github.com/arrrgr/take-pizza-order) that already has everything we’re about to go through laid out.
+
+Go back to your empty __main.dsl__ and start typing the following:
+
+```dsl
+import "commonReactions/all.dsl";
+
+context 
+{
+    input phone: string;
+    food: {[x:string]:string;}[]?=null;
+}
+```
+
+The first line means that you are importing the common libraries and the part that says `context` provides the variables that the app will store and remember (and use during the chat, if needed).
+
+The next thing to do is to plot the conversation. We will need to have the conversational AI app safely connect to the customer’s phone (`#connectSafe($phone);`), wait for 1 second (` #waitForSpeech(1000);`), say the introductory phrase, and wait for the response.
+
+```dsl
+start node root 
+{
+    do 
+    {
+        #connectSafe($phone);
+        #waitForSpeech(1000);
+        #sayText("Hi, this is Yummy Pizza, how may I help you today?");
+        wait *;
+    }    
+    transitions 
+    {
+        place_order: goto place_order on #messageHasIntent("yes");
+        place_order_pizza: goto place_order_pizza on #messageHasIntent("order_pizza");
+        no_dice_bye: goto no_dice_bye on #messageHasIntent("no");
+    }
+}
+
+```
+
+The conversation can go multiple ways and we have to account for that right off the bat. To the “how may I help you” question a customer can respond something like:
+
+I’d like to make an order (`place_order`),
+I wanna order a pizza (`place_order_pizza`),
+Sorry, wrong number / changed my mind, sorry, bye (`no_dice_bye`).
+
+That’s what our transitions are for. In order for the transitions to work, we have to use __node__s. Let’s take a look at how that works.
+
+```dsl
+node place_order
+{
+    do 
+    {
+        #sayText("Got that! What can I get for you today?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_food_order: goto confirm_food_order on #messageHasData("food");
+    }
+    onexit
+    {
+        confirm_food_order: do {
+        set $food = #messageGetData("food");
+       }
+    }
+}
+```
+
+We see quite a lot going on in this node. It will serve us in case a customer responds with “I’d like to make an order, please” or similar - you’ll have to write down the intents in the __data.json__ file. That’s how my intents look like for this specific case:
+
+```json
+"place_order": 
+    {
+      "includes": [
+        "I want to place an order",
+        "I want to pick up some food",
+        "Can I get some food?",
+        "order",
+        "food",
+        "I want to place an order for pick up",
+        "I'd like to pick up some food",
+        "can I pick up some food", 
+        "I'd like to make an order",
+        "I'd like to order something"
+      ],
+      "excludes": [
+        "pizza",
+        "I'd like to get a pizza",
+        "I'd like to order a pizza",
+        "I want to order a pizza",
+        "I want pizza",
+        "I'd like a pizza",
+        "pizza",
+        "I'd like to order a pizza",
+        "I would like to order a pizza",
+        "I want a pizza",
+        "I want to order a pizza",
+        "yes, I want a pizza",
+        "yes, I'd like to order a pizza",
+        "I'd like a pizza",
+        "yes, I'd like to order a pizza",
+        "I'd like to have a pizza",
+        "I want to buy a pizza",
+        "I wanna get a pizza",
+        "I'd like to get a pizza"
+      ]
+      },
+```
+
+It has __`includes`__ and __`excludes`__ parts since I want this specific intent only to be triggered once a customer specifies only that they want to make an order without saying that want pizza (since I’m going to be using a different node for that, we’ll get to that in a bit).
+
+Now that the conversational AI app recognized the intent, it will ask the customer what they’d like to order:
+
+```dsl
+do 
+    {
+        #sayText("Got that! What can I get for you today?");
+        wait *;
+```
+
+Here we assume that the customer will say they want pizza since it’s a pizza place they’re calling. You could add other transitions if you’d like. For instance, you could program your conversational AI app to be able to answer questions that might follow this node like “what do you guys have?” or “could you walk me through the menu?”.
+
+If a customer has a specific pizza in mind, such as a Pepperoni, and answers something along the lines of “I’d like to get a Pepperoni”, the app would remember this piece of information, store it, and transition to the __`node confirm_food_order`__:
+
+```dsl
+node confirm_food_order
+{
+    do
+    {
+        #sayText("Perfect. Let me just make sure I got that right. You want ");
+        var food = #messageGetData("food");
+        for (var item in food)
+            {
+                #sayText(item.value ?? "and");
+            }
+        #sayText(" is that right?");
+        wait *;
+    }
+     transitions 
+    {
+        order_confirmed: goto payment on #messageHasIntent("yes");
+        repeat_order: goto repeat_order on #messageHasIntent("no");
+    }
+}
+```
+
+The __var__ part stands for the variable (remember we put it in the context?). You want to make your conversational AI remember that the customer wanted Pepperoni. In this part, we ask for confirmation that we got the order correctly and then move on to the payment part, more on that later. If the AI didn’t hear the customer properly or misunderstood them, we have to make sure we take the order all over again:
+
+```dsl
+node repeat_order
+{
+    do 
+    {
+        #sayText("Let's try this again. What can I get for you today?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_food_order: goto confirm_food_order on #messageHasData("food");
+    }
+    onexit
+    {
+        confirm_food_order: do {
+        set $food = #messageGetData("food");
+       }
+    }
+}
+```
+
+After the AI asks for the order details, we need to once again program it to remember the food item (pizza kind) before moving on to confirming the order once more:
+
+```dsl
+ onexit
+    {
+        confirm_food_order: do {
+        set $food = #messageGetData("food");
+       }
+    }
+```
+Now, let’s say that after the intro in the node root the customer says they want to order pizza, but don’t specify which one exactly they want. We need to create a new node (`node place_order_pizza`) for that and ask them to specify what kind of pizza they want:
+
+```dsl
+node place_order_pizza
+{
+    do 
+    {
+        #sayText("What kind of pizza would you like?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_food_order: goto confirm_food_order on #messageHasData("food");
+       pizza_kind: goto pizza_kind on #messageHasIntent("pizza_kind");
+    }
+    onexit
+    {
+        confirm_food_order: do {
+        set $food = #messageGetData("food");
+       }
+    }
+}
+```
+
+The customer won’t always know which one they feel like ordering or are unaware of what’s on the menu, so we need to program that part too:
+
+```dsl
+node pizza_kind
+{
+    do 
+    {
+        #sayText("Umm, we have Pepperoni, Hawaiian, Margherita, Buffalo, Cheese, and Veggie pizza. Which one would you like?");
+        wait *;
+    }
+    transitions 
+    {
+        confirm_food_order: goto confirm_food_order on #messageHasData("food");
+        recommend: goto recommend on #messageHasIntent("unsure");
+        no_dice_bye: goto no_dice_bye on #messageHasIntent("changed_mind");
+    }
+     onexit
+    {
+        confirm_food_order: do {
+               set $food =  #messageGetData("food", { value: true });
+       }
+    }
+}
+```
+
+In the transition part we have 3 options for customer’s reply:
+
+I’d like Buffalo and Cheese pizza (`confirm_food_order`),
+Not sure which one I want, could you recommend something? (`unsure`),
+You know what, I changed my mind, I don’t want pizza anymore (`no_dice_bye`).
+
+For each one of these, we have to write down corresponding intents and nodes. Let’s take a look at the `recommend` part:
+
+```dsl
+node recommend
+{
+    do 
+    {
+        #sayText("Our most popular one is Pepperoni and I personally love it too. Would you like to try it?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_food_order: goto confirm_food_order on #messageHasIntent("yes");
+       place_order_pizza: goto place_order_pizza on #messageHasIntent("no");
+    }
+    onexit
+    {
+        confirm_food_order: do {
+               set $food =  #messageGetData("food", { value: true });
+       }
+    }
+}
+```
+
+In this case, we say that the most popular pizza at Yummy Pizza is Pepperoni and recommend ordering it.  If a person agrees, we bring them to our well-known (`confirm_food_order`) node. Once again, before leaving this node, we remember the kind of pizza the customer wanted to get. If the customer declines our offer, we ask them what kind of pizza they’d like based on the pizza options they heard from us just before. 
+
+Note that the conversation doesn’t have to have a linear structure (and most likely it won’t), so we need to write down digressions, which can be triggered at any moment of the conversation. For instance, if at any time the customer decided to say “I wanna get a pizza”, it would go directly to the digression we specified, like this:
+
+```dsl
+digression place_order_pizza
+{
+    conditions {on #messageHasIntent("order_pizza");}
+    do 
+    {
+        #sayText("What kind of pizza would you like?");
+        wait *;
+    }
+    transitions 
+    {
+       confirm_food_order: goto confirm_food_order on #messageHasData("food");
+       pizza_kind: goto pizza_kind on #messageHasIntent("pizza_kind");
+    }
+    onexit
+    {
+        confirm_food_order: do {
+               set $food =  #messageGetData("food", { value: true });
+       }
+    }
+}
+```
+
+As you can see, it’s pretty much exactly the same as the node with the same name. The only difference here is that in the digression you have to write out the conditions for it to be triggered. In this case, if the app recognizes the intent __order_pizza__, it’ll trigger this digression and then make a transition to what should follow - confirming the order or walking the customer through the pizza options.
+
+The same logic applies to other nodes, like __pizza_kind__ and __place_order__.
+
+Shall a customer not want to continue the conversation, we need to end it. We do that by writing our __`node no_dice_bye`__:
+
+```dsl
+node no_dice_bye 
+{
+    do 
+    {
+        #sayText("Sorry I couldn't help you today. Have a great day. Bye!");
+        #disconnect();
+        exit;
+    }
+}
+```
+
+Now, imagine the customer decides to order something to drink. They can mention it at any moment, so it should be programmed as a digression too:
+
+```dsl
+digression drinks 
+{
+    conditions {on #messageHasIntent("drinks");}
+    do 
+    {
+        #sayText("We have vanilla milkshake and soda. Which one would you like?");
+        wait *;
+    }
+    transitions 
+    {
+        soda: goto soda on #messageHasIntent("soda");
+        milkshake: goto milkshake on #messageHasIntent("milkshake");
+    }
+}
+
+node soda 
+{
+    do 
+    {
+        #sayText("Okay, soda it is. I added it to your order. Would that be all?");
+        wait *;
+    }
+transitions 
+    {
+        payment: goto payment on #messageHasIntent("yes");
+        can_help_then: goto can_help_then on #messageHasIntent("no");
+    }
+}
+
+node milkshake 
+{
+    do 
+    {
+        #sayText("Okay, milkshake it is. I added it to your order. Would that be all?");
+        wait *;
+    }
+transitions 
+    {
+        payment: goto payment on #messageHasIntent("yes");
+        can_help_then: goto can_help_then on #messageHasIntent("no");
+    }
+
+}
+```
+
+We could describe all the drinks your pizza restaurant offers, but in order to not make this code too long, let’s just say we offer soda and vanilla milkshakes and the customer picks one or the other, which will bring us to either `node milkshake` or `node soda`. Once done, we’ll ask the customer if they’ll be paying at the store. For the purpose of this demo, I decided to not include the option of actual card processing, but you should definitely write it out when writing your own code.
+
+```dsl
+node payment
+{
+    do
+    {
+        #sayText("Great. Will you be paying at the store?");
+        wait *;
+    }
+     transitions 
+    {
+        in_store: goto pay_in_store on #messageHasIntent("pay_in_store") or #messageHasIntent("yes");
+        by_card: goto by_card on #messageHasIntent("pay_by_card") or #messageHasIntent("no");
+    }
+}
+
+node pay_in_store
+{
+    do
+    {
+        #sayText("Your order will be ready in 15 minutes. Once you’re in the store, head to the pickup counter. Anything else I can help you with? ");
+        wait *;
+    }
+     transitions 
+    {
+        can_help: goto can_help on #messageHasIntent("yes");
+        bye: goto success_bye on #messageHasIntent("no");
+    }
+}
+
+node by_card
+{
+    do
+    {
+        #sayText("I'm sorry, I'm just a demo and can't take your credit card number. If okay, would you please pay in store. Your order will be ready in 15 minutes. Anything else I can help you with? ");
+        wait *;
+    }
+     transitions 
+    {
+        can_help: goto can_help on #messageHasIntent("yes");
+        bye: goto success_bye on #messageHasIntent("no");
+    }
+}
+```
+
+If the customer wants to ask something or need some other help, we ask how we could help (__`node can_help`__). Otherwise, we end the conversation (__`node bye`__).
+
+```dsl
+
+node can_help
+{
+    do
+    {
+        #sayText("How can I help?");
+        wait *;
+    }
+}
+```
+
+```dsl
+digression bye 
+{
+    conditions { on #messageHasIntent("bye"); }
+    do 
+    {
+        #sayText("Thanks for your time. Have a great day. Bye!");
+        #disconnect();
+        exit;
+    }
+}
+```
+
+We saw the node `success_bye` on multiple occasions above. What we need to write in that node is a thank you message and end the conversation:
+
+```dsl
+node success_bye 
+{
+    do 
+    {
+        #sayText("Thank you so much for your order. Have a great day. Bye!");
+        #disconnect();
+        exit;
+    }
+}
+```
+
+And now you have your pizza ordering conversational AI app ready!
+
+## Summing it up
+
+Numbers don’t lie, people prefer ordering food to be delivered to their doorstep or walk to the restaurant to pick the food up themselves, and dine in the comfort of their own home. With this pizza ordering conversational AI app you can automate the ordering process for your pizza restaurant. 
+
+However, don’t just stop there. This was just a showcase of what your app could do. Try improving it, add more digressions and nodes, as we discussed above. Make this app answer all your customer’s demands, help you reduce costs, and free up your employees!

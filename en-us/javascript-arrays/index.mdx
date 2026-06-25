@@ -1,0 +1,297 @@
+---
+slug: "javascript-arrays"
+title: "JavaScript Arrays: Explain Like I'm Five"
+author: "Sumudu Siriwardana, Developer Advocate"
+authorPhoto: https://cdn.dasha.ai/blog/javascript-arrays/author.webp
+category: developers
+categoryName: Developers
+createdAt: "2021-11-22"
+updatedAt: "2021-11-22T10:59:38.340Z"
+readLength: "10 min"
+heroImage: https://cdn.dasha.ai/blog/javascript-arrays/hero.webp
+heroImageTitle: JavaScript Arrays
+introduction: "The array is one of the fundamental and crucial concepts you encounter when learning JavaScript. Moreover, it is one data structure that many other complex ones build off. So it's important to have a solid foundational understanding and knowledge of arrays for your programming journey."
+seoTitle: "JavaScript Arrays: Explain Like I'm Five"
+seoDescription: "This post covers what arrays are, how to create them, and a few array methods that are commonly use."
+seoKeywords: "js array, array from javascript, javascript define array, javascript array example"
+---
+
+Let me ask you this,
+- Have you used a simple To-do app before?
+- Have you used a music app where you store playlists?
+- Have you seen any leaderboard applications?
+
+If you have used any of these applications before, the chance is most of these apps must have used arrays to store these data lists. 
+
+Arrays are powerful data structures, and it's essential to understand how to use them. This post will cover what arrays are, how to create them, and a few array methods you will commonly use.
+
+![arrays-everywhere](https://cdn.dasha.ai/blog/javascript-arrays/arrays-everywhere.jpg)
+
+## What is an Array?
+
+Arrays are used to store multiple values in JavaScript. You can think of an array as an ordered list of values. Arrays organize their items in logical order or sequentially. Also, arrays have built-in methods that make it easy to lookup, add, or remove elements based on their position.  
+
+Let's think that we have The Millenium Falcon ship. We have a few of the Star Wars characters on board. Now we want to store these data in our array. 
+
+So here's a visual representation of our array:
+
+![Starwars](https://cdn.dasha.ai/blog/javascript-arrays/Starwars.webp)
+
+You can see that Hans, Luke, Leia, and Chewbacca are staying next to each other. This is what we meant by arrays organizing their items in logical order or sequentially. 
+
+This is very helpful when accessing items because the computer already knows where the value is located. It's because there's a number that refers to the location or position where the value is stored. We call this `index`.
+
+The array index starts with 0, and as you move further to the right, the index increases by one. This numbering method is called *Zero-Based Numbering*.
+
+So, for example, in the above array, Hans is at `index 0`, Luke is at `index 1`, Leia is at `index 2`, and so on. Check the below picture.
+
+![Starwars-2](https://cdn.dasha.ai/blog/javascript-arrays/Starwars-2.webp)
+
+![arrays-starts-at-1](https://cdn.dasha.ai/blog/javascript-arrays/arrays-starts-at-1.jpg)
+
+A fun fact about JavaScript is that arrays are dynamic, which means that the size of the array can grow or shrink as needed. It does not have static arrays where you have to set a fixed length specifically. 
+
+You can store any type of data in an array. For example, you can store boolean, strings, numbers, characters, objects, or even other arrays. And, it's possible to create an array with elements of multiple data types. This means creating an array with a number in the first position, a string in the second, an object in the third, etc.
+
+Here's an array with different types of elements:
+
+![Starwars-1](https://cdn.dasha.ai/blog/javascript-arrays/Starwars-1.webp)
+
+Before moving into array methods and adding and removing elements with array methods, let's look at the `length` property.
+
+## The `length` property
+
+The `length` property returns the size of the array. When you access the length, it simply returns the value of the biggest **index + 1**. 
+
+If you wonder why it is adding `1` to the index, if you remember, the index starts with 0, so to get the actual number of elements, it doesn't count the elements; it gets the biggest numeric index plus one. 
+
+You can find out the length of the array with the `length` property as below:
+
+```js
+let milleniumFalconShip = ["Hans", "Luke", "Leia", "Chewbacca"];
+
+console.log(milleniumFalconShip.length); // 4
+``` 
+
+## Array Methods
+
+JavaScript’s standard library contains lots of array methods that help manipulate arrays easily. For example, there are methods to add and remove items in an array. And there are methods to find and filter items. In this post, we will go through basic array methods to add and remove items from an array. 
+
+Now let's see how to create an array and work with arrays.
+
+## How to create an array
+
+There are a few ways to create an array in JavaScript. In this post, we will go through how to create an array with `array literal` and `array constructor`. 
+
+**Creating an array with the array literal**
+
+The array literal uses the square brackets `[]` to wrap a list of elements separated by commas. This is the most common way of creating an array. 
+
+Let's declare an array with our Star Wars characters using the array literal notation. 
+
+```js
+let milleniumFalconShip = ["Hans", "Luke", "Leia", "Chewbacca"];
+``` 
+
+The items or the values are defined between the open and closing brackets, and a comma separates each value. We have to add the values in an array as we add variables, which means if we add strings, we have to use quotation marks. 
+
+You can declare an empty array with empty brackets as below:
+
+```js
+let milleniumFalconShip = [];
+``` 
+
+**Creating an array with the array constructor**
+
+We can create the same array with the array constructor. However, the syntax is slightly different with the `new` keyword. Check the below example.
+
+```js
+let milleniumFalconShip = new Array("Hans", "Luke", "Leia", "Chewbacca")
+``` 
+When we create arrays with numbers using the array constructor, it behaves a little bit differently,  especially when we add only one number. For example, if we create an array with one numerical value, `let myArray = new Array(4)`, it will create a list with no elements but with a length equal to 4. So `['Han']` is identical to the `new Array('Han')` but `[4]` is not the same thing as to the `new Array(4)`. Check the below example to understand this behavior.
+
+```js
+// Array with one string
+let arr = new Array("Hans");
+console.log(arr.length); // 1
+console.log(arr[0]);    // "Hans"
+
+// Array with one numerical value
+let myArray = new Array(4);
+
+console.log(myArray.length);  // 4
+
+console.log(myArray[0]);  // undefined
+console.log(myArray[1]);  // undefined
+console.log(myArray[2]);  // undefined
+console.log(myArray[3]);  // undefined
+``` 
+
+In the above example, the array `myArray` length is set to 4 since we have added one numerical value that sets the length. And it has created a list with no elements, so the value of each position is `undefined`.
+
+To create an empty array, you can simply declare an empty array with no parameters:
+
+```js
+let myArray = new Array();
+``` 
+
+## How to access elements of an array
+
+I hope you remember that array elements already have assigned indexes positions. We can refer to this index number to access each element using the square brackets `[]`.
+
+Let's see how we can access each member from our Millennium Falcon Ship.
+
+```js
+let milleniumFalconShip = ["Hans", "Luke", "Leia", "Chewbacca"];
+
+console.log(milleniumFalconShip[0]);  // "Hans"
+console.log(milleniumFalconShip[1]);  // "Luke"
+console.log(milleniumFalconShip[2]);  // "Leia"
+console.log(milleniumFalconShip[3]);  // "Chewbacca"
+``` 
+
+Arrays can contain other arrays since it is capable of having multi-dimensional arrays. So how can we access these arrays inside arrays? Let's take an example of a multi-dimensional array representing a Star Wars family. 
+
+Here's a visual representation of our multi-dimensional array:
+
+![Starwars-3](https://cdn.dasha.ai/blog/javascript-arrays/Starwars-3.webp)
+
+And we can write this array as below:
+
+```js
+let milleniumFalconShip = ["Anakin", "Padme", ["Luke", "Leia"]];
+``` 
+
+Now, if we want to access "Leia", we can see that she is at `index 1` inside the nested array, which is positioned at `index 2` of the main array. Are you confused? Check the below picture.
+
+![Starwars-4](https://cdn.dasha.ai/blog/javascript-arrays/Starwars-4.webp)
+
+Now, to access Leia, we have to refer to these two index numbers as below:
+
+```js
+let leia = milleniumFalconShip[2][1];
+
+console.log(leia);  //  "Leia"
+``` 
+
+## Add elements to an array
+
+**Adding elements with index**
+
+You have seen that we can access every element in an array by calling its index. We can add items to an array by simply setting the value to the index number as below. 
+
+```js
+let milleniumFalconShip = ["Hans", "Luke", "Leia", "Chewbacca"];
+milleniumFalconShip[4] = "Anakin";
+
+console.log(milleniumFalconShip);  // 'Hans', 'Luke', 'Leia', 'Chewbacca', 'Anakin'
+``` 
+
+Here, I added an element at `index 4` of the array, which didn’t exist before but now has the value “Anakin”. 
+
+What happens if we add an element to an already existing value? For example, if we add an element to `index 3,` what would happen? 
+
+When you add an element to an already existing value, it will replace the original value. So it will modify or change the element. Check the below example. 
+
+```js
+let milleniumFalconShip = ["Hans", "Luke", "Leia", "Chewbacca"];
+milleniumFalconShip[1] = "Padme";
+
+console.log(milleniumFalconShip);  // 'Hans', 'Padme', 'Leia', 'Chewbacca'
+``` 
+
+Also, you have to be mindful when you declare elements with an index. If you add an element with a given index and there are no other elements in-between, the array will create a list of all the elements without a value. Check the below example:
+
+```js
+let milleniumFalconShip = ["Hans", "Luke"];
+milleniumFalconShip[6] = "Leia";
+console.log(milleniumFalconShip.length); // 7
+console.log(milleniumFalconShip); //'Hans', 'Luke', undefined, undefined, undefined, undefined, 'Leia'
+``` 
+
+Let's see what we have done here:
+- We have created an array with two elements.
+- We have added another element at `index 6`.
+- This has modified the array length to 7.
+- The values for indexes 2, 3, 4, 5 are undefined since we haven't added any elements to these indexes. 
+
+![bad-feeling](https://cdn.dasha.ai/blog/javascript-arrays/bad-feeling.gif)
+
+**Adding elements to the end of an array**
+
+The `push()` method allows us to add one or several items at the end of an array. 
+
+Let's add a few more members to our Star Wars crew 😊
+
+```js
+let milleniumFalconShip = ["Hans", "Luke", "Leia", "Chewbacca"];
+
+// Adds "Anakin" and "Padme" at the end of the array
+milleniumFalconShip.push("Anakin", "Padme");  
+
+console.log(milleniumFalconShip);  //'Hans', 'Luke', 'Leia', 'Chewbacca', 'Anakin', 'Padme'
+``` 
+If we consider the performance, the `push()` method runs fast because it does not need to move any indexes since it adds elements to the end, and other elements keep their indexes.
+
+![Starwars-push](https://cdn.dasha.ai/blog/javascript-arrays/Starwars-push.webp)
+
+**Adding elements to the beginning of an array**
+
+The `unshift()` method allows us to add one or several items to the beginning of an array. 
+
+```js
+let milleniumFalconShip = ["Hans", "Luke", "Leia", "Chewbacca"];
+
+// Adds "R2-D2" and "BB-8" at the beginning of the array
+milleniumFalconShip.unshift("R2-D2", "BB-8"); 
+
+console.log(milleniumFalconShip); //'R2-D2', 'BB-8', 'Hans', 'Luke', 'Leia', 'Chewbacca'
+``` 
+
+The `unshift ()` method is slow in performance. When an element is added to the beginning of an array, all the other elements have to shift right, renumber them from the index 0 to 1, from 1 to 2, etc. So when there are more elements in the array, more time is taken to move them, consuming more in-memory operations
+
+![Starwars-unshift](https://cdn.dasha.ai/blog/javascript-arrays/Starwars-unshift.webp)
+
+## Remove elements from an array
+
+**Remove elements from the end of an array**
+
+The `pop()` method removes the last item from an array. We don't have to pass a parameter here since it would be the last item removed when calling this method. 
+
+```js
+let milleniumFalconShip = ["Hans", "Luke", "Leia", "Chewbacca"];
+
+// Removes "Chewbacca"
+milleniumFalconShip.pop();
+
+console.log(milleniumFalconShip);  // 'Hans', 'Luke', 'Leia'
+``` 
+
+Same as the `push()` method, this method is also fast when considering the performance.
+
+**Remove elements from the beginning of an array**
+
+The `shift()` method removes an element from the beginning of an array.
+
+```js
+let milleniumFalconShip = ["Hans", "Luke", "Leia", "Chewbacca"];
+
+// Removes "Hans"
+milleniumFalconShip.shift();
+
+console.log(milleniumFalconShip); // 'Luke', 'Leia', 'Chewbacca'
+``` 
+
+The `shift()` method is also slow since removing an element first needs to remove the element with the `index 0`. Then move all elements to the left, renumber them from the index 1 to 0, from 2 to 1, and so on. So when there are more elements in the array, more time is taken to move them, consuming more in-memory operations.
+
+![Starwars-shift](https://cdn.dasha.ai/blog/javascript-arrays/Starwars-shift.webp)
+
+These are the most basic array methods, and there are many more  [other methods](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array#)  out there. We will discuss a few more methods in our future articles as well. 
+
+Congratulations! Now you know the basics of JavaScript arrays! 
+
+![congratulations](https://cdn.dasha.ai/blog/javascript-arrays/congratulations.gif)
+
+I hope you find this article simple and that it helps you understand JavaScript arrays more clearly. See you soon with another insightful article on array methods! 😊
+
+![hip-hip-array-1](https://cdn.dasha.ai/blog/javascript-arrays/hip-hip-array-1.gif)

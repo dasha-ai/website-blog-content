@@ -1,0 +1,461 @@
+---
+slug: "ai-package-tracking"
+title: How to automate logistics with an automated conversational AI package and delivery tracking system
+author: "Anzhelika Minina, Citizen Developer"
+authorPhoto: https://cdn.dasha.ai/blog/ai-package-tracking/author.jpg
+category: developers
+categoryName: Developers
+createdAt: "2021-07-23T12:18:48.888Z"
+updatedAt: "2021-07-26T19:51:45.193Z"
+readLength: "11 minute read"
+heroImage: https://cdn.dasha.ai/blog/ai-package-tracking/hero.webp
+introduction: "Over 530 million packages are delivered per day by UPS, USPS, and FedEx alone. In order to manage such volume without the risk of losing customers due to overwhelmed customer support, logistics companies use automation."
+seoTitle: How to automate logistics with an automated conversational AI package and delivery tracking system
+seoDescription: Learn how to create a conversational AI app that automates your package tracking and manages shipment delivery.
+seoKeywords: "automated package delivery, package delivery, logistics company ai, ai delivery, package delivery notifications, conversational AI, dasha AI, conversational AI app"
+---
+
+## How do logistics companies automate delivery notifications to make customers’ lives easier?
+
+To increase customer satisfaction and loyalty, logistics companies automate the way customers get package delivery updates. Since every customer has their own preference on how to get that information, top-tier players like UPS, FedEx, and USPS build different services. 
+
+Customers can opt-in to receive automated text messages with tracking notifications, check the status of their delivery on the website, or do it through an app. However, all these options require having internet access, except text messages.
+
+The solution that first comes to mind is having a customer support phone line. Yet in reality, even the top logistics companies don’t have a 24/7 customer support line. 
+
+Another problem stemming from limited work hours is that phone lines get busy, fast. During the holiday season, for instance, customers might have to be put on hold for dozens of minutes, if not hours, due to high call volume. But it doesn’t stop there.
+
+Customers may have something popping up the day they expect their package to arrive and need to make changes at night time, and being left with the only option to make phone calls, they would be left without a possibility to change delivery preferences. 
+
+On top of that, not every customer might be able to use the internet to track shipment due to health or age constraints.
+
+In order to provide a personalized package tracking experience easily accessible by anyone in any situation, logistics companies should employ conversational AI. Conversational AI solves all the problems mentioned above. The advantages of using AI to automate package tracking is as follows:
+
+24/7 availability,
+unlimited concurrent calls,
+fast and easy package tracking,
+possibility of making changes to the delivery schedule,
+a personalized experience for customers,
+ability to answer all FAQs in an instant.
+
+Pure bliss for both logistics companies and their customers.
+
+Let’s take a look at how to create a conversational AI app that automates your package tracking and manages shipment delivery.
+
+## Creating an automated package delivery conversational AI app with Dasha AI
+
+Before you get into the coding process, I'd like to show you how the conversation between your customer and the conversational AI would sound:
+
+<a href="https://youtu.be/XOnxXCsoomA" class="embedly-card" data-card-width="100%" data-card-controls="0">Embedded content: https://youtu.be/XOnxXCsoomA</a>
+
+If you are new and unsure where to begin, I suggest you follow this [step-by-step guide on getting started with Dasha](https://dasha.ai/en-us/blog/conversational-ai-app-creation-guide). Additionally, you could take a look at [how to map the conversation](https://dasha.ai/en-us/blog/conversational-ai-app-development-build) you want to take place before starting to write your code.
+
+Once you feel like you’re ready to start, open your VS Code (Visual Studio Code) as that’s where you’ll be creating your conversational AI app. Next, go to our Github repository, download [Dasha First App](https://github.com/dasha-samples/dasha-first-app), and then upload it to VS code. At this point look to the left-hand side and find 2 files: __main.dsl__ (your DashaScript language file where you’ll write the code) and __data.json__ (the neural network will use [intents and entities](https://dasha.ai/en-us/blog/intent-classification) you’ll create to learn). Now delete everything you see there.
+
+Start off by importing common libraries: 
+
+```dsl
+import "commonReactions/all.dsl";
+```
+
+The next step is to set the context to your conversational AI app:
+
+```dsl
+context
+{
+    input phone: string;
+    input day_of_week: string;
+    input time_of_day: string;
+}
+```
+
+This data tells us that the app will have information about the customer’s phone number, the scheduled delivery day, and the time of day the package is delivered. We’ll be using this data throughout the code.
+
+Let’s now plot how we want the conversation between the AI and your customers to start. We do that with `start node root`:
+
+```dsl
+start node root
+{
+    do
+    {
+        #connectSafe($phone);
+        #waitForSpeech(1000);
+        #sayText("Hi, this is Fast Delivery Postal Services! How may I help you today?");
+        wait *;
+    }
+    transitions
+    {
+        tracking: goto tracking on #messageHasIntent("track");
+        bye: goto bye on  #messageHasIntent("no") or #messageHasIntent("bye");
+    }
+}
+```
+
+The app will connect to your customer’s phone, wait for 1 second to speak and say the welcome message (that’s what the #sayText line is for, you’ll be seeing it a lot). It will then wait for your customer to say something, then transition to one of the conversational paths. In this case, we have two: the `tracking` and the `bye` transition. There could be more, but for the simplicity of this demo, I’ve decided to stick with just one case, which is package tracking.  
+
+While the bye transition is self-explanatory, let’s get it out of our way:
+
+```dsl
+node bye
+{
+    do 
+    {
+        #sayText("Thanks for your time. Have a great day. Bye!");
+        #disconnect();
+        exit;
+    }
+}
+
+digression bye 
+{
+    conditions { on #messageHasIntent("bye"); }
+    do 
+    {
+        #sayText("Thanks for your time. Have a great day. Bye!");
+        #disconnect();
+        exit;
+    }
+}
+```
+
+You must’ve noticed that there is a `digression` after the `node` and it duplicates the code (with a single addition -  `conditions { on #messageHasIntent("bye"); }` - since all digressions have a condition as a prerequisite). The reason to have digressions in addition to nodes is that your customers won’t always follow the conversational path you plotted in a linear way. In order to create a free-flowing conversation, you should let your customers ask and say things whenever they want to say them. By adding `digression bye`, we let the customers walk away from the conversation at any moment.
+
+Now back to the second transition - `tracking`:
+
+```dsl
+node tracking
+{
+    do
+    {
+        #sayText("I'll be glad to assist with that. Could you please tell me your tracking number, please?");
+        wait *;
+    }
+    transitions
+    {
+        track_number: goto track_number on #messageHasIntent("track_num");
+    }
+}
+```
+
+We’ve seen the part after `do` in the `start node root` so let’s not stop here. Instead, let’s take a look at the new transition, `track_number`. You see here that the intent is `track_num`. Go to data.json and write the following:
+
+```json
+{
+  "version": "v2",
+  "intents": 
+  {
+    "track_num": {
+      "includes": [
+        "my track number is",
+        "track number",
+        "tracking number is",
+        "tracking number",
+        "my tracking number is",
+        "number to track",
+        "the number",
+        "the number you can use to track",
+        "the number is"
+      ]
+    }
+```
+
+Note: if you want to access all the intents and entities I’ve used in this code, go back to the Github repository and download [the code used in this post](https://github.com/dasha-samples/package-tracking-demo).
+
+Your intents should reflect the phrases you expect your customers to say. Your app will use intents (and entities, for that matter), to trigger specific nodes and digressions.
+
+Getting back to the code. We made our last transition to be `track_number`, so let’s take a look at what happens there:
+
+```dsl
+node track_number
+{
+    do
+    {
+     #sayText("Just one moment, let me check... Oooookay, found it. Your package is arriving on "+ $day_of_week + " just as expected. Do you have any questions?");
+     wait *;
+    }
+    transitions
+    {
+        change_delivery_day: goto change_delivery_day on #messageHasIntent("change_delivery_day");
+        time_of_the_day: goto time_of_the_day on #messageHasData("time_of_the_day");
+        change_time_of_day: goto change_time_of_day on #messageHasIntent("change_time_of_day");
+        free_delivery: goto free_delivery on #messageHasIntent("free_delivery");
+        can_call: goto can_call on #messageHasIntent("can_call");
+        can_help: goto can_help on #messageHasIntent("yes") or #messageHasIntent("can_help");
+        bye: goto bye on #messageHasIntent("no");
+    }
+}
+```
+
+Lots of transitions! The goal here is to be of best assistance to the customers and help them get answers to whatever question they might have. 
+
+In this particular case, we assume that our logistics company’s customers will most likely ask about changing the day their package is scheduled to arrive, asking about and changing the time of day it’s supposed to arrive, inquiring about whether the delivery is free, asking to be called before the package gets delivered, or otherwise asking for other help or ending the conversation.
+
+Let’s write down each one of the nodes.
+
+```dsl
+node change_delivery_day
+{
+    do
+    {
+        #sayText("Yes, absolutely. What day would you like your package to be delivered?");
+        wait *;
+    }
+    transitions 
+    {
+       new_delivery_day: goto new_delivery_day on #messageHasData("day_of_week");
+    }
+    onexit
+    {
+        new_delivery_day: do 
+        {
+        set $day_of_week = #messageGetData("day_of_week", { value: true })[0]?.value??"";
+        }
+    }
+}
+```
+
+After the conversational AI asks the customer what day they’d like their package to be delivered, it needs to store the new information to use later. To do this, we wrote the line `set $day_of_week = #messageGetData("day_of_week", { value: true })[0]?.value??"";` as it lets the AI know it must remember the new day of the week the customer is expecting the package to be delivered. The `day_of_week` data was also in our context, so now whatever information we had on file is updated.
+
+And off to the next node:
+
+```
+node new_delivery_day
+{ 
+    do 
+    { 
+        #sayText("Perfect! Your package will be now delivered on " + $day_of_week + " Do you have any other questions?");
+        wait *;
+    }
+    transitions
+    {
+        time_of_the_day: goto time_of_the_day on #messageHasData("time_of_day");
+        change_time_of_day: goto change_time_of_day on #messageHasIntent("change_time_of_day");
+        free_delivery: goto free_delivery on #messageHasIntent("free_delivery");
+        can_call: goto can_call on #messageHasIntent("can_call");
+        can_help: goto can_help on #messageHasIntent("yes") or #messageHasIntent("can_help");
+        bye: goto bye on #messageHasIntent("no");
+    }
+}
+```
+We’re now giving feedback to the customer and letting them know that we’ve remembered the new day. This way we also allow the customer to change the day in case the AI got it wrong.
+
+```dsl
+node time_of_the_day
+{
+    do
+    {
+        #sayText("It looks like your package is gonna arrive in the "+ $time_of_day + ". Anything else I can help you with?");
+        wait *;
+    }
+    transitions
+    {
+        change_time_of_day: goto change_time_of_day on #messageHasIntent("change_time_of_day");
+        can_help: goto can_help on #messageHasIntent("yes") or #messageHasIntent("can_help");
+        bye: goto bye on #messageHasIntent("no");
+    }
+}
+
+node change_time_of_day
+{
+    do
+    {
+        #sayText("Sure thing! When would it be most convenient for you to receive your package?");
+        wait *;
+    }
+    transitions 
+    {
+       new_delivery_time: goto new_delivery_time on #messageHasData("time_of_day");
+    }
+    onexit
+    {
+        new_delivery_time: do 
+        {
+        set $time_of_day = #messageGetData("time_of_day", { value: true })[0]?.value??"";
+        }
+    }
+}
+node new_delivery_time
+{ 
+    do 
+    { 
+        #sayText("You got it! You'll get your package in the " + $time_of_day + ". Any other questions?");
+        wait *;
+    }
+    transitions
+    {
+        free_delivery: goto free_delivery on #messageHasIntent("free_delivery");
+        can_call: goto can_call on #messageHasIntent("can_call");
+        can_help: goto can_help on #messageHasIntent("yes") or #messageHasIntent("can_help");
+        bye: goto bye on #messageHasIntent("no");
+    }
+}
+```
+
+As you have already noticed, these two nodes followed the same logic as the previous one where we set the day of the week, only this time we’re dealing with the time of the day. When editing the code, you shouldn’t just stop at having the time of the day. You can add a specific time (it should already be in your database and you can use an [external function](https://docs.dasha.ai/en-us/default/dasha-script-language/external-functions) for it to be reflected and used in the code) for your customers to navigate better. 
+
+The `free_delivery` and `can_call` nodes should be super easy for you now. Try not to look at the code below and write the code down yourself.
+
+```dsl
+node free_delivery
+{
+    do
+    {
+     #sayText("Yes, the delivery is absolitely free! May I help with anything else today?");
+     wait *;
+    }
+    transitions
+    {
+        change_delivery_day: goto change_delivery_day on #messageHasIntent("change_delivery_day");
+        time_of_the_day: goto time_of_the_day on #messageHasData("time_of_the_day");
+        change_time_of_day: goto change_time_of_day on #messageHasIntent("change_time_of_day");
+        can_call: goto can_call on #messageHasIntent("can_call");
+        can_help: goto can_help on #messageHasIntent("yes") or #messageHasIntent("can_help");
+        bye: goto bye on #messageHasIntent("no");
+    }
+}
+
+node can_call
+{
+    do
+    {
+     #sayText("Sure thing, you'll get a call from us thirty minutes before your package is delivered. Do you have any other questions?");
+     wait *;
+    }
+    transitions
+    {
+        change_delivery_day: goto change_delivery_day on #messageHasIntent("change_delivery_day");
+        time_of_the_day: goto time_of_the_day on #messageHasData("time_of_the_day");
+        change_time_of_day: goto change_time_of_day on #messageHasIntent("change_time_of_day");
+        can_help: goto can_help on #messageHasIntent("yes") or #messageHasIntent("can_help");
+        bye: goto bye on #messageHasIntent("no");
+    }
+}
+```
+The last thing to write is the can_help node and digression:
+
+```dsl
+node can_help
+{
+    do
+    {
+        #sayText("How can I help?");
+        wait *;
+    }
+}
+
+digression can_help
+{
+    conditions {on #messageHasIntent("can_help");}
+    do
+    {
+        #sayText("How can I help?");
+        wait *;
+    }
+}
+```
+
+By having these, we let our customers ask for help at any moment they see fit. 
+
+And so we’re done with the code! Well, at least with the main.dsl file. If you haven’t done so yet, write down all your intents and entities in the data.json file. As a reference, my entities look like this:
+
+```json
+"entities": 
+  {
+    "day_of_week": 
+    {
+      "open_set": true,
+      "values": [
+        {
+          "value": "Monday",
+          "synonyms": ["monday", "Monday", "Lunes", "day one"]
+        },
+        {
+          "value": "Tuesday",
+          "synonyms": ["martes", "tuesday", "Tuesday", "day two"]
+        },
+        {
+          "value": "Wednesday",
+          "synonyms": ["Humpday", "miercoles", "wednesday", "Wednesday"]
+        },
+        {
+          "value": "Thursday",
+          "synonyms": ["jueves", "thursday", "Thursday"]
+        },
+        {
+          "value": "Friday",
+          "synonyms": ["TGIF", "viernes", "friday", "Friday"]
+        },
+        {
+          "value": "Saturday",
+          "synonyms": ["sabado", "on Saturday"]
+        },
+        {
+          "value": "Sunday",
+          "synonyms": ["domingo", "on Sunday"]
+        }
+      ]
+    },
+    "time_of_day": 
+    {
+      "open_set": true,
+      "values": [
+        {
+          "value": "morning",
+          "synonyms": ["early morning", "in the morning", "super early", "very early", "as early as possible", "around breakfast time", "breakfast time"]
+        },
+        {
+          "value": "afternoon",
+          "synonyms": ["mid day", "after the noon", "in the afternoon", "after twelve", "during lunch time", "at lunch", "around lunch time", "around the lunch time"]
+        },
+        {
+          "value": "evening",
+          "synonyms": ["later the day", "in the evening", "dinner", "dinner time", "around dinner time", "sometime around the dinner"]
+        }
+      ]
+    }
+  }
+}
+```
+
+Try to pay close attention to the synonyms. For instance, remember that instead of saying “please deliver my package in the evening”, your customer can say something like “please deliver my package sometime around dinner time”. Your app must be able to recognize those to function to the best of its ability.
+
+There’s one more file to make edits in - index.js (JavaScript file):
+
+```js
+const days = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
+  // Select random day of appointment
+  // You should define it with the database
+  let day = days[Math.floor(Math.random() * days.length)];
+
+  const time = [
+    "morning",
+    "afternoon",
+    "evening",
+  ];
+  // Select random day of appointment
+  // You should define it with the database
+  let times = time[Math.floor(Math.random() * time.length)];
+
+  const conv = app.createConversation({
+    phone: process.argv[2],
+    day_of_week: day,
+    time_of_day: times,
+  });
+
+```
+
+For the purposes of this demo, I’ve let the days be selected at random as well as the time of the day. However, you should properly code this part for it to reflect the actual time, date, and time of the day (if necessary) of the customer’s scheduled package delivery.
+
+And now you’re really done :) Congratulations!
+
+## Off you go!
+
+You now know how essential it is to employ conversational AI at your logistics company. Try improving this app and tailoring it to your customer’s needs. If you have any questions, join our Developer Community, where Dasha AI developers would love to help and answer any of your questions! 
