@@ -264,7 +264,7 @@ export async function main(env = process.env) {
     run('git', ['checkout', sha], { cwd: path.join(repoDir, submodulePath), secrets });
     run('git', ['add', submodulePath], { cwd: repoDir, secrets });
     run('git', ['commit', '-m', title], { cwd: repoDir, secrets });
-    run('git', ['push', '--force-with-lease', 'origin', `HEAD:refs/heads/${sourceBranch}`], {
+    run('git', ['push', '--force', 'origin', `HEAD:refs/heads/${sourceBranch}`], {
       cwd: repoDir,
       env: gitEnv,
       secrets,
