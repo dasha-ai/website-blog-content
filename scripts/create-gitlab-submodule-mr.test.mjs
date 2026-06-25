@@ -5,6 +5,7 @@ import {
   buildMergeRequestDescription,
   buildMergeRequestTitle,
   buildSourceBranch,
+  parseSubmodulePointer,
   requireBlogSha,
   redactSecrets,
 } from './create-gitlab-submodule-mr.mjs';
@@ -45,4 +46,15 @@ test('redactSecrets removes tokens from thrown command output', () => {
   const output = 'remote: token glpat-secret and ghp-secret appeared';
 
   assert.equal(redactSecrets(output, ['glpat-secret', 'ghp-secret']), 'remote: token [REDACTED] and [REDACTED] appeared');
+});
+
+test('parseSubmodulePointer returns null when the target branch has not been converted yet', () => {
+  assert.equal(
+    parseSubmodulePointer('040000 tree 08e79f739d8fec908142d9ee74bd9fe7e7c4a146\tcontent/blog'),
+    null,
+  );
+  assert.equal(
+    parseSubmodulePointer('160000 commit 37ac50df6aa76b2b77e46a99a0b6992a82652c4a\tcontent/blog'),
+    '37ac50df6aa76b2b77e46a99a0b6992a82652c4a',
+  );
 });
