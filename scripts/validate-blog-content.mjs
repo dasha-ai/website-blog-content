@@ -12,6 +12,7 @@ const locales = ['en-us', 'ru-ru'];
 const requiredFields = ['slug', 'title', 'createdAt'];
 const forbiddenBinaryPattern = /\.(png|jpe?g|webp|gif|mp3|pdf)$/i;
 const cdnBlogUrlPattern = /^https:\/\/cdn\.dasha\.ai\/blog\//;
+const safeSlugPattern = /^[A-Za-z0-9._~-]+$/;
 
 const errors = [];
 let postCount = 0;
@@ -78,10 +79,22 @@ function parseFrontmatter(filePath) {
 function validatePost(locale, slugDir, filePath, seenSlugs) {
   const frontmatter = parseFrontmatter(filePath);
 
+  if (!safeSlugPattern.test(slugDir)) {
+    addError(
+      `${filePath}: directory slug "${slugDir}" must contain only unreserved URL path-segment characters`,
+    );
+  }
+
   for (const field of requiredFields) {
     if (!frontmatter[field]) {
       addError(`${filePath}: missing required frontmatter field "${field}"`);
     }
+  }
+
+  if (frontmatter.slug && !safeSlugPattern.test(frontmatter.slug)) {
+    addError(
+      `${filePath}: frontmatter slug "${frontmatter.slug}" must contain only unreserved URL path-segment characters`,
+    );
   }
 
   if (frontmatter.slug && frontmatter.slug !== slugDir) {
